@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quản lý Tổ dân phố – Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="dashboard.js" defer></script>
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand__icon">🏘️</span>
+        <span class="brand__name">QUẢN LÝ<br/>TỔ DÂN PHỐ</span>
+      </div>
+
+      <nav class="menu">
+        <a class="menu__item is-active" href="#"><i>🏠</i><span> Tổng quan</span></a>
+        <a class="menu__item" href="#"><i>📂</i><span> Hộ khẩu</span></a>
+        <a class="menu__item" href="#"><i>👥</i><span> Nhân khẩu</span></a>
+        <a class="menu__item" href="#"><i>🧳</i><span> Tạm trú / Tạm vắng</span></a>
+        <a class="menu__item" href="#"><i>🎌</i><span> Hoạt động đoàn thể</span></a>
+        <a class="menu__item" href="#"><i>📈</i><span> Thống kê</span></a>
+
+        <!-- ĐĂNG XUẤT -->
+        <a class="menu__item menu__logout" id="logoutLink" href="#"><i>🚪</i><span> Đăng xuất</span></a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <button id="toggleSidebar" class="ghost">⇔ Thu gọn</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <h1>Tổng quan</h1>
+        <div class="topbar__right">
+          <div class="role">Tổ trưởng</div>
+          <div class="avatar" title="Admin">A</div>
+        </div>
+      </header>
+
+      <!-- KPI CARDS -->
+      <section class="kpis">
+        <article class="kpi kpi--blue">
+          <div class="kpi__title">Hộ khẩu</div>
+          <div class="kpi__value" id="kpiHouseholds">0</div>
+        </article>
+        <article class="kpi kpi--green">
+          <div class="kpi__title">Nhân khẩu</div>
+          <div class="kpi__value" id="kpiResidents">0</div>
+        </article>
+        <article class="kpi kpi--orange">
+          <div class="kpi__title">Tạm trú</div>
+          <div class="kpi__value" id="kpiTempRes">0</div>
+        </article>
+        <article class="kpi kpi--red">
+          <div class="kpi__title">Tạm vắng</div>
+          <div class="kpi__value" id="kpiTempAbs">0</div>
+        </article>
+      </section>
+
+      <!-- GRID: CHARTS + TABLE -->
+      <section class="grid">
+        <div class="card">
+          <div class="card__header">
+            <h2>Biến động nhân khẩu theo tháng</h2>
+            <div class="card__actions">
+              <select id="yearSelect"></select>
+            </div>
+          </div>
+          <canvas id="barChart" height="140"></canvas>
+        </div>
+
+        <div class="card">
+          <div class="card__header">
+            <h2>Tỉ lệ trạng thái cư trú</h2>
+          </div>
+          <canvas id="donutChart" height="140"></canvas>
+          <div class="legend" id="donutLegend"></div>
+        </div>
+
+        <div class="card card--table">
+          <div class="card__header">
+            <h2>Thông kê hộ khẩu – nhân khẩu</h2>
+            <div class="card__actions">
+              <input id="tableSearch" class="input" placeholder="Tìm theo số hộ khẩu / chủ hộ / địa chỉ…" />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="householdTable">
+              <thead>
+                <tr>
+                  <th>Số hộ khẩu</th>
+                  <th>Chủ hộ</th>
+                  <th>Địa chỉ</th>
+                  <th>SL nhân khẩu</th>
+                </tr>
+              </thead>
+              <tbody><!-- filled by JS --></tbody>
+            </table>
+          </div>
+          <div class="table__footer">
+            <button class="ghost" id="prevPage">← Trước</button>
+            <span id="pageInfo">Trang 1/1</span>
+            <button class="ghost" id="nextPage">Sau →</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        © 2025 Tổ dân phố 7 – Phường La Khê
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
