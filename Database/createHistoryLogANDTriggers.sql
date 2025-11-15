@@ -97,26 +97,5 @@ BEGIN
     WHERE NOT (OLD.id_tt <=> NEW.id_tt);
 END$$
 DELIMITER ;
-DELIMITER $$
-CREATE PROCEDURE delete_account(IN id int)
-BEGIN
-	DECLARE uID varchar(50) default null;
-	DELETE FROM nhan_khau WHERE id_ho_khau = (SELECT id_ho_khau FROM ho_khau WHERE id_tt = id);  
-	DELETE FROM ho_khau WHERE id_tt = id;
-	SELECT userID INTO uID FROM tam_thuong_tru WHERE id_tt = id;
-    DELETE FROM tam_thuong_tru WHERE id_tt = id;
-    DELETE FROM accounts WHERE userID = uID;
-END$$
-DELIMITER ;
-CREATE TABLE debug_log (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    message TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-SELECT * FROM accounts;
-SELECT * FROM tam_thuong_tru;
-SELECT * FROM debug_log;
-INSERT INTO accounts (userID, _password) VALUES ('001205030702', '123456');
-INSERT INTO tam_thuong_tru (begin, end, userID) VALUES ('2025-11-07', '2027-11-07', '001205030702');
-UPDATE tam_thuong_tru SET state = 'bi tu choi' WHERE userID = '001205030702';
-CALL delete_account(7);
+
+
