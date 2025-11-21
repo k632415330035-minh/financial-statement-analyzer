@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Cổng cư dân – Tổ dân phố</title>
+  <meta name="api-base" content="/api"/>
+  <link rel="stylesheet" href="resident_portal.css"/>
+  <script defer src="resident_portal.js"></script>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand__icon">🏘️</span>
+      <span class="brand__name">Cổng cư dân</span>
+    </div>
+  </header>
+
+  <!-- LAYOUT 3 CỘT: 1/6 – 4/6 – 1/6 -->
+  <div class="layout-3">
+    <!-- 1/6: SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar__greet">
+        <div class="hello" id="sbHello">Chào buổi sáng</div>
+        <div class="role" id="sbRole">Cư dân</div>
+        <div class="date" id="sbDate">—</div>
+      </div>
+
+      <nav class="sidenav">
+        <button class="sidenav__item is-active" data-target="#secCitizen">👤 Thông tin cá nhân</button>
+        <button class="sidenav__item" data-target="#secHousehold">🏠 Thông tin hộ khẩu</button>
+        <button class="sidenav__item" data-target="#secPermReg">📝 Đăng ký thường trú</button>
+        <button class="sidenav__item" data-target="#secTemp">🧳 Tạm trú / Tạm vắng</button>
+        <button class="sidenav__item" data-target="#secHistory">🗂️ Lịch sử biến động</button>
+        <button class="sidenav__item" data-target="#secMyTickets">📬 Phản ánh của tôi</button>
+      </nav>
+
+      <div class="sidebar__footer">
+        <button class="btn outline" id="btnLogout">Đăng xuất</button>
+      </div>
+    </aside>
+
+    <!-- 4/6: MAIN -->
+    <main class="main">
+      <!-- KPI (3 ô) -->
+      <section class="kpi-row">
+        <div class="kpi" id="kpiHousehold">
+          <div class="kpi__title">Số hộ khẩu</div>
+          <div class="kpi__val skeleton">HK———</div>
+          <button class="kpi__cta" id="btnCopyHK" title="Sao chép số hộ khẩu">Sao chép</button>
+        </div>
+        <div class="kpi">
+          <div class="kpi__title">Nhân khẩu trong hộ</div>
+          <div class="kpi__val" id="kpiMembers">—</div>
+          <div class="kpi__sub" id="kpiHead">Chủ hộ: —</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi__title">Trạng thái cư trú</div>
+          <div class="kpi__chip" id="kpiStatus">—</div>
+          <div class="spark" id="sparkStay" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <!-- LỐI TẮT -->
+      <section class="card actions">
+        <div class="card__header between"><h2>Lối tắt</h2></div>
+        <div class="actions__grid">
+          <button class="action" data-action="tempPermit">
+            <div class="ico">📝</div>
+            <div class="txt">
+              <div class="t1">Đăng ký tạm trú</div>
+              <div class="t2">Gửi online • hẹn lịch</div>
+            </div>
+          </button>
+          <button class="action" data-action="tempAbs">
+            <div class="ico">🚶</div>
+            <div class="txt">
+              <div class="t1">Báo tạm vắng</div>
+              <div class="t2">Trong/ngoài địa phương</div>
+            </div>
+          
+      </section>
+
+      <!-- Liên hệ Tổ trưởng -->
+      <section class="leader card">
+        <div class="card__header"><h2>Liên hệ Tổ trưởng</h2></div>
+        <div class="leader__row">
+          <div class="leader__avatar" id="leaderAvatar">T</div>
+          <div class="leader__meta">
+            <div class="leader__name" id="leaderName">Đang tải…</div>
+            <div class="leader__info" id="leaderInfo">SĐT: — • Email: —</div>
+            <div class="leader__note" id="leaderNote">Tiếp dân 19:00–21:00 T2,4,6</div>
+          </div>
+        </div>
+      </section>
+
+            <!-- THÔNG TIN CÁ NHÂN (VIEW) -->
+      <section class="card" id="secCitizen" data-section>
+        <div class="card__header">
+          <h2>Thông tin cá nhân</h2>
+        </div>
+
+        <div id="citView" class="grid two">
+          <!-- Cột trái: 9 dòng -->
+          <div>
+            <div class="field">
+              <span class="label">Họ tên</span>
+              <span class="value" id="citName">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Bí danh</span>
+              <span class="value" id="citAlias">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Ngày sinh</span>
+              <span class="value" id="citDob">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Giới tính</span>
+              <span class="value" id="citGender">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Nơi sinh</span>
+              <span class="value" id="citBirthPlace">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Nguyên quán</span>
+              <span class="value" id="citOrigin">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Dân tộc</span>
+              <span class="value" id="citEthnicity">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Ngày đăng ký thường trú</span>
+              <span class="value" id="citPermRegDate">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Địa chỉ thường trú trước khi chuyển đến</span>
+              <span class="value" id="citPrevAddress">—</span>
+            </div>
+          </div>
+
+          <!-- Cột phải: 9 dòng -->
+          <div>
+            <div class="field">
+              <span class="label">CCCD</span>
+              <span class="value mask" id="citCCCD">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Ngày cấp CCCD</span>
+              <span class="value" id="citCCCDDate">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Nơi cấp CCCD</span>
+              <span class="value" id="citCCCDPlace">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Nghề nghiệp</span>
+              <span class="value" id="citJob">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Nơi làm việc</span>
+              <span class="value" id="citWorkplace">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Quan hệ với chủ hộ</span>
+              <span class="value" id="citRelation">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Trạng thái cư trú</span>
+              <span class="value badge" id="citStatus">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Địa chỉ thường trú</span>
+              <span class="value" id="citAddress">—</span>
+            </div>
+            <div class="field">
+              <span class="label">Số điện thoại</span>
+              <span class="value" id="citPhone">—</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HỘ KHẨU -->
+      <section class="card" id="secHousehold" data-section hidden>
+        <div class="card__header"><h2>Thông tin hộ khẩu</h2></div>
+        <div class="grid two">
+          <div>
+            <div class="field"><span class="label">Số hộ khẩu</span><span class="value" id="hhNo">—</span></div>
+            <div class="field"><span class="label">Chủ hộ</span><span class="value" id="hhHead">—</span></div>
+            <div class="field"><span class="label">Địa chỉ</span><span class="value" id="hhAddress">—</span></div>
+            <div class="field"><span class="label">Ghi chú</span><span class="value" id="hhNote">—</span></div>
+          </div>
+          <div>
+            <div class="table-wrap">
+              <table class="table small" id="hhMembers">
+                <thead>
+                  <tr>
+                    <th>Thành viên trong hộ</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ĐĂNG KÝ THƯỜNG TRÚ -->
+      <section class="card" id="secPermReg" data-section hidden>
+        <div class="card__header">
+          <h2>Đăng ký thường trú</h2>
+        </div>
+        <p class="muted">
+          Sử dụng khi hộ muốn đăng ký thường trú mới cho một nhân khẩu (em bé mới sinh hoặc người mới nhập hộ).
+          Thông tin sẽ được Tổ dân phố tiếp nhận và cập nhật vào bảng nhân khẩu chính thức.
+        </p>
+
+        <form id="permForm" class="form">
+          <!-- Đối tượng: người lớn / trẻ em -->
+          <div class="form__row">
+            <label class="row row--inline" style="gap:8px;">
+              <span>Đối tượng đăng ký</span>
+              <select name="doi_tuong" id="permSubject">
+                <option value="ADULT" selected>Người lớn</option>
+                <option value="CHILD">Trẻ em (chưa có CCCD)</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Lưới 2 cột -->
+          <div class="grid two">
+            <!-- Cột trái -->
+            <div>
+              <label>Họ tên người được đăng ký
+                <input name="ho_ten" required maxlength="120" placeholder="Ví dụ: Nguyễn Văn B">
+                <small class="helper">Ghi đúng họ tên trên giấy khai sinh/CCCD.</small>
+              </label>
+
+              <label>Bí danh (nếu có)
+                <input name="bi_danh" maxlength="120" placeholder="Ví dụ: Tý">
+              </label>
+
+              <label>Ngày sinh
+                <input type="date" name="ngay_sinh" required>
+              </label>
+
+              <label>Giới tính
+                <select name="gioi_tinh" required>
+                  <option value="1">Nam</option>
+                  <option value="2">Nữ</option>
+                  <option value="0">Khác</option>
+                </select>
+              </label>
+
+              <label>Nơi sinh
+                <input name="noi_sinh" placeholder="Ví dụ: Hà Đông, Hà Nội">
+              </label>
+
+              <label>Nguyên quán
+                <input name="nguyen_quan" placeholder="Ví dụ: La Khê, Hà Đông, Hà Nội">
+              </label>
+
+              <label>Dân tộc
+                <input name="dan_toc" placeholder="Ví dụ: Kinh">
+              </label>
+
+              <label>Nghề nghiệp
+                <input name="nghe_nghiep" placeholder="Ví dụ: Kỹ sư (hoặc Học sinh)">
+              </label>
+            </div>
+
+            <!-- Cột phải -->
+            <div>
+              <label data-adult-only>
+                CCCD
+                <input name="cccd" maxlength="12" placeholder="Ví dụ: 012345678900">
+                <small class="helper">Nếu là trẻ em chưa có CCCD, để trống ô này.</small>
+              </label>
+
+              <label data-adult-only>Ngày cấp CCCD
+                <input type="date" name="ngay_cap_cccd">
+              </label>
+
+              <label data-adult-only>Nơi cấp CCCD
+                <input name="noi_cap_cccd" placeholder="Ví dụ: Cục CSQLHC về TTXH">
+              </label>
+
+              <label data-adult-only>Nơi làm việc
+                <input name="noi_lam_viec" placeholder="Ví dụ: Công ty TNHH ABC">
+              </label>
+
+              <label>Quan hệ với chủ hộ
+                <select name="quan_he_voi_chu_ho" required>
+                  <option value="CON">Con</option>
+                  <option value="VO_CHONG">Vợ / Chồng</option>
+                  <option value="CHA_ME">Cha / Mẹ</option>
+                  <option value="ANH_EM">Anh/chị/em</option>
+                  <option value="KHAC">Khác</option>
+                </select>
+                <small class="helper">Trùng với trường quan_he_voi_chu_ho trong bảng nhân khẩu.</small>
+              </label>
+
+              <label>Ngày đăng ký thường trú
+                <input type="date" name="ngay_dang_ky_thuong_tru">
+              </label>
+
+              <label>Địa chỉ thường trú trước khi chuyển đến
+                <input name="thuong_tru_truoc_khi_chuyen_den" placeholder="Ví dụ: Xã X, Huyện Y, Tỉnh Z">
+              </label>
+
+              <label>Ghi chú
+                <textarea name="note" rows="3" placeholder="Thông tin thêm (nếu có)…"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <!-- Đính kèm file full-width -->
+          <label>Đính kèm giấy tờ (tối đa 3 file)
+            <input type="file" name="files" multiple accept="image/*,application/pdf">
+            <small class="helper">Có thể đính kèm ảnh giấy khai sinh, CCCD…</small>
+          </label>
+
+          <div class="form__row end">
+            <button type="reset" class="btn light">Xóa</button>
+            <button type="submit" class="btn">Gửi yêu cầu</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- TẠM TRÚ / TẠM VẮNG -->
+      <section class="card" id="secTemp" data-section hidden>
+        <div class="card__header"><h2>Tạm trú / Tạm vắng</h2></div>
+        <div class="grid two">
+          <div>
+            <div class="subtitle">Tạm trú đang hiệu lực</div>
+            <div id="ttList" class="list">—</div>
+            <details id="ttForm" class="panel">
+              <summary>+ Đăng ký tạm trú mới</summary>
+              <form class="form grid two" id="formTT">
+                <label>Địa chỉ tạm trú
+                  <input name="addr" required placeholder="Ví dụ: KTX Bách Khoa, Phòng 203">
+                </label>
+                <label>Từ ngày
+                  <input type="date" name="from" required>
+                </label>
+                <label>Đến ngày
+                  <input type="date" name="to" required>
+                </label>
+                <label>Lý do
+                  <input name="reason" required placeholder="Học tập, công tác, chăm sóc người thân…">
+                </label>
+                <div class="form__row end">
+                  <button class="btn light" type="reset">Xóa</button>
+                  <button class="btn" type="submit">Gửi</button>
+                </div>
+              </form>
+            </details>
+          </div>
+
+          <div>
+            <div class="subtitle">Tạm vắng đang hiệu lực</div>
+            <div id="tvList" class="list">—</div>
+            <details id="tvForm" class="panel">
+              <summary>+ Báo tạm vắng</summary>
+              <form class="form grid two" id="formTV">
+                <label>Nơi đến
+                  <input name="dest" required placeholder="Ví dụ: Đà Nẵng, Nhật Bản…">
+                </label>
+                <label>Từ ngày
+                  <input type="date" name="from" required>
+                </label>
+                <label>Đến ngày
+                  <input type="date" name="to" required>
+                </label>
+                <label>Lý do
+                  <input name="reason" required placeholder="Du lịch, đi làm xa, thăm người thân…">
+                </label>
+                <div class="form__row end">
+                  <button class="btn light" type="reset">Xóa</button>
+                  <button class="btn" type="submit">Gửi</button>
+                </div>
+              </form>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- LỊCH SỬ BIẾN ĐỘNG -->
+      <section class="card" id="secHistory" data-section hidden>
+        <div class="card__header"><h2>Lịch sử biến động</h2></div>
+        <div id="historyList" class="timeline">—</div>
+      </section>
+
+      <!-- PHẢN ÁNH CỦA TÔI -->
+      <section class="card" id="secMyTickets" data-section hidden>
+        <div class="card__header between">
+          <h2>Phản ánh của tôi</h2>
+          <button class="btn light xs" id="btnNewTicket">+ Tạo mới</button>
+        </div>
+
+        <!-- Filter trạng thái -->
+        <div class="ticket-filters" id="ticketFilters">
+          <button class="chip is-active" data-status="ALL">Tất cả</button>
+          <button class="chip" data-status="DA_TIEP_NHAN">Đã tiếp nhận</button>
+          <button class="chip" data-status="DANG_XU_LY">Đang xử lý</button>
+          <button class="chip" data-status="HOAN_TAT">Hoàn tất</button>
+        </div>
+
+        <!-- Form tạo phản ánh -->
+        <form id="ticketForm" class="form form--ticket" hidden>
+          <label class="row"><span>Loại</span>
+            <select name="category" required>
+              <option value="HA_TANG">Hạ tầng</option>
+              <option value="AN_NINH">An ninh trật tự</option>
+              <option value="GIAY_TO">Giấy tờ / thủ tục</option>
+              <option value="THU_PHI">Thu phí</option>
+              <option value="KHAC">Khác</option>
+            </select>
+          </label>
+          <label class="row"><span>Tiêu đề</span>
+            <input name="title" placeholder="Tiêu đề ngắn gọn" required maxlength="120"/>
+          </label>
+          <label class="row"><span>Nội dung</span>
+            <textarea name="content" rows="4" placeholder="Mô tả cụ thể vấn đề hoặc yêu cầu…" required></textarea>
+          </label>
+          <label class="row"><span>Đính kèm (tối đa 3 ảnh)</span>
+            <input type="file" name="files" accept="image/*" multiple/>
+          </label>
+          <label class="row row--inline">
+            <span>Cho phép Tổ trưởng liên hệ lại theo số điện thoại của tôi</span>
+            <input type="checkbox" name="shareContact" checked/>
+          </label>
+          <div class="form__row end">
+            <button type="button" class="btn light" id="ticketCancel">Hủy</button>
+            <button type="submit" class="btn">Gửi</button>
+          </div>
+        </form>
+
+        <!-- Danh sách phản ánh -->
+        <div class="tickets" id="ticketList">—</div>
+      </section>
+    </main>
+
+    <!-- 1/6: RIGHT – THÔNG BÁO -->
+    <aside class="right-info">
+      <section class="card" id="secNews">
+        <div class="card__header between">
+          <h2>Thông báo chung</h2>
+          <button class="btn light xs" id="btnAllNews">Xem tất cả</button>
+        </div>
+        <div class="news" id="newsList">
+          <div class="news__item skeleton"></div>
+          <div class="news__item skeleton"></div>
+          <div class="news__item skeleton"></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- FAB hộp thư: lối tắt tới "Phản ánh của tôi" -->
+  <button class="fab" id="btnFabFeedback" title="Phản ánh / yêu cầu">✉️</button>
+
+  <!-- MODAL ĐẶT LỊCH GẶP -->
+  <div class="modal hide" id="meetModal" aria-hidden="true">
+    <div class="modal__backdrop" id="meetBackdrop"></div>
+    <div class="modal__dialog">
+      <div class="modal__header">
+        <h3>Đặt lịch gặp Tổ trưởng</h3>
+        <button class="icon" id="meetClose">✕</button>
+      </div>
+      <form id="meetForm" class="modal__body">
+        <label class="row"><span>Ngày</span><input type="date" name="date" required></label>
+        <label class="row"><span>Giờ</span><input type="time" name="time" required></label>
+        <label class="row"><span>Nội dung</span><textarea name="desc" rows="3" placeholder="Nội dung trao đổi…"></textarea></label>
+        <div class="modal__footer">
+          <button type="button" class="btn light" id="meetCancel">Hủy</button>
+          <button class="btn" type="submit">Đặt lịch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL THÀNH VIÊN HỘ KHẨU -->
+  <div class="modal hide" id="memberModal" aria-hidden="true">
+    <div class="modal__backdrop" id="memberBackdrop"></div>
+    <div class="modal__dialog">
+      <div class="modal__header">
+        <h3>Thông tin thành viên hộ khẩu</h3>
+        <button class="icon" id="memberClose">✕</button>
+      </div>
+      <div class="modal__body">
+        <div class="field">
+          <span class="label">Họ tên</span>
+          <span class="value" id="memName">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Vai trò</span>
+          <span class="value" id="memRole">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Quan hệ với chủ hộ</span>
+          <span class="value" id="memRelation">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Ngày sinh</span>
+          <span class="value" id="memDob">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Giới tính</span>
+          <span class="value" id="memGender">—</span>
+        </div>
+        <div class="field">
+          <span class="label">CCCD</span>
+          <span class="value" id="memCCCD">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Nghề nghiệp</span>
+          <span class="value" id="memJob">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Trạng thái cư trú</span>
+          <span class="value" id="memStatus">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Số điện thoại</span>
+          <span class="value" id="memPhone">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Địa chỉ cư trú</span>
+          <span class="value" id="memAddress">—</span>
+        </div>
+        <div class="field">
+          <span class="label">Ghi chú</span>
+          <span class="value" id="memNote">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
