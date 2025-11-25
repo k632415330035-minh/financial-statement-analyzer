@@ -1,170 +1,460 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Đăng nhập</title>
-  <link rel="stylesheet" href="login.css" />
-</head>
-<body>
-  <div class="container" id="container">
-    <!-- Đăng ký -->
-    <div class="form-container sign-up">
-      <form id="form-register" novalidate>
-        <h1>Tạo tài khoản</h1>
+  <head>
+    <meta charset="UTF-8" />
+<<<<<<< Updated upstream
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+=======
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+>>>>>>> Stashed changes
+    <title>Đăng nhập</title>
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <div class="container" id="container">
+<<<<<<< Updated upstream
+=======
+      <!-- Đăng ký -->
+>>>>>>> Stashed changes
+      <div class="form-container sign-up">
+        <form id="form-register" novalidate>
+          <h1>Tạo tài khoản</h1>
 
-        <div class="field">
-          <label for="cccd-register">Mã số CCCD</label>
-          <input
-            type="text"
-            id="cccd-register"
-            placeholder="Mã số CCCD"
-            inputmode="numeric"
-            autocomplete="username"
-            required
-          />
-          <small class="error"></small>
-        </div>
+          <div class="field">
+<<<<<<< Updated upstream
+            <input type="text" id="name-register" placeholder="Tên" required />
+            <small class="error" aria-live="polite"></small>
+          </div>
 
-        <div class="field">
-          <label for="register-password">Mật khẩu</label>
-          <div class="password-container">
+          <div class="field">
+=======
+            <label for="cccd-register">Mã số CCCD</label>
+>>>>>>> Stashed changes
             <input
-              type="password"
-              id="register-password"
-              placeholder="Mật khẩu"
-              autocomplete="new-password"
+              type="text"
+              id="cccd-register"
+              placeholder="Mã số CCCD"
+              inputmode="numeric"
+<<<<<<< Updated upstream
               required
             />
-            <button type="button" class="toggle-password" data-target="register-password" title="Hiện/ẩn mật khẩu" aria-label="Hiện/ẩn mật khẩu">👁</button>
+            <small class="error" aria-live="polite"></small>
           </div>
-          <small class="error"></small>
-        </div>
 
-        <button type="submit">Đăng ký</button>
-      </form>
-    </div>
+          <div class="field">
+            <input
+              type="password"
+              id="reg-password"
+              placeholder="Mật khẩu"
+              required
+            />
+            <small class="error" aria-live="polite"></small>
+          </div>
 
-    <!-- Đăng nhập -->
-    <div class="form-container sign-in">
-      <form id="form-login" novalidate>
-        <h1>Đăng nhập</h1>
+          <button>Đăng ký</button>
+        </form>
+      </div>
 
-        <div class="field">
-          <label for="cccd-login">Mã số CCCD</label>
-          <input
-            type="text"
-            id="cccd-login"
-            placeholder="Mã số CCCD"
-            inputmode="numeric"
-            autocomplete="username"
-            required
-          />
-          <small class="error"></small>
-        </div>
+=======
+              autocomplete="username"
+              required
+            />
+            <small class="error"></small>
+          </div>
 
-        <div class="field">
-          <label for="login-password">Mật khẩu</label>
-          <div class="password-container">
+          <div class="field">
+            <label for="register-password">Mật khẩu</label>
+            <div class="password-container">
+              <input
+                type="password"
+                id="register-password"
+                placeholder="Mật khẩu"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                data-target="register-password"
+                title="Hiện/ẩn mật khẩu"
+                aria-label="Hiện/ẩn mật khẩu"
+              >
+                👁
+              </button>
+            </div>
+            <small class="error"></small>
+          </div>
+
+          <button type="submit">Đăng ký</button>
+        </form>
+      </div>
+
+      <!-- Đăng nhập -->
+>>>>>>> Stashed changes
+      <div class="form-container sign-in">
+        <form id="form-login" novalidate>
+          <h1>Đăng nhập</h1>
+
+          <div class="field">
+<<<<<<< Updated upstream
+            <input
+              type="text"
+              id="cccd-login"
+              placeholder="Mã số CCCD"
+              inputmode="numeric"
+              required
+            />
+            <small class="error" aria-live="polite"></small>
+          </div>
+
+          <div class="field">
             <input
               type="password"
               id="login-password"
               placeholder="Mật khẩu"
-              autocomplete="current-password"
               required
             />
-            <button type="button" class="toggle-password" data-target="login-password" title="Hiện/ẩn mật khẩu" aria-label="Hiện/ẩn mật khẩu">👁</button>
+            <small class="error" aria-live="polite"></small>
           </div>
-          <small class="error"></small>
-        </div>
 
-        <a href="#">Quên mật khẩu?</a>
-        <button type="submit">Đăng nhập</button>
-      </form>
-    </div>
+          <a href="#">Quên mật khẩu?</a>
+          <button>Đăng nhập</button>
+        </form>
+      </div>
 
-    <!-- Panel hiệu ứng -->
-    <div class="toggle-container">
-      <div class="toggle">
-        <div class="toggle-panel toggle-left">
-          <h1>Xin chào bạn!</h1>
-          <p>Đăng nhập để tra cứu<br/> cập nhật thông tin cư trú.</p>
-          <button class="hidden" id="login" type="button">Đăng nhập</button>
-        </div>
-        <div class="toggle-panel toggle-right">
-          <h1>Xin chào bạn!</h1>
-          <p>Đăng ký tài khoản để khai báo thông tin.</p>
-          <button class="hidden" id="register" type="button">Đăng ký</button>
+      <div class="toggle-container">
+        <div class="toggle">
+          <div class="toggle-panel toggle-left">
+            <h1>Xin chào</h1>
+            <p>
+              Đăng nhập để tra cứu, cập nhật<br />
+              thông tin nhân khẩu và hộ khẩu.
+=======
+            <label for="cccd-login">Mã số CCCD</label>
+            <input
+              type="text"
+              id="cccd-login"
+              placeholder="Mã số CCCD"
+              inputmode="numeric"
+              autocomplete="username"
+              required
+            />
+            <small class="error"></small>
+          </div>
+
+          <div class="field">
+            <label for="login-password">Mật khẩu</label>
+            <div class="password-container">
+              <input
+                type="password"
+                id="login-password"
+                placeholder="Mật khẩu"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                data-target="login-password"
+                title="Hiện/ẩn mật khẩu"
+                aria-label="Hiện/ẩn mật khẩu"
+              >
+                👁
+              </button>
+            </div>
+            <small class="error"></small>
+          </div>
+
+          <a href="#">Quên mật khẩu?</a>
+          <button type="submit">Đăng nhập</button>
+        </form>
+      </div>
+
+      <!-- Panel hiệu ứng -->
+      <div class="toggle-container">
+        <div class="toggle">
+          <div class="toggle-panel toggle-left">
+            <h1>Xin chào bạn!</h1>
+            <p>
+              Đăng nhập để tra cứu<br />
+              cập nhật thông tin cư trú.
+>>>>>>> Stashed changes
+            </p>
+            <button class="hidden" id="login" type="button">Đăng nhập</button>
+          </div>
+          <div class="toggle-panel toggle-right">
+<<<<<<< Updated upstream
+            <h1>Xin chào</h1>
+            <p>
+              Vui lòng đăng ký để khai báo <br />
+              thông tin cư trú.
+            </p>
+=======
+            <h1>Xin chào bạn!</h1>
+            <p>Đăng ký tài khoản để khai báo thông tin.</p>
+>>>>>>> Stashed changes
+            <button class="hidden" id="register" type="button">Đăng ký</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    // Chuyển form
-    const container = document.getElementById("container");
-    document.getElementById("register").addEventListener("click", () => container.classList.add("active"));
-    document.getElementById("login").addEventListener("click", () => container.classList.remove("active"));
+<<<<<<< Updated upstream
+    <script>
+      const API_BASE_URL = "http://localhost:3000/api";
 
-    // Hiển thị/ẩn lỗi
-    function setError(input, message) {
-      const field = input.closest('.field');
-      const errorEl = field?.querySelector('.error');
-      if (errorEl) errorEl.textContent = message || '';
-      field?.classList.toggle('is-invalid', !!message);
-      input.setAttribute('aria-invalid', !!message);
-    }
-
-    // CCCD: 12 số
-    function validateCCCD(input) {
-      const ok = /^\d{12}$/.test(input.value.trim());
-      setError(input, ok ? '' : 'CCCD phải đủ 12 chữ số.');
-      return ok;
-    }
-
-    // Mật khẩu: >= 6 ký tự
-    function validatePassword(input) {
-      const ok = input.value.trim().length >= 6;
-      setError(input, ok ? '' : 'Mật khẩu tối thiểu 6 ký tự.');
-      return ok;
-    }
-
-    ['#cccd-login', '#cccd-register'].forEach(sel => {
-      const el = document.querySelector(sel);
-      el.addEventListener('input', () => validateCCCD(el));
-      el.addEventListener('blur', () => validateCCCD(el));
-    });
-
-    ['#login-password', '#register-password'].forEach(sel => {
-      const el = document.querySelector(sel);
-      el.addEventListener('input', () => validatePassword(el));
-      el.addEventListener('blur', () => validatePassword(el));
-    });
-
-    document.getElementById('form-login').addEventListener('submit', (e) => {
-      const ok = validateCCCD(document.getElementById('cccd-login')) &
-                 validatePassword(document.getElementById('login-password'));
-      if (!ok) e.preventDefault();
-    });
-
-    document.getElementById('form-register').addEventListener('submit', (e) => {
-      const ok = validateCCCD(document.getElementById('cccd-register')) &
-                 validatePassword(document.getElementById('register-password'));
-      if (!ok) e.preventDefault();
-    });
-
-    // Nút 👁 hiện/ẩn mật khẩu (đen mặc định)
-    document.querySelectorAll('.toggle-password').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetId = btn.getAttribute('data-target');
-        const input = document.getElementById(targetId);
-        if (!input) return;
-        const isPwd = input.type === 'password';
-        input.type = isPwd ? 'text' : 'password';
-        btn.textContent = isPwd ? '🙈' : '👁';
-        btn.setAttribute('aria-label', isPwd ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+      // ===== Hiệu ứng chuyển form =====
+      const container = document.getElementById("container");
+      document.getElementById("register").addEventListener("click", () => {
+        container.classList.add("active");
+        clearErrors(document);
       });
-    });
-  </script>
-</body>
+      document.getElementById("login").addEventListener("click", () => {
+        container.classList.remove("active");
+        clearErrors(document);
+      });
+
+      // ===== Helpers hiển thị lỗi (khớp CSS hiện có) =====
+      function setError(input, message) {
+        const field = input.closest(".field");
+        const errorEl = field?.querySelector(".error");
+        if (errorEl) errorEl.textContent = message || "";
+        field?.classList.toggle("is-invalid", !!message);
+        input.setAttribute("aria-invalid", !!message);
+      }
+
+      function validateCCCD(input) {
+        const value = input.value.trim();
+        const isValid = /^\d{12}$/.test(value);
+        setError(input, isValid ? "" : "CCCD phải đủ 12 chữ số.");
+        return isValid;
+      }
+
+      function validateRequired(input, message) {
+        const ok = input.value.trim().length > 0;
+        setError(input, ok ? "" : message || "Vui lòng không để trống.");
+        return ok;
+      }
+
+      function clearErrors(scope) {
+        scope.querySelectorAll(".field").forEach((f) => {
+          f.classList.remove("is-invalid");
+          const err = f.querySelector(".error");
+          if (err) err.textContent = "";
+          const inp = f.querySelector("input");
+          if (inp) inp.setAttribute("aria-invalid", "false");
+        });
+      }
+
+      // ===== Gắn sự kiện realtime =====
+      const nameInput = document.getElementById("name-register");
+      const cccdReg = document.getElementById("cccd-register");
+      const passReg = document.getElementById("reg-password");
+      const cccdLogin = document.getElementById("cccd-login");
+      const passLogin = document.getElementById("login-password");
+
+      if (nameInput) {
+        nameInput.addEventListener("input", () =>
+          validateRequired(nameInput, "Vui lòng nhập Tên.")
+        );
+        nameInput.addEventListener("blur", () =>
+          validateRequired(nameInput, "Vui lòng nhập Tên.")
+        );
+      }
+      [cccdReg, cccdLogin].forEach((inp) => {
+        inp.addEventListener("input", () => validateCCCD(inp));
+        inp.addEventListener("blur", () => validateCCCD(inp));
+      });
+      [passReg, passLogin].forEach((inp) => {
+        inp.addEventListener("input", () =>
+          validateRequired(inp, "Vui lòng nhập Mật khẩu.")
+        );
+        inp.addEventListener("blur", () =>
+          validateRequired(inp, "Vui lòng nhập Mật khẩu.")
+        );
+      });
+
+      // ==========================================================
+      // ===== LOGIC KẾT NỐI BACKEND: ĐĂNG KÝ VÀ ĐĂNG NHẬP (FETCH API) =====
+      // ==========================================================
+
+      // --- 1. XỬ LÝ ĐĂNG KÝ ---
+      document
+        .getElementById("form-register")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          let ok = true;
+          if (nameInput && !validateRequired(nameInput, "Vui lòng nhập Tên."))
+            ok = false;
+          if (!validateCCCD(cccdReg)) ok = false;
+          if (!validateRequired(passReg, "Vui lòng nhập Mật khẩu.")) ok = false;
+
+          if (!ok) return;
+
+          const UserID = cccdReg.value.trim();
+          const Password = passReg.value.trim();
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ UserID: UserID, Password: Password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              alert("Đăng ký tài khoản thành công! Vui lòng Đăng nhập.");
+              container.classList.remove("active");
+              clearErrors(document);
+            } else {
+              alert(
+                `Lỗi đăng ký: ${
+                  data.message || "Có lỗi xảy ra, vui lòng thử lại."
+                }`
+              );
+            }
+          } catch (error) {
+            console.error("Lỗi kết nối API /register:", error);
+            alert(
+              "Đăng ký thất bại: Không thể kết nối đến server hoặc lỗi cú pháp."
+            );
+          }
+        });
+
+      // --- 2. XỬ LÝ ĐĂNG NHẬP (ĐÃ SỬA LỖI MESSAGE TRONG BLOCK CATCH) ---
+      document
+        .getElementById("form-login")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          let ok = true;
+          if (!validateCCCD(cccdLogin)) ok = false;
+          if (!validateRequired(passLogin, "Vui lòng nhập Mật khẩu."))
+            ok = false;
+
+          if (!ok) return;
+
+          const UserID = cccdLogin.value.trim();
+          const Password = passLogin.value.trim();
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ UserID: UserID, Password: Password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              alert("Đăng nhập thành công!");
+              localStorage.setItem("userToken", data.token);
+              localStorage.setItem("userRole", data.role);
+
+              // Chuyển về index.html (thư mục cha)
+              window.location.replace("../index.html");
+            } else {
+              // Phản hồi lỗi hợp lệ từ Server (401 Unauthorized)
+              alert(
+                `Đăng nhập thất bại: ${
+                  data.message || "Vui lòng kiểm tra lại thông tin."
+                }`
+              );
+            }
+          } catch (error) {
+            // KHỐI NÀY CHẠY KHI:
+            // 1. Server TẮT (Lỗi kết nối mạng thật sự)
+            // 2. Server trả về 401/404/500 nhưng KHÔNG PHẢI JSON hợp lệ (Lỗi phân tích cú pháp)
+
+            console.error("Lỗi kết nối hoặc xử lý response:", error);
+            // THAY THẾ THÔNG BÁO LỖI KỸ THUẬT BẰNG THÔNG BÁO ĐĂNG NHẬP THẤT BẠI CHUNG
+            alert(
+              "Đăng nhập thất bại: Vui lòng kiểm tra lại thông tin hoặc kết nối."
+            );
+          }
+        });
+    </script>
+=======
+    <!-- <script>
+      // Chuyển form
+      const container = document.getElementById("container");
+      document
+        .getElementById("register")
+        .addEventListener("click", () => container.classList.add("active"));
+      document
+        .getElementById("login")
+        .addEventListener("click", () => container.classList.remove("active"));
+
+      // Hiển thị/ẩn lỗi
+      function setError(input, message) {
+        const field = input.closest(".field");
+        const errorEl = field?.querySelector(".error");
+        if (errorEl) errorEl.textContent = message || "";
+        field?.classList.toggle("is-invalid", !!message);
+        input.setAttribute("aria-invalid", !!message);
+      }
+
+      // CCCD: 12 số
+      function validateCCCD(input) {
+        const ok = /^\d{12}$/.test(input.value.trim());
+        setError(input, ok ? "" : "CCCD phải đủ 12 chữ số.");
+        return ok;
+      }
+
+      // Mật khẩu: >= 6 ký tự
+      function validatePassword(input) {
+        const ok = input.value.trim().length >= 6;
+        setError(input, ok ? "" : "Mật khẩu tối thiểu 6 ký tự.");
+        return ok;
+      }
+
+      ["#cccd-login", "#cccd-register"].forEach((sel) => {
+        const el = document.querySelector(sel);
+        el.addEventListener("input", () => validateCCCD(el));
+        el.addEventListener("blur", () => validateCCCD(el));
+      });
+
+      ["#login-password", "#register-password"].forEach((sel) => {
+        const el = document.querySelector(sel);
+        el.addEventListener("input", () => validatePassword(el));
+        el.addEventListener("blur", () => validatePassword(el));
+      });
+
+      document.getElementById("form-login").addEventListener("submit", (e) => {
+        const ok =
+          validateCCCD(document.getElementById("cccd-login")) &
+          validatePassword(document.getElementById("login-password"));
+        if (!ok) e.preventDefault();
+      });
+
+      document
+        .getElementById("form-register")
+        .addEventListener("submit", (e) => {
+          const ok =
+            validateCCCD(document.getElementById("cccd-register")) &
+            validatePassword(document.getElementById("register-password"));
+          if (!ok) e.preventDefault();
+        });
+
+      // Nút 👁 hiện/ẩn mật khẩu (đen mặc định)
+      document.querySelectorAll(".toggle-password").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-target");
+          const input = document.getElementById(targetId);
+          if (!input) return;
+          const isPwd = input.type === "password";
+          input.type = isPwd ? "text" : "password";
+          btn.textContent = isPwd ? "🙈" : "👁";
+          btn.setAttribute(
+            "aria-label",
+            isPwd ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+          );
+        });
+      });
+    </script> -->
+    <script src="login.js"></script>
+>>>>>>> Stashed changes
+  </body>
 </html>

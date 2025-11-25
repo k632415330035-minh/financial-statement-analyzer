@@ -26,8 +26,7 @@ body {
 .form-container {
   position: absolute; top: 0; height: 100%; width: 50%;
   transition: all 0.6s ease-in-out;
-  display: flex; align-items: center; justify-content: center; 
-  z-index: 10;   /* 👈 giữa dọc/ngang */
+  display: flex; align-items: center; justify-content: center;   /* 👈 giữa dọc/ngang */
 }
 
 /* Bản thân form: gọn, auto-height để báo lỗi nở ra vẫn giữ giữa */
@@ -120,8 +119,8 @@ body {
 .toggle-right { right: 0; transform: translateX(0); }
 .container.active .toggle-right { transform: translateX(200%); }
 
-.toggle-panel h1 { font-size: 26px; line-height: 1.4; margin-bottom: 16px; }
-.toggle-panel p  { font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+.toggle-panel h1 { font-size: 26px; line-height: 1.4; margin-bottom: 18px; }
+.toggle-panel p  { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
 
 /* ===== Field + Error: ban đầu SÁT, chỉ GIÃN khi có lỗi ===== */
 .field{
@@ -175,17 +174,13 @@ body {
 /* ===== Link phụ ===== */
 a { color: #512da8; font-weight: 600; font-size: 13px; text-decoration: none; }
 a:hover { text-decoration: underline; }
-/* ===== Tiêu đề form ===== */
-.container form h1 {
+.toggle-password {
+  width: 24px;              /* 👈 cố định chiều rộng */
+  height: 24px;             /* 👈 cố định chiều cao nếu cần */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #333;
-}
-.field label {
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  font-size: 16px;
+  transition: none;         /* 👈 tắt hiệu ứng rung/lệch */
 }
