@@ -5,7 +5,8 @@ const authMiddleware = require("./middleware/authMiddleware");
 const roleMiddleware = require("./middleware/roleMiddleware");
 
 // Đường dẫn tới các trang liên quan
-const userRoutes = require("./routes/userRoute");
+const userRoute = require("./routes/userRoute");
+const residentRoute = require("./routes/residentRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
@@ -14,7 +15,8 @@ app.use(cors());
 app.use(express.json());
 
 // API routes
-app.use("/api", userRoutes);
+app.use("/api", userRoute);
+app.use("/api/", residentRoute);
 
 // Serve static files từ thư mục Frontend
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
