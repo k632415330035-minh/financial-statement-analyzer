@@ -1,0 +1,74 @@
+<!-- TẠM TRÚ / TẠM VẮNG -->
+<section class="card" id="secTemp">
+  <div class="card__header"><h2>Tạm trú / Tạm vắng</h2></div>
+
+  <div class="grid two">
+    <!-- CỘT TRÁI: TẠM TRÚ -->
+    <div>
+      <div class="subtitle">Tạm trú đang hiệu lực</div>
+      <div id="ttList" class="list">—</div>
+
+      <details id="ttForm" class="panel">
+        <summary>+ Đăng ký tạm trú mới</summary>
+
+        <form class="form grid two" id="formTT">
+          <label>Địa chỉ tạm trú
+            <input name="addr" required placeholder="Ví dụ: KTX Bách Khoa, Phòng 203">
+          </label>
+
+          <label>Từ ngày
+            <input type="date" name="from" required>
+          </label>
+
+          <label>Đến ngày
+            <input type="date" name="to" required>
+          </label>
+
+          <label>Lý do
+            <input name="reason" required
+                   placeholder="Học tập, công tác, chăm sóc người thân…">
+          </label>
+
+          <div class="form__row end">
+            <button class="btn light" type="reset">Xóa</button>
+            <button class="btn" type="submit">Gửi</button>
+          </div>
+        </form>
+      </details>
+    </div>
+
+    <!-- CỘT PHẢI: TẠM VẮNG -->
+    <div>
+      <div class="subtitle">Tạm vắng đang hiệu lực</div>
+      <div id="tvList" class="list">—</div>
+
+      <details id="tvForm" class="panel">
+        <summary>+ Báo tạm vắng</summary>
+
+        <form class="form grid two" id="formTV">
+          <label>Nơi đến
+            <input name="dest" required placeholder="Ví dụ: Đà Nẵng, Nhật Bản…">
+          </label>
+
+          <label>Từ ngày
+            <input type="date" name="from" required>
+          </label>
+
+          <label>Đến ngày
+            <input type="date" name="to" required>
+          </label>
+
+          <label>Lý do
+            <input name="reason" required
+                   placeholder="Du lịch, đi làm xa, thăm người thân…">
+          </label>
+
+          <div class="form__row end">
+            <button class="btn light" type="reset">Xóa</button>
+            <button class="btn" type="submit">Gửi</button>
+          </div>
+        </form>
+      </details>
+    </div>
+  </div>
+</section>

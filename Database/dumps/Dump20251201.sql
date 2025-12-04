@@ -5,7 +5,6 @@ USE `todanpho`;
 -- Host: localhost    Database: todanpho
 -- ------------------------------------------------------
 -- Server version	8.0.43
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -93,9 +92,9 @@ CREATE TABLE `cong_dan` (
   `dan_toc` varchar(50) NOT NULL,
   `nghe_nghiep` varchar(50) DEFAULT NULL,
   `noi_lam_viec` varchar(50) DEFAULT NULL,
-  `noi_cap` varchar(50) NOT NULL,
-  `ngay_cap` date NOT NULL,
-  `userID` varchar(20) NOT NULL,
+  `noi_cap` varchar(50) DEFAULT NULL,
+  `ngay_cap` date DEFAULT NULL,
+  `userID` varchar(20),
   PRIMARY KEY (`id_cd`),
   UNIQUE KEY `cccd` (`cccd`),
   KEY `userID` (`userID`),
@@ -331,7 +330,7 @@ CREATE TABLE `phan_anh` (
   `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `loai_phan_anh` varchar(50) NOT NULL,
   `noi_dung` varchar(1000) DEFAULT NULL,
-  `trang_thai` enum('Chưa xem','Đã xem','Đang chờ xử lý','Đang xử lý','Đã xử lý') DEFAULT 'Chưa xem',
+  `trang_thai` enum('Đang xử lý','Đã xử lý') DEFAULT 'Đang xử lý',
   `phan_hoi` varchar(1000) DEFAULT NULL,
   `id_cd` int NOT NULL,
   PRIMARY KEY (`id_pa`),
@@ -346,7 +345,7 @@ CREATE TABLE `phan_anh` (
 
 LOCK TABLES `phan_anh` WRITE;
 /*!40000 ALTER TABLE `phan_anh` DISABLE KEYS */;
-INSERT INTO `phan_anh` VALUES (1,'2025-12-01 01:54:31','Rác thải','Khu vực trước cổng nhà văn hóa thường xuyên xuất hiện tình trạng đổ rác bừa bãi, gây mùi hôi và mất mỹ quan đô thị.','Đã xử lý','Tôi tổ trưởng và một số lực lượng chức năng đã ghi nhận vụ việc, tổ chức cấm biển cấm đổ rác, đồng thời tuyên truyền với các hộ dân lân cận',1),(2,'2025-12-01 01:56:16','Rác thải','Một số hộ dân tại ngõ 355 xả rác không đúng giờ quy định, làm ảnh hưởng vệ sinh chung.','Đã xem',NULL,2),(3,'2025-12-01 01:56:57','Rác thải','Nhiều người vứt rác xuống lòng đường/ven hồ/ven sông tại … gây ô nhiễm môi trường nghiêm trọng.','Đang chờ xử lý',NULL,10),(4,'2025-12-01 02:03:21','Trật tự','Anh A và anh B là hàng xóm. Do mâu thuẫn thường xuyên chửi bới nhau, gây ồn ào cho hàng xóm','Đang xử lý',NULL,50),(5,'2025-12-01 02:06:18','Trật tự','Nhà chị B hàng xóm của tôi thường xuyên hát karaoke lúc nửa khuya, ảnh hưởng giấc ngủ của làng xóm','Chưa xem',NULL,50);
+INSERT INTO `phan_anh` VALUES (1,'2025-12-01 01:54:31','Vệ sinh môi trường','Khu vực trước cổng nhà văn hóa thường xuyên xuất hiện tình trạng đổ rác bừa bãi, gây mùi hôi và mất mỹ quan đô thị.','Đã xử lý','Tôi tổ trưởng và một số lực lượng chức năng đã ghi nhận vụ việc, tổ chức cấm biển cấm đổ rác, đồng thời tuyên truyền với các hộ dân lân cận',1),(2,'2025-12-01 01:56:16','Vệ sinh môi trường','Một số hộ dân tại ngõ 355 xả rác không đúng giờ quy định, làm ảnh hưởng vệ sinh chung.','Đang xử lý',NULL,2),(3,'2025-12-01 01:56:57','Vệ sinh môi trường','Nhiều người vứt rác xuống lòng đường/ven hồ/ven sông tại … gây ô nhiễm môi trường nghiêm trọng.','Đang xử lý',NULL,10),(4,'2025-12-01 02:03:21','An ninh trật tự','Anh A và anh B là hàng xóm. Do mâu thuẫn thường xuyên chửi bới nhau, gây ồn ào cho hàng xóm','Đang xử lý',NULL,50),(5,'2025-12-01 02:06:18','An ninh trật tự','Nhà chị B hàng xóm của tôi thường xuyên hát karaoke lúc nửa khuya, ảnh hưởng giấc ngủ của làng xóm','Đang xử lý',NULL,50);
 /*!40000 ALTER TABLE `phan_anh` ENABLE KEYS */;
 UNLOCK TABLES;
 

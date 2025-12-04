@@ -37,14 +37,20 @@ const getHouseholdDetails = async (req, res) => {
       // Thực hiện tính toán và số nhân khẩu và tìm tên của chủ hộ
       const totalMembers = HouseholdData.length;
       const householder = HouseholdData.find(
-        (member) => member["Quan hệ với chủ hộ"] === "chu ho"
+        (member) =>
+          member["Quan hệ với chủ hộ"] &&
+          member["Quan hệ với chủ hộ"].toLowerCase().trim() === "chủ hộ"
       );
       const householderName = householder ? householder["Họ tên"] : "_";
+      const idHoKhau = HouseholdData[0]["Số hộ khẩu"]; // Lấy từ Model
+      const address = HouseholdData[0]["Địa chỉ"]; // Lấy từ Model
 
       const response = {
         householderName: householderName,
         totalMembers: totalMembers,
         members: HouseholdData,
+        idHoKhau: idHoKhau,
+        address: address,
       };
 
       res.status(200).json(response);
