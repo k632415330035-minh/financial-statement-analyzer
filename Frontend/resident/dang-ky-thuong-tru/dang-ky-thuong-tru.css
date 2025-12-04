@@ -1,0 +1,7 @@
+/* dang-ky-thuong-tru.css */
+@import url("resident.css");
+
+/* Nếu muốn căn chỉnh riêng cho form thường trú thì thêm ở đây */
+#secPermReg .card__header h2{
+  margin: 0;
+}

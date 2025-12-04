@@ -1,0 +1,25 @@
+<!-- LỊCH SỬ BIẾN ĐỘNG -->
+<section class="card" id="secHistory">
+  <div class="card__header">
+    <h2>Lịch sử biến động</h2>
+  </div>
+
+  <p class="muted">
+    Hiển thị các thay đổi liên quan đến nhân khẩu và hộ khẩu: đăng ký thường trú,
+    tạm trú, tạm vắng, chuyển đi, chuyển đến… Gần nhất ở trên cùng.
+  </p>
+
+  <!-- Thanh lọc theo loại biến động -->
+  <div class="ticket-filters" id="lsbdFilters">
+    <button type="button" class="chip is-active" data-type="ALL">Tất cả</button>
+    <button type="button" class="chip" data-type="THUONG_TRU">Thường trú</button>
+    <button type="button" class="chip" data-type="TAM_TRU">Tạm trú</button>
+    <button type="button" class="chip" data-type="TAM_VANG">Tạm vắng</button>
+    <button type="button" class="chip" data-type="CHUYEN_DI">Chuyển đi</button>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline" id="lsbdTimeline">
+    <!-- JS sẽ render các sự kiện vào đây -->
+  </div>
+</section>

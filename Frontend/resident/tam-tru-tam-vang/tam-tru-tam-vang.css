@@ -1,0 +1,23 @@
+/* tam-tru-tam-vang.css */
+@import url("resident.css");
+
+/* Tiêu đề nhỏ bên trong card */
+.subtitle{
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* List mục tạm trú / tạm vắng (dùng lại .list .item trong resident.css) */
+/* Nếu resident.css đã có .list .item rồi thì đoạn này chỉ bổ sung nhẹ */
+.list .item{
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  font-size: 14px;
+}
+
+/* Khoảng cách giữa panel và list */
+.panel{
+  margin-top: 10px;
+}
