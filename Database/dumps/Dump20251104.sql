@@ -38,7 +38,7 @@ CREATE TABLE `accounts` (
 
 LOCK TABLES `accounts` WRITE;
 /*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
-INSERT INTO `accounts` VALUES ('001079023664','123456','cu dan'),('001205030702','123456','cu dan'),('002182005067','123456','cu dan'),('006205016356','123456','cu dan'),('008171023365','123456','cu dan'),('012097008038','123456','cu dan'),('012345678912','123456','quan ly'),('014184016247','123456','cu dan'),('015210029700','123456','cu dan'),('015219022550','123456','cu dan'),('017093013983','123456','cu dan'),('020305006891','123456','cu dan'),('023081017260','123456','cu dan'),('023082000064','123456','cu dan'),('023218008760','123456','cu dan'),('025095031388','123456','cu dan'),('025176014707','123456','cu dan'),('025197026243','123456','cu dan'),('025214014006','123456','cu dan'),('026225032391','123456','cu dan'),('027310021996','123456','cu dan'),('037092025749','123456','cu dan'),('037186000354','123456','cu dan'),('037191009161','123456','cu dan'),('038211022449','123456','cu dan'),('042179022503','123456','cu dan'),('042314006243','123456','cu dan'),('044205003741','123456','cu dan'),('044223000785','123456','cu dan'),('045306022984','123456','cu dan'),('046074017254','123456','cu dan'),('049099007779','123456','cu dan'),('052196028259','123456','cu dan'),('054085029356','123456','cu dan'),('056221003382','123456','cu dan'),('060214030588','123456','cu dan'),('066300028737','123456','cu dan'),('068073031124','123456','cu dan'),('070080015596','123456','cu dan'),('070193005762','123456','cu dan'),('074307029488','123456','cu dan'),('077180007735','123456','cu dan'),('079173011516','123456','cu dan'),('082219022726','123456','cu dan'),('084083003461','123456','cu dan'),('084302013839','123456','cu dan'),('091302000789','123456','cu dan'),('092189012462','123456','cu dan'),('093306018589','123456','cu dan'),('094181002195','123456','cu dan'),('094214032241','123456','cu dan'),('095181022615','123456','cu dan');
+INSERT INTO `accounts` VALUES ('001079023664','123456','cu dan'),('002182005067','123456','cu dan'),('006205016356','123456','cu dan'),('008171023365','123456','cu dan'),('012097008038','123456','cu dan'),('012345678912','123456','quan ly'),('014184016247','123456','cu dan'),('015210029700','123456','cu dan'),('015219022550','123456','cu dan'),('017093013983','123456','cu dan'),('020305006891','123456','cu dan'),('023081017260','123456','cu dan'),('023082000064','123456','cu dan'),('023218008760','123456','cu dan'),('025095031388','123456','cu dan'),('025176014707','123456','cu dan'),('025197026243','123456','cu dan'),('025214014006','123456','cu dan'),('026225032391','123456','cu dan'),('027310021996','123456','cu dan'),('037092025749','123456','cu dan'),('037186000354','123456','cu dan'),('037191009161','123456','cu dan'),('038211022449','123456','cu dan'),('042179022503','123456','cu dan'),('042314006243','123456','cu dan'),('044205003741','123456','cu dan'),('044223000785','123456','cu dan'),('045306022984','123456','cu dan'),('046074017254','123456','cu dan'),('049099007779','123456','cu dan'),('052196028259','123456','cu dan'),('054085029356','123456','cu dan'),('056221003382','123456','cu dan'),('060214030588','123456','cu dan'),('066300028737','123456','cu dan'),('068073031124','123456','cu dan'),('070080015596','123456','cu dan'),('070193005762','123456','cu dan'),('074307029488','123456','cu dan'),('077180007735','123456','cu dan'),('079173011516','123456','cu dan'),('082219022726','123456','cu dan'),('084083003461','123456','cu dan'),('084302013839','123456','cu dan'),('091302000789','123456','cu dan'),('092189012462','123456','cu dan'),('093306018589','123456','cu dan'),('094181002195','123456','cu dan'),('094214032241','123456','cu dan'),('095181022615','123456','cu dan');
 /*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -68,31 +68,6 @@ CREATE TABLE `can_bo` (
 LOCK TABLES `can_bo` WRITE;
 /*!40000 ALTER TABLE `can_bo` DISABLE KEYS */;
 /*!40000 ALTER TABLE `can_bo` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `debug_log`
---
-
-DROP TABLE IF EXISTS `debug_log`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `debug_log` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `message` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `debug_log`
---
-
-LOCK TABLES `debug_log` WRITE;
-/*!40000 ALTER TABLE `debug_log` DISABLE KEYS */;
-INSERT INTO `debug_log` VALUES (11,NULL,'2025-11-07 07:49:28'),(12,'-> Khong vao nhanh IF','2025-11-07 07:49:28'),(13,NULL,'2025-11-07 07:54:18'),(14,'-> Khong vao nhanh IF','2025-11-07 07:54:18'),(15,NULL,'2025-11-07 07:54:59'),(16,'-> Khong vao nhanh IF','2025-11-07 07:54:59'),(17,NULL,'2025-11-07 07:58:07'),(18,'-> Khong vao nhanh IF','2025-11-07 07:58:07');
-/*!40000 ALTER TABLE `debug_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -160,8 +135,8 @@ CREATE TABLE `ho_khau` (
   `address` varchar(50) NOT NULL,
   `id_tt` int DEFAULT NULL,
   PRIMARY KEY (`id_ho_khau`),
-  UNIQUE KEY `id_tt_UNIQUE` (`id_tt`),
-  CONSTRAINT `ho_khau_ibfk_1` FOREIGN KEY (`id_tt`) REFERENCES `tam_thuong_tru` (`id_tt`)
+  KEY `id_tt` (`id_tt`),
+  CONSTRAINT `ho_khau_ibfk_1` FOREIGN KEY (`id_tt`) REFERENCES `tam_tru` (`id_tt`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -351,34 +326,33 @@ LOCK TABLES `phan_anh` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `tam_thuong_tru`
+-- Table structure for table `tam_tru`
 --
 
-DROP TABLE IF EXISTS `tam_thuong_tru`;
+DROP TABLE IF EXISTS `tam_tru`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tam_thuong_tru` (
+CREATE TABLE `tam_tru` (
   `id_tt` int NOT NULL AUTO_INCREMENT,
   `date_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `begin` date NOT NULL,
   `end` date NOT NULL,
-  `state` enum('chua duyet','da duyet','bi tu choi') NOT NULL DEFAULT 'chua duyet',
-  `_type` enum('tam tru','thuong tru') DEFAULT NULL,
+  `state` enum('Chua duyet','Da duyet','Bi tu choi') NOT NULL DEFAULT 'Chua duyet',
   `userID` varchar(20) NOT NULL,
   PRIMARY KEY (`id_tt`),
   KEY `userID` (`userID`),
-  CONSTRAINT `tam_thuong_tru_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `accounts` (`userID`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `tam_tru_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `accounts` (`userID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `tam_thuong_tru`
+-- Dumping data for table `tam_tru`
 --
 
-LOCK TABLES `tam_thuong_tru` WRITE;
-/*!40000 ALTER TABLE `tam_thuong_tru` DISABLE KEYS */;
-INSERT INTO `tam_thuong_tru` VALUES (4,'2025-11-04 07:56:59','2025-11-04','2027-11-04','chua duyet','tam tru','001079023664'),(5,'2025-11-04 07:56:59','2025-11-06','2027-11-07','chua duyet','tam tru','001079023664'),(8,'2025-11-07 07:08:39','2025-11-07','2027-11-07','da duyet','tam tru','001205030702');
-/*!40000 ALTER TABLE `tam_thuong_tru` ENABLE KEYS */;
+LOCK TABLES `tam_tru` WRITE;
+/*!40000 ALTER TABLE `tam_tru` DISABLE KEYS */;
+INSERT INTO `tam_tru` VALUES (4,'2025-11-04 07:56:59','2025-11-04','2027-11-04','Chua duyet','001079023664'),(5,'2025-11-04 07:56:59','2025-11-06','2027-11-07','Chua duyet','001079023664');
+/*!40000 ALTER TABLE `tam_tru` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -416,30 +390,6 @@ UNLOCK TABLES;
 --
 -- Dumping routines for database 'todanpho'
 --
-/*!50003 DROP PROCEDURE IF EXISTS `delete_account` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_account`(IN id int)
-BEGIN
-	DECLARE uID varchar(50) default null;
-	DELETE FROM nhan_khau WHERE id_ho_khau = (SELECT id_ho_khau FROM ho_khau WHERE id_tt = id);  
-	DELETE FROM ho_khau WHERE id_tt = id;
-	SELECT userID INTO uID FROM tam_thuong_tru WHERE id_tt = id;
-    DELETE FROM tam_thuong_tru WHERE id_tt = id;
-    DELETE FROM accounts WHERE userID = uID;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -450,4 +400,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-14 18:33:22
+-- Dump completed on 2025-11-04 15:39:18
