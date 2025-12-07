@@ -9,6 +9,7 @@ const userRoute = require("./routes/userRoute");
 const residentRoute = require("./routes/residentRoute");
 const registerRoute = require("./routes/registerResidentRoute");
 const petitionRoute = require("./routes/petitionRoute");
+const absentRoute = require("./routes/absentRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api", userRoute);
 app.use("/api", residentRoute);
 app.use("/api", petitionRoute);
+app.use("/api", absentRoute);
 
 // Tuyến cần authMiddleware
 app.use("/api", authMiddleware, registerRoute);

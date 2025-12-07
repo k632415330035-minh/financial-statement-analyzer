@@ -101,7 +101,7 @@ function fillModal(member) {
   document.getElementById("mPhone").textContent = "—";
   document.getElementById("mAddress").textContent = member["Địa chỉ"] || "—";
 
-  let noteText = "";
+  let noteText = member["Ghi chú"] || "";
   document.getElementById("mNote").textContent = noteText || "—";
 }
 
