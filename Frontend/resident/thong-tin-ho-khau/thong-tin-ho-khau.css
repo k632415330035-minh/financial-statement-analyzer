@@ -6,11 +6,45 @@
 /* Chỉnh nhẹ cho phần hộ khẩu (tuỳ chọn, có thể xoá nếu không cần) */
 
 /* Giữ margin header gọn gàng */
-#secHousehold .card__header h2{
+#secHousehold .card__header h2 {
   margin: 0;
 }
 
 /* Căn phải ô chứa icon con mắt trong bảng */
-#hhMembers td:last-child{
+#hhMembers td:last-child {
   text-align: right;
+}
+
+/* 1. Container cho mỗi dòng */
+.field {
+  display: flex; /* Kích hoạt Flexbox */
+  justify-content: space-between; /* Đẩy Label sang trái, Value sang phải */
+  align-items: flex-start; /* Căn theo mép trên (đề phòng địa chỉ dài xuống dòng) */
+  padding: 8px 0; /* Khoảng cách trên dưới cho thoáng */
+  border-bottom: 1px dashed #e0e0e0; /* (Tùy chọn) Thêm dòng kẻ mờ ngăn cách */
+}
+
+/* 2. Phần tiêu đề (Label) */
+.field .label {
+  white-space: nowrap; /* QUAN TRỌNG: Giữ chữ trên 1 dòng */
+  flex-shrink: 0; /* QUAN TRỌNG: Không cho phép bị ép nhỏ lại */
+  margin-right: 20px; /* Khoảng cách an toàn với nội dung */
+  font-weight: 600; /* In đậm nhẹ */
+  color: #555;
+}
+
+/* 3. Phần nội dung (Value) */
+.field .value {
+  text-align: right; /* QUAN TRỌNG: Căn lề phải */
+  flex-grow: 1; /* Chiếm toàn bộ khoảng trống còn lại */
+  color: #000;
+  word-break: break-word; /* Đảm bảo xuống dòng nếu nội dung quá dài */
+}
+/* Ghi đè: Chỉ áp dụng cho các phần tử value có class 'badge' */
+.field .value.badge {
+  /* Đặt flex-grow về 0 để phần tử chỉ chiếm đúng bằng kích thước nội dung */
+  flex-grow: 0;
+
+  /* Tùy chọn: Có thể cần thêm min-width nếu badge bị quá hẹp */
+  /* min-width: 80px; */
 }

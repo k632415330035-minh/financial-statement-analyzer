@@ -5,17 +5,18 @@
   </div>
 
   <p class="muted">
-    Sử dụng khi hộ muốn đăng ký thường trú mới cho một nhân khẩu (em bé mới sinh hoặc người mới nhập hộ).
-    Thông tin sẽ được Tổ dân phố tiếp nhận và cập nhật vào bảng nhân khẩu chính thức.
+    Sử dụng khi hộ muốn đăng ký thường trú mới cho một nhân khẩu chưa có CCCD
+    (em bé mới sinh hoặc cháu). Thông tin sẽ được Tổ dân phố tiếp nhận và cập
+    nhật vào bảng nhân khẩu chính thức.
   </p>
 
   <form id="permForm" class="form">
     <!-- Đối tượng: người lớn / trẻ em -->
     <div class="form__row">
-      <label class="row--inline" style="gap:8px;">
+      <label class="row--inline" style="gap: 8px">
         <span>Đối tượng đăng ký</span>
         <select name="doi_tuong" id="permSubject">
-          <option value="ADULT" selected>Người lớn</option>
+          <!-- <option value="ADULT" selected>Người lớn</option> -->
           <option value="CHILD">Trẻ em (chưa có CCCD)</option>
         </select>
       </label>
@@ -27,18 +28,25 @@
       <div>
         <label>
           <span>Họ tên người được đăng ký</span>
-          <input name="ho_ten" required maxlength="120" placeholder="Ví dụ: Nguyễn Văn B">
-          <small class="helper">Ghi đúng họ tên trên giấy khai sinh/CCCD.</small>
+          <input
+            name="ho_ten"
+            required
+            maxlength="120"
+            placeholder="Ví dụ: Nguyễn Văn B"
+          />
+          <small class="helper"
+            >Ghi đúng họ tên trên giấy khai sinh/CCCD.</small
+          >
         </label>
 
         <label>
           <span>Bí danh (nếu có)</span>
-          <input name="bi_danh" maxlength="120" placeholder="Ví dụ: Tý">
+          <input name="bi_danh" maxlength="120" placeholder="Ví dụ: Tý" />
         </label>
 
         <label>
           <span>Ngày sinh</span>
-          <input type="date" name="ngay_sinh" required>
+          <input type="date" name="ngay_sinh" required />
         </label>
 
         <label>
@@ -52,22 +60,28 @@
 
         <label>
           <span>Nơi sinh</span>
-          <input name="noi_sinh" placeholder="Ví dụ: Hà Đông, Hà Nội">
+          <input name="noi_sinh" placeholder="Ví dụ: Hà Đông, Hà Nội" />
         </label>
 
         <label>
           <span>Nguyên quán</span>
-          <input name="nguyen_quan" placeholder="Ví dụ: La Khê, Hà Đông, Hà Nội">
+          <input
+            name="nguyen_quan"
+            placeholder="Ví dụ: La Khê, Hà Đông, Hà Nội"
+          />
         </label>
 
         <label>
           <span>Dân tộc</span>
-          <input name="dan_toc" placeholder="Ví dụ: Kinh">
+          <input name="dan_toc" placeholder="Ví dụ: Kinh" />
         </label>
 
         <label>
           <span>Nghề nghiệp</span>
-          <input name="nghe_nghiep" placeholder="Ví dụ: Kỹ sư (hoặc Học sinh)">
+          <input
+            name="nghe_nghiep"
+            placeholder="Ví dụ: Kỹ sư (hoặc Học sinh)"
+          />
         </label>
       </div>
 
@@ -75,7 +89,7 @@
       <div>
         <label data-adult-only>
           <span>CCCD</span>
-          <input name="cccd" maxlength="12" placeholder="Ví dụ: 012345678900">
+          <input name="cccd" maxlength="12" placeholder="Ví dụ: 012345678900" />
           <small class="helper">
             Nếu là trẻ em chưa có CCCD, để trống ô này.
           </small>
@@ -83,27 +97,27 @@
 
         <label data-adult-only>
           <span>Ngày cấp CCCD</span>
-          <input type="date" name="ngay_cap_cccd">
+          <input type="date" name="ngay_cap_cccd" />
         </label>
 
         <label data-adult-only>
           <span>Nơi cấp CCCD</span>
-          <input name="noi_cap_cccd" placeholder="Ví dụ: Cục CSQLHC về TTXH">
+          <input name="noi_cap_cccd" placeholder="Ví dụ: Cục CSQLHC về TTXH" />
         </label>
 
         <label data-adult-only>
           <span>Nơi làm việc</span>
-          <input name="noi_lam_viec" placeholder="Ví dụ: Công ty TNHH ABC">
+          <input name="noi_lam_viec" placeholder="Ví dụ: Công ty TNHH ABC" />
         </label>
 
         <label>
           <span>Quan hệ với chủ hộ</span>
           <select name="quan_he_voi_chu_ho" required>
             <option value="CON">Con</option>
-            <option value="VO_CHONG">Vợ / Chồng</option>
-            <option value="CHA_ME">Cha / Mẹ</option>
+            <option value="CHAU">Cháu</option>
+            <!-- <option value="CHA_ME">Cha / Mẹ</option>
             <option value="ANH_EM">Anh/chị/em</option>
-            <option value="KHAC">Khác</option>
+            <option value="KHAC">Khác</option> -->
           </select>
           <small class="helper">
             Trùng với trường quan_he_voi_chu_ho trong bảng nhân khẩu.
@@ -112,30 +126,41 @@
 
         <label>
           <span>Ngày đăng ký thường trú</span>
-          <input type="date" name="ngay_dang_ky_thuong_tru">
+          <input type="date" name="ngay_dang_ky_thuong_tru" />
         </label>
 
         <label>
           <span>Địa chỉ thường trú trước khi chuyển đến</span>
-          <input name="thuong_tru_truoc_khi_chuyen_den"
-                 placeholder="Ví dụ: Xã X, Huyện Y, Tỉnh Z">
+          <input
+            name="thuong_tru_truoc_khi_chuyen_den"
+            placeholder="Ví dụ: Xã X, Huyện Y, Tỉnh Z"
+          />
         </label>
 
         <label>
           <span>Ghi chú</span>
-          <textarea name="note" rows="3" placeholder="Thông tin thêm (nếu có)…"></textarea>
+          <textarea
+            name="note"
+            rows="3"
+            placeholder="Thông tin thêm (nếu có)…"
+          ></textarea>
         </label>
       </div>
     </div>
 
     <!-- Đính kèm file full-width -->
-    <label>
+    <!-- <label>
       <span>Đính kèm giấy tờ (tối đa 3 file)</span>
-      <input type="file" name="files" multiple accept="image/*,application/pdf">
+      <input
+        type="file"
+        name="files"
+        multiple
+        accept="image/*,application/pdf"
+      />
       <small class="helper">Có thể đính kèm ảnh giấy khai sinh, CCCD…</small>
-    </label>
+    </label> -->
 
-    <div class="form__row end" style="margin-top:12px;">
+    <div class="form__row end" style="margin-top: 12px">
       <button type="reset" class="btn light">Xóa</button>
       <button type="submit" class="btn">Gửi yêu cầu</button>
     </div>
