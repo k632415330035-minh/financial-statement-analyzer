@@ -54,8 +54,13 @@ const getHousehold = async (userID) => {
             nk_all.id_ho_khau AS 'Số hộ khẩu',
             hk.address AS 'Địa chỉ',
             hk._type AS 'Trạng thái cư trú',
+            tv.thoi_gian_tam_vang_begin, 
+            tv.thoi_gian_tam_vang_end,  
 
-            CASE WHEN tv.thoi_gian_tam_vang_end IS NOT NULL AND tv.thoi_gian_tam_vang_end > NOW()
+            CASE 
+                WHEN tv.thoi_gian_tam_vang_begin IS NOT NULL 
+                AND NOW() >= tv.thoi_gian_tam_vang_begin 
+                AND NOW() <= tv.thoi_gian_tam_vang_end  
             THEN 'Tạm vắng'
             ELSE '' 
             END AS 'Ghi chú'
@@ -68,16 +73,33 @@ const getHousehold = async (userID) => {
             ho_khau hk ON nk_all.id_ho_khau COLLATE utf8mb4_0900_ai_ci = hk.id_ho_khau 
 
         LEFT JOIN (
-            SELECT 
-                id_cd, 
-                MAX(thoi_gian_tam_vang_end) AS thoi_gian_tam_vang_end
-            FROM 
-                tam_vang 
-            WHERE 
-                thoi_gian_tam_vang_end > NOW() -- Đang còn hiệu lực
-            GROUP BY 
-                id_cd
-        ) AS tv ON cd_all.id_cd = tv.id_cd
+        SELECT 
+            id_cd,
+            thoi_gian_tam_vang_begin,
+            thoi_gian_tam_vang_end
+        FROM 
+            (
+                SELECT 
+                    id_cd, 
+                    thoi_gian_tam_vang_begin,
+                    thoi_gian_tam_vang_end,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY id_cd 
+                        ORDER BY 
+                            CASE 
+                                WHEN NOW() >= thoi_gian_tam_vang_begin AND NOW() <= thoi_gian_tam_vang_end THEN 1
+                                WHEN NOW() < thoi_gian_tam_vang_begin THEN 2
+                                ELSE 3
+                            END ASC,
+                            thoi_gian_tam_vang_begin ASC, 
+                            thoi_gian_tam_vang_end DESC 
+                    ) as rn
+                FROM 
+                    tam_vang 
+                WHERE thoi_gian_tam_vang_end >= NOW()
+            ) AS Ranked_Final
+        WHERE rn = 1
+    ) AS tv ON cd_all.id_cd = tv.id_cd
 
         WHERE 
             nk_all.id_ho_khau = (
@@ -86,8 +108,7 @@ const getHousehold = async (userID) => {
                 FROM 
                     accounts acc
                 JOIN
-                    -- Chỗ này giữ nguyên theo code bạn gửi (join qua userID)
-                    cong_dan cd_current ON acc.userID COLLATE utf8mb4_0900_ai_ci = cd_current.userID 
+                    cong_dan cd_current ON acc.userID COLLATE utf8mb4_0900_ai_ci = cd_current.cccd 
                 JOIN
                     nhan_khau nk_current ON cd_current.id_cd COLLATE utf8mb4_0900_ai_ci = nk_current.id_cd 
                 WHERE 

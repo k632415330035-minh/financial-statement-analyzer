@@ -1,159 +1,188 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Cổng cư dân – Resident</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cổng cư dân – Resident</title>
 
-  <!-- CSS khung chung -->
-  <link rel="stylesheet" href="resident.css"/>
-  <script defer src="resident.js"></script>
-</head>
+    <!-- CSS khung chung -->
+    <link rel="stylesheet" href="resident.css" />
+    <script defer src="resident.js"></script>
+  </head>
 
-<body>
-  <!-- HEADER -->
-  <header class="app-header">
-    <div class="brand">
-      <span class="brand__icon">🏘️</span>
-      <span class="brand__name">Cổng cư dân</span>
-    </div>
-  </header>
-
-  <!-- LAYOUT 3 CỘT -->
-  <div class="layout-3">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar__greet">
-        <div class="hello" id="sbHello">Chào buổi sáng</div>
-        <div class="role" id="sbRole">Cư dân</div>
-        <div class="date" id="sbDate">—</div>
+  <body>
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand__icon">🏘️</span>
+        <span class="brand__name">Cổng cư dân</span>
       </div>
+    </header>
 
-      <!-- Lưu ý: dùng data-page để chỉ định file cần load -->
-      <nav class="sidenav">
-        <button class="sidenav__item is-active" data-page="thong-tin-ca-nhan">
-          👤 Thông tin cá nhân
-        </button>
-        <button class="sidenav__item " data-page="thong-tin-ho-khau">
-          🏠 Thông tin hộ khẩu
-        </button>
-        <button class="sidenav__item" data-page="dang-ky-thuong-tru">
-          📝 Đăng ký thường trú
-        </button>
-        <button class="sidenav__item" data-page="tam-tru-tam-vang">
-          🧳 Tạm trú / Tạm vắng
-        </button>
-        <button class="sidenav__item" data-page="lich-su-bien-dong">
-          🗂️ Lịch sử biến động
-        </button>
-        <button class="sidenav__item" data-page="phan-anh-cua-toi">
-          📬 Phản ánh của tôi
-        </button>
-      </nav>
-
-      <div class="sidebar__footer">
-        <button class="btn outline" id="btnLogout">Đăng xuất</button>
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main">
-
-      <!-- KPI -->
-      <section class="kpi-row">
-        <div class="kpi">
-          <div class="kpi__title">Số hộ khẩu</div>
-          <div class="kpi__val" id="kpiHK">HK———</div>
-          <button class="kpi__cta" id="btnCopyHK">Sao chép</button>
+    <!-- LAYOUT 3 CỘT -->
+    <div class="layout-3">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar__greet">
+          <div class="hello" id="sbHello">Chào buổi sáng</div>
+          <div class="role" id="sbRole">Cư dân</div>
+          <div class="date" id="sbDate">—</div>
         </div>
 
-        <div class="kpi">
-          <div class="kpi__title">Nhân khẩu trong hộ</div>
-          <div class="kpi__val" id="kpiMembers">—</div>
-          <div class="kpi__sub" id="kpiHead">Chủ hộ: —</div>
-        </div>
-
-        <div class="kpi">
-          <div class="kpi__title">Trạng thái cư trú</div>
-          <div class="kpi__chip" id="kpiStatus">—</div>
-          <div class="spark" id="sparkStay"></div>
-        </div>
-      </section>
-
-      <!-- LỐI TẮT -->
-      <section class="card actions">
-        <div class="card__header"><h2>Lối tắt</h2></div>
-        <div class="actions__grid">
-          <button class="action" data-page="tam-tru-tam-vang">
-            <div class="ico">📝</div>
-            <div class="txt">
-              <div class="t1">Đăng ký tạm trú</div>
-              <div class="t2">Gửi online • hẹn lịch</div>
-            </div>
+        <!-- Lưu ý: dùng data-page để chỉ định file cần load -->
+        <nav class="sidenav">
+          <button class="sidenav__item is-active" data-page="thong-tin-ca-nhan">
+            👤 Thông tin cá nhân
           </button>
-
-          <button class="action" data-page="tam-tru-tam-vang">
-            <div class="ico">🚶</div>
-            <div class="txt">
-              <div class="t1">Báo tạm vắng</div>
-              <div class="t2">Trong/ngoài địa phương</div>
-            </div>
+          <button class="sidenav__item" data-page="thong-tin-ho-khau">
+            🏠 Thông tin hộ khẩu
           </button>
-
-          <button class="action" data-page="phan-anh-cua-toi">
-            <div class="ico">📬</div>
-            <div class="txt">
-              <div class="t1">Phản ánh của tôi</div>
-              <div class="t2">Theo dõi quá trình xử lý</div>
-            </div>
+          <button class="sidenav__item" data-page="dang-ky-thuong-tru">
+            📝 Thường trú / Tạm trú
           </button>
+          <button class="sidenav__item" data-page="tam-tru-tam-vang">
+            🧳 Tạm vắng
+          </button>
+          <button class="sidenav__item" data-page="lich-su-bien-dong">
+            🗂️ Lịch sử biến động
+          </button>
+          <button class="sidenav__item" data-page="phan-anh-cua-toi">
+            📬 Phản ánh của tôi
+          </button>
+        </nav>
+
+        <div class="sidebar__footer">
+          <button class="btn outline" id="btnLogout">Đăng xuất</button>
         </div>
-      </section>
+      </aside>
 
-      <!-- LIÊN HỆ TỔ TRƯỞNG -->
-      <section class="leader card">
-        <div class="card__header"><h2>Liên hệ Tổ trưởng</h2></div>
-        <div class="leader__row">
-          <div class="leader__avatar">T</div>
-          <div class="leader__meta">
-            <div class="leader__name">Trần Trung Hiếu</div>
-            <div class="leader__info">SĐT: 0901234567 • Email: to7@example.gov.vn</div>
-            <div class="leader__note">Tiếp dân: 19:00–21:00 T2,4,6</div>
+      <!-- MAIN CONTENT -->
+      <main class="main">
+        <!-- KPI -->
+        <section class="kpi-row">
+          <div class="kpi">
+            <div class="kpi__title">Số hộ khẩu</div>
+            <div class="kpi__val" id="kpiHK">HK———</div>
+            <button class="kpi__cta" id="btnCopyHK">Sao chép</button>
           </div>
+
+          <div class="kpi">
+            <div class="kpi__title">Nhân khẩu trong hộ</div>
+            <div class="kpi__val" id="kpiMembers">—</div>
+            <div class="kpi__sub" id="kpiHead">Chủ hộ: —</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi__title">Trạng thái cư trú</div>
+            <div class="kpi__chip" id="kpiStatus">—</div>
+            <div class="spark" id="sparkStay"></div>
+          </div>
+        </section>
+
+        <!-- LIÊN HỆ TỔ TRƯỞNG -->
+        <section class="leader card">
+          <div class="card__header"><h2>Liên hệ Tổ trưởng</h2></div>
+          <div class="leader__row">
+            <div class="leader__avatar">T</div>
+            <div class="leader__meta">
+              <div class="leader__name">Trần Trung Hiếu</div>
+              <div class="leader__info">
+                SĐT: 0901234567 • Email: to7@example.gov.vn
+              </div>
+              <div class="leader__note">Tiếp dân: 19:00–21:00 T2,4,6</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VÙNG NỘI DUNG THAY ĐỔI -->
+        <!-- JS sẽ tải nội dung từ thong-tin-ca-nhan.html, thong-tin-ho-khau.html... vào đây -->
+        <div id="pageContainer"></div>
+      </main>
+
+      <!-- THÔNG BÁO BÊN PHẢI -->
+      <aside class="right-info">
+        <section class="card">
+          <div class="card__header"><h2>Thông báo chung</h2></div>
+
+          <div class="news">
+            <article class="news__item">
+              <div class="news__title">Thay đổi lịch thu phí vệ sinh</div>
+              <div class="news__meta">1/11/2025</div>
+            </article>
+
+            <article class="news__item">
+              <div class="news__title">Cắt điện 19:00–21:00 ngày 6/11</div>
+              <div class="news__meta">4/11/2025</div>
+            </article>
+
+            <article class="news__item">
+              <div class="news__title">Mời họp tổ dân phố</div>
+              <div class="news__meta">7/11/2025</div>
+            </article>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <!-- ===== GIA HẠN TẠM TRÚ: NÚT + LABEL + MODAL ===== -->
+    <!-- Nút nổi góc dưới bên phải -->
+    <button class="fab" id="btnExtendStay" hidden title="Gia hạn tạm trú">
+      ⏰
+    </button>
+
+    <!-- Dòng hiển thị thời gian còn lại -->
+    <div class="fab-extend-info" id="extendRemainText" hidden>
+      Còn -- ngày đến hạn tạm trú
+    </div>
+
+    <!-- Cửa sổ gia hạn tạm trú -->
+    <div class="modal hide" id="modalExtendStay">
+      <div class="modal__backdrop" data-close-extend></div>
+      <div class="modal__dialog">
+        <div class="modal__header">
+          <h3>Gia hạn tạm trú</h3>
+          <button class="btn light xs" id="btnExtendClose">Đóng</button>
         </div>
-      </section>
 
-      <!-- VÙNG NỘI DUNG THAY ĐỔI -->
-      <!-- JS sẽ tải nội dung từ thong-tin-ca-nhan.html, thong-tin-ho-khau.html... vào đây -->
-      <div id="pageContainer"></div>
+        <div class="modal__body">
+          <p class="stay-reminder__summary">
+            Trạng thái hiện tại: <strong>Tạm trú</strong><br />
+            Hết hạn ngày <strong id="extendExpireDate">--/--/----</strong><br />
+            <span id="extendRemainDetail" class="muted">—</span>
+          </p>
 
-    </main>
+          <div class="form">
+            <label>
+              <span>Gia hạn đến ngày</span>
+              <input type="date" id="extendToDate" />
+              <span class="helper">
+                Ngày cụ thể có thể được điều chỉnh lại theo kết quả xử lý hồ sơ.
+              </span>
+            </label>
+          </div>
 
-    <!-- THÔNG BÁO BÊN PHẢI -->
-    <aside class="right-info">
-      <section class="card">
-        <div class="card__header"><h2>Thông báo chung</h2></div>
-
-        <div class="news">
-          <article class="news__item">
-            <div class="news__title">Thay đổi lịch thu phí vệ sinh</div>
-            <div class="news__meta">1/11/2025</div>
-          </article>
-
-          <article class="news__item">
-            <div class="news__title">Cắt điện 19:00–21:00 ngày 6/11</div>
-            <div class="news__meta">4/11/2025</div>
-          </article>
-
-          <article class="news__item">
-            <div class="news__title">Mời họp tổ dân phố</div>
-            <div class="news__meta">7/11/2025</div>
-          </article>
+          <section class="card stay-reminder__card">
+            <div class="card__header">
+              <h4>Chọn người gia hạn cùng</h4>
+            </div>
+            <div class="card__body">
+              <!-- JS sẽ tự render danh sách từ data householdMembers -->
+              <div id="extendMemberList" class="stay-reminder__members"></div>
+              <p class="helper" style="margin-top: 6px">
+                Bạn có thể chọn nhiều người để gia hạn trong cùng một lần.
+              </p>
+            </div>
+          </section>
         </div>
-      </section>
-    </aside>
 
-  </div>
-</body>
+        <div class="modal__footer">
+          <button class="btn light" id="btnExtendCancel">Hủy</button>
+          <button class="btn" id="btnExtendSubmit">Gửi yêu cầu gia hạn</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thông báo nhỏ khi gửi xong -->
+    <div class="toast" id="toastExtendStay"></div>
+  </body>
 </html>
