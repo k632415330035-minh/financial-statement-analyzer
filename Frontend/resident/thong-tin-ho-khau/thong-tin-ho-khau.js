@@ -78,12 +78,70 @@ function getStatusBadge(statusString) {
  * Điền dữ liệu vào Modal chi tiết thành viên.
  * SỬ DỤNG BRACKET NOTATION CHO CÁC KEY CÓ DẤU HOẶC KHOẢNG TRẮNG.
  */
+
+function checkCurrentAbsentStatus(member) {
+  const status = member["Trạng thái cư trú"];
+  const absentBegin = member.thoi_gian_tam_vang_begin; // Kiểm tra lại tên key
+  const absentEnd = member.thoi_gian_tam_vang_end; // Kiểm tra lại tên key
+
+  if (status === "Tạm vắng") {
+    return "Tạm vắng";
+  }
+
+  if (absentBegin && absentEnd) {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    const start = new Date(absentBegin);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(absentEnd);
+    end.setHours(23, 59, 59, 999);
+
+    if (now >= start && now <= end) {
+      return "Tạm vắng";
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Điền dữ liệu vào Modal chi tiết thành viên.
+ */
 function fillModal(member) {
-  // Các key có dấu/khoảng trắng
   const relation = member["Quan hệ với chủ hộ"] || "—";
   const job = member["Nghề nghiệp"] || "—";
 
-  // Logic Vai trò
+  const currentAbsentNote = checkCurrentAbsentStatus(member); // Kiểm tra tạm vắng hiện tại (dùng ngày)
+  let noteText = member["Ghi chú"] || ""; // Lấy Ghi chú từ Backend (có thể là 'Tạm vắng')
+
+  // Mục tiêu: Nếu Backend đã đánh dấu Ghi chú (ví dụ: 'Tạm vắng' cho đợt sắp tới)
+  // HOẶC nếu logic ngày JS của chúng ta phát hiện đang tạm vắng:
+
+  let finalNote = noteText;
+
+  if (currentAbsentNote && !finalNote.toLowerCase().includes("tạm vắng")) {
+    // 1. Logic ngày JS phát hiện đang tạm vắng, nhưng Ghi chú DB chưa có: Thêm vào.
+    finalNote = finalNote
+      ? `${finalNote} (${currentAbsentNote})`
+      : currentAbsentNote;
+  } else if (
+    noteText.toLowerCase().includes("tạm vắng") &&
+    !currentAbsentNote
+  ) {
+    // 2. Logic ngày JS bảo không phải (vì là đợt sắp tới 01/01/2026), nhưng DB có:
+    // GIỮ NGUYÊN GHI CHÚ TỪ DB (Tôn trọng thông báo từ Backend)
+    // Nếu bạn muốn ẩn ghi chú cho đợt tương lai, hãy để dòng này:
+    // finalNote = finalNote.replace(/tạm vắng/gi, "").trim();
+
+    // Nhưng vì nó đang hoạt động sai (không hiện), ta giữ nguyên Ghi chú DB:
+    finalNote = noteText;
+  } else if (!noteText && currentAbsentNote) {
+    // 3. Ghi chú DB rỗng nhưng logic JS thấy đang tạm vắng:
+    finalNote = currentAbsentNote;
+  }
+
   const role =
     relation.toLowerCase().trim() === "chủ hộ" ? "Chủ hộ" : "Thành viên";
 
@@ -92,7 +150,7 @@ function fillModal(member) {
   document.getElementById("mRelation").textContent = relation;
   document.getElementById("mDob").textContent = formatDate(member["Ngày sinh"]);
   document.getElementById("mGender").textContent = member["Giới tính"] || "—";
-  document.getElementById("mCCCD").textContent = member.CCCD || "—"; // CCCD không có dấu/khoảng trắng
+  document.getElementById("mCCCD").textContent = member.CCCD || "—";
   document.getElementById("mJob").textContent = job;
 
   const statusEl = document.getElementById("mStatus");
@@ -101,8 +159,7 @@ function fillModal(member) {
   document.getElementById("mPhone").textContent = "—";
   document.getElementById("mAddress").textContent = member["Địa chỉ"] || "—";
 
-  let noteText = member["Ghi chú"] || "";
-  document.getElementById("mNote").textContent = noteText || "—";
+  document.getElementById("mNote").textContent = finalNote || "—";
 }
 
 /**

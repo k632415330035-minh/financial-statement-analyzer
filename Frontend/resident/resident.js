@@ -153,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
       html: "dang-ky-thuong-tru/dang-ky-thuong-tru.html",
       css: "dang-ky-thuong-tru/dang-ky-thuong-tru.css",
       js: "dang-ky-thuong-tru/dang-ky-thuong-tru.js",
+      initFunc: "initPermRegFormLogic",
     },
     "tam-tru-tam-vang": {
       html: "tam-tru-tam-vang/tam-tru-tam-vang.html",
@@ -163,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
       html: "lich-su-bien-dong/lich-su-bien-dong.html",
       css: "lich-su-bien-dong/lich-su-bien-dong.css",
       js: "lich-su-bien-dong/lich-su-bien-dong.js",
+      initFunc: "initHistoryPage",
     },
     "phan-anh-cua-toi": {
       html: "phan-anh-cua-toi/phan-anh-cua-toi.html",

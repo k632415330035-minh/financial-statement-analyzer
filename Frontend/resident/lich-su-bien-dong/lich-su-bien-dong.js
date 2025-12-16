@@ -1,123 +1,245 @@
 // lich-su-bien-dong.js
-// IIFE – chạy ngay khi script được chèn bởi resident.js
 (function () {
-  const timelineEl = document.getElementById("lsbdTimeline");
-  const filterBar = document.getElementById("lsbdFilters");
+  const API_BASE_URL = "/api/history";
+  const TIMELINE_CONTAINER = document.getElementById("lsbdTimeline");
+  const FILTER_CHIPS = document.querySelectorAll("#lsbdFilters button");
 
-  if (!timelineEl || !filterBar) return;
+  let ALL_HISTORY_DATA = [];
 
-  // ===== DỮ LIỆU DEMO LỊCH SỬ BIẾN ĐỘNG =====
-  // Sau này bạn chỉ cần thay mảng này bằng dữ liệu API là xong
-  const changes = [
-    {
-      id: 1,
-      date: "2025-11-20",
-      type: "TAM_TRU",
-      title: "Đăng ký tạm trú tại KTX Bách Khoa",
-      person: "Nguyễn Văn A",
-      detail: "Thời gian từ 01/08/2025 đến 01/02/2026, lý do: Học tập.",
-    },
-    {
-      id: 2,
-      date: "2025-10-05",
-      type: "THUONG_TRU",
-      title: "Đăng ký thường trú cho Nguyễn Văn A",
-      person: "Nguyễn Văn A",
-      detail: "Chuyển từ Xã X, Huyện Y, Tỉnh Z về Số 1 Ngõ 1, La Khê, Hà Đông.",
-    },
-    {
-      id: 3,
-      date: "2025-08-10",
-      type: "TAM_VANG",
-      title: "Báo tạm vắng đi Đà Nẵng",
-      person: "Trần Thị C",
-      detail: "Đi công tác tại Đà Nẵng từ 10/08/2025 đến 20/08/2025.",
-    },
-    {
-      id: 4,
-      date: "2025-05-01",
-      type: "CHUYEN_DI",
-      title: "Chuyển đi nơi khác",
-      person: "Nguyễn Văn D",
-      detail: "Chuyển thường trú về Quận 1, TP.HCM.",
-    },
-  ];
-
-  const TYPE_LABEL = {
-    THUONG_TRU: "Thường trú",
-    TAM_TRU: "Tạm trú",
-    TAM_VANG: "Tạm vắng",
-    CHUYEN_DI: "Chuyển đi",
-  };
-
-  // ===== HÀM FORMAT NGÀY dd/mm/yyyy =====
-  function fmtDate(iso) {
-    if (!iso) return "";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const yyyy = d.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
+  /* ======================= TOKEN ======================= */
+  function decodeToken(token) {
+    if (!token) return null;
+    try {
+      const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      return JSON.parse(atob(base64));
+    } catch {
+      return null;
+    }
   }
 
-  // ===== RENDER TIMELINE =====
-  function renderTimeline(filterType = "ALL") {
-    timelineEl.innerHTML = "";
+  function getCCCDFromToken() {
+    const token = localStorage.getItem("userToken");
+    const payload = decodeToken(token);
+    return payload?.userID || null;
+  }
 
-    const filtered =
-      filterType === "ALL"
-        ? changes
-        : changes.filter((c) => c.type === filterType);
+  /* ======================= DATE ======================= */
+  function formatDate(dateString) {
+    if (!dateString) return "—";
+    try {
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return dateString;
+      return `${String(d.getDate()).padStart(2, "0")}/${String(
+        d.getMonth() + 1
+      ).padStart(2, "0")}/${d.getFullYear()}`;
+    } catch {
+      return dateString;
+    }
+  }
 
-    if (!filtered.length) {
-      const p = document.createElement("p");
-      p.className = "muted";
-      p.textContent = "Chưa có biến động nào cho bộ lọc hiện tại.";
-      timelineEl.appendChild(p);
+  /* ======================= STATUS COLOR (QUAN TRỌNG) ======================= */
+  function getStatusColorImportant(status) {
+    if (!status) return "";
+    const s = status.toLowerCase();
+
+    if (s.includes("đã")) return "color:#166534 !important"; // xanh
+    if (s.includes("chưa") || s.includes("đợi") || s.includes("chờ"))
+      return "color:#92400e !important"; // vàng
+    if (s.includes("từ chối")) return "color:#b91c1c !important"; // đỏ
+
+    return "";
+  }
+
+  /* ======================= RENDER EVENT ======================= */
+  function createTimelineEvent(e) {
+    if (!e || !e.type) return "";
+
+    let statusHtml = "";
+    if ((e.type === "THUONG_TRU" || e.type === "TAM_TRU") && e.status) {
+      statusHtml = `
+        <div class="lsbd-status" style="${getStatusColorImportant(e.status)}">
+          ${e.status}
+        </div>
+      `;
+    }
+
+    let titleText = "";
+    let bodyText = "";
+
+    if (e.type === "THUONG_TRU") {
+      titleText = "Thường trú / tạm trú";
+      bodyText = `Chuyển từ: ${e.thuongTruTruocDay || "Không rõ"}`;
+    }
+
+    if (e.type === "TAM_TRU") {
+      titleText = "Thường trú / Tạm trú";
+      bodyText = `Thời gian từ ${formatDate(e.beginDate)} đến ${formatDate(
+        e.endDate
+      )}`;
+    }
+
+    if (e.type === "TAM_VANG") {
+      titleText = "Tạm vắng";
+      bodyText = `
+        Lý do: ${e.reason || "—"}<br>
+        Thời gian: ${formatDate(e.beginDate)} → ${formatDate(e.endDate)}
+      `;
+    }
+
+    if (e.type === "CHUYEN_DI") {
+      titleText = "Chuyển đi nơi khác";
+      bodyText = `Chuyển đến: ${e.destination || "—"}`;
+    }
+
+    return `
+      <div class="timeline__event ev">
+        <div class="timeline__point"></div>
+        <div class="timeline__content">
+
+          <div class="lsbd-header">
+            <div class="lsbd-title">
+              ${titleText}
+              <span class="lsbd-badge ${e.type}">
+                ${e.typeDisplay}
+              </span>
+            </div>
+            ${statusHtml}
+          </div>
+
+          <div class="lsbd-meta">
+            Ngày: ${formatDate(e.date)} • Nhân khẩu: ${e.hoTen || "—"}
+          </div>
+
+          <div class="lsbd-body">
+            ${bodyText}
+          </div>
+
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTimeline(data) {
+    if (!TIMELINE_CONTAINER) return;
+
+    TIMELINE_CONTAINER.innerHTML = "";
+
+    if (!data || !data.length) {
+      TIMELINE_CONTAINER.innerHTML =
+        '<p class="muted" style="text-align:center">Không có dữ liệu phù hợp bộ lọc</p>';
       return;
     }
 
-    // sắp xếp mới nhất lên trên
-    filtered
-      .slice()
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .forEach((ev) => {
-        const div = document.createElement("div");
-        div.className = "ev";
-
-        const typeLabel = TYPE_LABEL[ev.type] || "Khác";
-
-        div.innerHTML = `
-          <div class="lsbd-title">
-            ${ev.title}
-            <span class="lsbd-badge ${ev.type}">${typeLabel}</span>
-          </div>
-          <div class="lsbd-meta">
-            Ngày: ${fmtDate(ev.date)} • Nhân khẩu: ${ev.person}
-          </div>
-          <div class="lsbd-body">
-            ${ev.detail}
-          </div>
-        `;
-
-        timelineEl.appendChild(div);
-      });
+    data.forEach((e) => {
+      const html = createTimelineEvent(e);
+      if (html) TIMELINE_CONTAINER.innerHTML += html;
+    });
   }
 
-  // ===== GẮN SỰ KIỆN CHO CÁC CHIP LỌC =====
-  filterBar.addEventListener("click", (e) => {
-    const chip = e.target.closest(".chip");
-    if (!chip) return;
+  /* ======================= NORMALIZE ======================= */
+  function normalizeData(data, source) {
+    if (!Array.isArray(data)) return [];
 
-    // đổi active
-    filterBar.querySelectorAll(".chip").forEach((c) => c.classList.remove("is-active"));
-    chip.classList.add("is-active");
+    return data.map((i) => {
+      if (!i) return null;
 
-    const type = chip.dataset.type || "ALL";
-    renderTimeline(type);
-  });
+      if (source === "REST") {
+        const isTemp = (i._type || "").trim() === "Tạm trú";
+        return {
+          date: i.date_time,
+          hoTen: i.ho_ten,
+          type: isTemp ? "TAM_TRU" : "THUONG_TRU",
+          typeDisplay: isTemp ? "Tạm trú" : "Thường trú",
+          status: i.state,
+          beginDate: i.begin,
+          endDate: i.end,
+          thuongTruTruocDay: i.thuong_tru_truoc_day,
+          sortKey: i.date_time,
+        };
+      }
 
-  // ===== KHỞI TẠO LẦN ĐẦU =====
-  renderTimeline("ALL");
+      if (source === "ABSENT") {
+        return {
+          date: i.date_time,
+          hoTen: i["Họ tên"],
+          type: "TAM_VANG",
+          typeDisplay: "Tạm vắng",
+          status: "Đã duyệt",
+          beginDate: i["Ngày bắt đầu"],
+          endDate: i["Ngày kết thúc"],
+          reason: i["Lý do"],
+          sortKey: i.date_time,
+        };
+      }
+
+      if (source === "MOVE") {
+        return {
+          date: i.ngay_chuyen,
+          hoTen: i.ho_ten,
+          type: "CHUYEN_DI",
+          typeDisplay: "Chuyển đi",
+          status: "Đã chuyển",
+          destination: i.chuyen_den,
+          sortKey: i.ngay_chuyen,
+        };
+      }
+
+      return null;
+    });
+  }
+
+  /* ======================= FETCH ======================= */
+  async function fetchAllHistoryData() {
+    const cccd = getCCCDFromToken();
+    if (!cccd) {
+      TIMELINE_CONTAINER.innerHTML =
+        '<p style="color:red">Không tìm thấy CCCD</p>';
+      return;
+    }
+
+    try {
+      const [r1, r2, r3] = await Promise.all([
+        fetch(`${API_BASE_URL}/restem/${cccd}`).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/absent/${cccd}`).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/move/${cccd}`).then((r) => r.json()),
+      ]);
+
+      ALL_HISTORY_DATA = [
+        ...normalizeData(r1, "REST"),
+        ...normalizeData(r2, "ABSENT"),
+        ...normalizeData(r3, "MOVE"),
+      ]
+        .filter(Boolean)
+        .sort((a, b) => new Date(b.sortKey) - new Date(a.sortKey));
+
+      renderTimeline(ALL_HISTORY_DATA);
+    } catch (err) {
+      console.error(err);
+      TIMELINE_CONTAINER.innerHTML = '<p style="color:red">Lỗi tải dữ liệu</p>';
+    }
+  }
+
+  /* ======================= FILTER ======================= */
+  function initFilters() {
+    FILTER_CHIPS.forEach((btn) => {
+      btn.onclick = () => {
+        FILTER_CHIPS.forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+
+        const type = btn.dataset.type;
+        renderTimeline(
+          type === "ALL"
+            ? ALL_HISTORY_DATA
+            : ALL_HISTORY_DATA.filter((e) => e.type === type)
+        );
+      };
+    });
+  }
+
+  /* ======================= INIT ======================= */
+  window.initHistoryPage = function () {
+    if (!TIMELINE_CONTAINER) return;
+    initFilters();
+    fetchAllHistoryData();
+  };
 })();

@@ -3,46 +3,67 @@
   const form = document.getElementById("permForm");
   if (!form) return;
 
-  const subjectSelect = document.getElementById("permSubject");
-  const adultOnlyLabels = form.querySelectorAll("label[data-adult-only]");
+  // Radio loại đăng ký
+  const permTypeRadios = form.querySelectorAll('input[name="permType"]');
+  const tempTimeRow = document.getElementById("tempTimeRow");
+  const tempFromInput = document.getElementById("tempFrom");
+  const tempToInput = document.getElementById("tempTo");
 
-  function updateAdultFields() {
-    const isChild = subjectSelect.value === "CHILD";
+  function updateTempTimeVisibility() {
+    let isTemp = false;
 
-    adultOnlyLabels.forEach((label) => {
-      const controls = label.querySelectorAll("input, select, textarea");
-
-      if (isChild) {
-        label.classList.add("is-child-only"); // CSS trong resident.css đã hỗ trợ
-        controls.forEach((c) => {
-          c.disabled = true;
-          c.required = false;
-        });
-      } else {
-        label.classList.remove("is-child-only");
-        controls.forEach((c) => {
-          c.disabled = false;
-        });
+    permTypeRadios.forEach((radio) => {
+      if (radio.checked && radio.value === "TEMP") {
+        isTemp = true;
       }
     });
+
+    if (isTemp) {
+      // Hiện ô thời gian tạm trú + bắt buộc nhập
+      tempTimeRow.style.removeProperty("display");
+      if (tempFromInput) tempFromInput.required = true;
+      if (tempToInput) tempToInput.required = true;
+    } else {
+      // Ẩn ô thời gian tạm trú + bỏ required
+      tempTimeRow.style.display = "none";
+      if (tempFromInput) {
+        tempFromInput.required = false;
+        tempFromInput.value = "";
+      }
+      if (tempToInput) {
+        tempToInput.required = false;
+        tempToInput.value = "";
+      }
+    }
   }
 
   // Lần đầu vào trang
-  updateAdultFields();
+  updateTempTimeVisibility();
 
-  // Đổi Người lớn / Trẻ em
-  subjectSelect.addEventListener("change", updateAdultFields);
+  // Đổi loại đăng ký: thường trú / tạm trú
+  permTypeRadios.forEach((radio) => {
+    radio.addEventListener("change", updateTempTimeVisibility);
+  });
 
   // Submit form
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    // Sau này chỗ này gọi API; giờ demo show alert thôi
-    alert("Đã gửi yêu cầu đăng ký thường trú (demo). Sau này sẽ gửi lên server.");
+    // Xác định loại đăng ký đang chọn
+    let typeLabel = "thường trú";
+    permTypeRadios.forEach((radio) => {
+      if (radio.checked && radio.value === "TEMP") {
+        typeLabel = "tạm trú";
+      }
+    });
+
+    alert(
+      "Đã gửi yêu cầu đăng ký " +
+        typeLabel +
+        " cho trẻ em (demo). Sau này sẽ gửi lên server."
+    );
 
     form.reset();
-    // reset lại trạng thái Người lớn / Trẻ em
-    subjectSelect.value = "ADULT";
-    updateAdultFields();
+    updateTempTimeVisibility();
   });
 })();

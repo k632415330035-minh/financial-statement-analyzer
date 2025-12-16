@@ -132,6 +132,10 @@ function populateCitizenView(data) {
       }
     }
   }
+
+  setTimeout(() => {
+    window.dispatchEvent(new Event("resize"));
+  }, 50);
 }
 
 async function fetchResidentData(cccd) {

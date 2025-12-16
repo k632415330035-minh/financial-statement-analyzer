@@ -57,7 +57,7 @@ const getAbsent = async (cccd) => {
       acc.userID = ?`;
   try {
     const [rows] = await db.execute(sql, [cccd]);
-    return rows.length > 0 ? rows[0] : null;
+    return rows.length > 0 ? rows : [];
   } catch (error) {
     console.error("Error executing query:", error);
     throw error; // Ném lỗi để controller xử lý
