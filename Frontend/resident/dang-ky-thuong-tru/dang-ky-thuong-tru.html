@@ -56,7 +56,7 @@
             <select name="gioi_tinh" required>
               <option value="1">Nam</option>
               <option value="2">Nữ</option>
-              <option value="0">Khác</option>
+              <!-- <option value="0">Khác</option> -->
             </select>
           </label>
         </div>
@@ -85,6 +85,14 @@
             <span>Nghề nghiệp (nếu có)</span>
             <input name="nghe_nghiep" placeholder="Ví dụ: Học sinh" />
           </label>
+
+          <label>
+            <span>Nơi làm việc (nếu có)</span>
+            <input
+              name="noi_lam_viec"
+              placeholder="Ví dụ: Trường mầm non Hoa Sen"
+            />
+          </label>
         </div>
       </div>
     </div>
@@ -97,15 +105,14 @@
           <label>
             <span>Quan hệ với chủ hộ</span>
             <select name="quan_he_voi_chu_ho" required>
-              <option value="CON">Con</option>
-              <option value="CHA_ME">Cháu</option>
-              <option value="ANH_EM">Anh/chị/em</option>
-              <option value="KHAC">Khác</option>
+              <option value="Con">Con</option>
+              <option value="Cháu">Cháu</option>
+              <!-- <option value="ANH_CHI_EM">Anh/Chị/Em</option> -->
             </select>
           </label>
         </div>
 
-        <div>
+        <!-- <div>
           <label>
             <span>Địa chỉ thường trú trước khi chuyển đến (nếu có)</span>
             <input
@@ -113,7 +120,7 @@
               placeholder="Ví dụ: Xã X, Huyện Y, Tỉnh Z"
             />
           </label>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -160,7 +167,7 @@
     <!-- Nút -->
     <div class="form__row end actions">
       <button type="reset" class="btn light">Xóa</button>
-      <button type="submit" class="btn">Gửi yêu cầu</button>
+      <button type="submit" class="btn">Gửi đăng ký</button>
     </div>
   </form>
 </section>
