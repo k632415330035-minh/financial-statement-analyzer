@@ -68,7 +68,7 @@
 
     if (e.type === "THUONG_TRU") {
       titleText = "Thường trú / tạm trú";
-      bodyText = `Chuyển từ: ${e.thuongTruTruocDay || "Không rõ"}`;
+      bodyText = `Thường trú trước đây: ${e.thuongTruTruocDay || "Không có"}`;
     }
 
     if (e.type === "TAM_TRU") {
@@ -82,7 +82,7 @@
       titleText = "Tạm vắng";
       bodyText = `
         Lý do: ${e.reason || "—"}<br>
-        Thời gian: ${formatDate(e.beginDate)} → ${formatDate(e.endDate)}
+        Thời gian: ${formatDate(e.beginDate)} đến ${formatDate(e.endDate)}
       `;
     }
 
