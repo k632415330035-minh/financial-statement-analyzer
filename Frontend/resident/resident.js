@@ -81,6 +81,7 @@ async function fetchKPIData() {
             "Trạng thái cư trú"
           ]
         : "—";
+    localStorage.setItem("currentResidentStatus", userStatus);
 
     // Điền dữ liệu vào các khung KPI
     const hkEl = document.getElementById("kpiHK");
@@ -266,6 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       localStorage.removeItem("userToken");
       localStorage.removeItem("userRole");
+      localStorage.removeItem("currentResidentStatus");
 
       window.location.replace("../index.html");
     });

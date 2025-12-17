@@ -1,5 +1,23 @@
 const db = require("../config/dbMySQL");
 
+const getCurrentTempExpiryByHousehold = async (id_ho_khau) => {
+  const sql = `
+    SELECT MAX(ddk.end) AS temp_expiry
+    FROM don_dang_ky ddk
+    WHERE 
+      ddk.id_ho_khau = ?
+      AND ddk._type = 'Tạm trú'
+      AND ddk.state = 'Đã duyệt'
+      AND ddk.end IS NOT NULL
+  `;
+  try {
+    const [rows] = await db.execute(sql, [id_ho_khau]);
+    return rows[0]?.temp_expiry || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getParentInfoForEntry = async (parentUserID) => {
   const get_parent_info_sql = `
         SELECT 
@@ -109,5 +127,6 @@ const registerChildEntry = async (parentInfo, childData) => {
 
 module.exports = {
   getParentInfoForEntry,
+  getCurrentTempExpiryByHousehold,
   registerChildEntry,
 };

@@ -13,25 +13,28 @@ const getHistoryResTem = async (cccd) => {
         FROM 
             don_dang_ky ddk
         JOIN 
-            cong_dan cd ON ddk.id_cd = cd.id_cd 
-        LEFT JOIN
-            chi_tiet_don ctd ON ddk.id_dk = ctd.id_dk AND ddk._type = 'Thường trú' 
-            -- LEFT JOIN chỉ để lấy 'thuong_tru_truoc_day' khi đơn là Thường trú, liên kết qua id_dk
+            chi_tiet_don ctd 
+                ON ddk.id_dk = ctd.id_dk
+        JOIN 
+            cong_dan cd 
+                ON ctd.id_cd = cd.id_cd
         WHERE 
             ddk.id_ho_khau = (
                 SELECT 
-                    nk_current.id_ho_khau 
+                    nk_current.id_ho_khau
                 FROM 
-                    cong_dan cd_current
-                JOIN
-                    nhan_khau nk_current ON cd_current.id_cd = nk_current.id_cd 
+                    accounts acc
                 JOIN 
-                    accounts acc ON cd_current.cccd = acc.userID
+                    cong_dan cd_current 
+                        ON acc.userID = cd_current.cccd
+                JOIN 
+                    nhan_khau nk_current 
+                        ON cd_current.id_cd = nk_current.id_cd
                 WHERE 
-                    acc.userID = ? 
+                    acc.userID = ?
                 LIMIT 1
             )
-        ORDER BY
+        ORDER BY 
             ddk.date_time DESC;`;
   try {
     const [rows] = await db.execute(sql, [cccd]);

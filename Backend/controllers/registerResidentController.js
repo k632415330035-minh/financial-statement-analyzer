@@ -54,6 +54,36 @@ const handleNewbornRegistration = async (req, res) => {
   }
 };
 
+const getCurrentTempExpiry = async (req, res) => {
+  const parentUserID = req.user.userID;
+
+  try {
+    const parentInfo = await registerModel.getParentInfoForEntry(parentUserID);
+
+    if (!parentInfo || !parentInfo.id_ho_khau) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy hộ khẩu",
+      });
+    }
+
+    const expiry = await registerModel.getCurrentTempExpiryByHousehold(
+      parentInfo.id_ho_khau
+    );
+
+    return res.json({
+      success: true,
+      temp_expiry: expiry,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi hệ thống",
+    });
+  }
+};
+
 module.exports = {
   handleNewbornRegistration,
+  getCurrentTempExpiry,
 };
