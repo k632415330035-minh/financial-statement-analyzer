@@ -3,25 +3,104 @@ import * as dataService from '../services/api.js';
 import { ymd, parseYmd, monthIndex, yearOf } from '../utils/helpers.js';
 
 let barChart, donutChart, genderChart, ageChart, periodChart, overviewInited = false;
+const defaultYear = 2025;
 
 // Business logic functions (moved from overviewService.js)
 async function getKPIData() {
-  return dataService.getKPIs();
+  try {
+    // Lấy token từ localStorage (chỗ login lưu key là 'userToken').
+    // Hỗ trợ fallback sang 'token' cho trường hợp cũ.
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch('http://localhost:3000/api/statistics/dashboard', {
+      method: 'GET',
+      headers
+    });
+
+    // If server returns non-OK, return nullable values and ok=false. Log status for debugging.
+    if (!response.ok) {
+      try {
+        const body = await response.text();
+        console.warn('KPI request failed', { status: response.status, statusText: response.statusText, body: body.slice(0, 200) });
+      } catch (e) {
+        console.warn('KPI request failed', { status: response.status, statusText: response.statusText });
+      }
+      return { ok: false, households: null, residents: null, tempResidence: null, tempAbsence: null };
+    }
+
+    const result = await response.json();
+    const overview = result?.data?.overview ?? {};
+
+    return {
+      ok: true,
+      households: typeof overview.hokhau === 'number' ? overview.hokhau : (overview.hokhau ? Number(overview.hokhau) : 0),
+      residents: typeof overview.nhankhau === 'number' ? overview.nhankhau : (overview.nhankhau ? Number(overview.nhankhau) : 0),
+      tempResidence: typeof overview.tamtru === 'number' ? overview.tamtru : (overview.tamtru ? Number(overview.tamtru) : 0),
+      tempAbsence: typeof overview.tamvang === 'number' ? overview.tamvang : (overview.tamvang ? Number(overview.tamvang) : 0)
+    };
+  } catch (error) {
+    // Fail silently: return nullable values and ok=false
+    return { ok: false, households: null, residents: null, tempResidence: null, tempAbsence: null };
+  }
 }
 
 async function getMonthlyChartData(year) {
-  const data = dataService.getMonthlyData(year);
-  if (!data) return { labels: [], households: [], residents: [] };
+  // Backend-only implementation: request monthlyTrend and return arrays of length 12.
   const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
-  return {
-    labels: months,
-    households: data,
-    residents: data.map(x => x * 3)
-  };
+  try {
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const url = `http://localhost:3000/api/statistics/dashboard?year=${encodeURIComponent(year)}`;
+    const resp = await fetch(url, { method: 'GET', headers });
+
+    if (!resp.ok) {
+      try {
+        const text = await resp.text();
+        console.warn('MonthlyTrend fetch failed', { status: resp.status, statusText: resp.statusText, body: text.slice(0, 200) });
+      } catch (e) {
+        console.warn('MonthlyTrend fetch failed', { status: resp.status, statusText: resp.statusText });
+      }
+      return { labels: months, households: new Array(12).fill(0), residents: new Array(12).fill(0) };
+    }
+
+    const json = await resp.json();
+    const monthly = json?.data?.charts?.monthlyTrend || [];
+
+    // Prefer explicit monthly fields from backend when available
+    const households = new Array(12).fill(0);
+    const residents = new Array(12).fill(0);
+
+    monthly.forEach(m => {
+      const idx = Number(m.month) - 1;
+      if (idx < 0 || idx >= 12) return;
+
+      // Households: prefer explicit count_ho_khau; fallback to heuristic
+      const hoKhau = m.count_ho_khau != null
+        ? Number(m.count_ho_khau)
+        : (m.count_thuong_tru != null ? Math.round(Number(m.count_thuong_tru) / 3) : (m.count != null ? Math.round(Number(m.count) / 3) : 0));
+
+      const ct_thuong_tru = m.count_thuong_tru != null ? Number(m.count_thuong_tru) : (m.count != null ? Number(m.count) : 0);
+      const cTamTru = m.count_tam_tru != null ? Number(m.count_tam_tru) : 0;
+      const cTamVang = m.count_tam_vang != null ? Number(m.count_tam_vang) : 0;
+
+      households[idx] = hoKhau;
+      residents[idx] = ct_thuong_tru + cTamTru - cTamVang; // total present residents
+    });
+
+    return { labels: months, households, residents };
+  } catch (e) {
+    console.error('MonthlyTrend fetch error:', e);
+    return { labels: months, households: new Array(12).fill(0), residents: new Array(12).fill(0) };
+  }
 }
 
 async function getResidenceChartData() {
-  const data = dataService.getResidenceShare();
+  const data = await dataService.getResidenceShare();
   return {
     labels: data.map(d => d.label),
     values: data.map(d => d.value),
@@ -30,7 +109,7 @@ async function getResidenceChartData() {
 }
 
 async function getGenderChartData() {
-  const data = dataService.getGenderStats();
+  const data = await dataService.getGenderStats();
   return {
     labels: ['Nam', 'Nữ'],
     values: [data.male || 0, data.female || 0],
@@ -39,7 +118,7 @@ async function getGenderChartData() {
 }
 
 async function getAgeGroupChartData() {
-  const data = dataService.getAgeGroupStats(); // fetch data thống kê độ tuổi ở đây
+  const data = await dataService.getAgeGroupStats();
   return {
     labels: ['Mầm non', 'Mẫu giáo', 'Cấp 1', 'Cấp 2', 'Cấp 3', 'Lao động', 'Nghỉ hưu'],
     values: [data.mamNon || 0, data.mauGiao || 0, data.cap1 || 0, data.cap2 || 0, data.cap3 || 0, data.laoDong || 0, data.nghiHuu || 0],
@@ -48,7 +127,7 @@ async function getAgeGroupChartData() {
 }
 
 async function getTemporaryStats(fromDate, toDate) {
-  return dataService.getEventStats(fromDate, toDate);
+  return await dataService.getEventStats(fromDate, toDate);
 }
 
 export async function initOverview() {
@@ -84,10 +163,13 @@ async function renderKPIs() {
   const el2 = gid('kpiResidents');
   const el3 = gid('kpiTempRes');
   const el4 = gid('kpiTempAbs');
-  if (el1) el1.textContent = kpis.households.toLocaleString('vi-VN');
-  if (el2) el2.textContent = kpis.residents.toLocaleString('vi-VN');
-  if (el3) el3.textContent = kpis.tempResidence.toLocaleString('vi-VN');
-  if (el4) el4.textContent = kpis.tempAbsence.toLocaleString('vi-VN');
+
+  const fmt = v => (v == null ? '—' : v.toLocaleString('vi-VN'));
+
+  if (el1) el1.textContent = fmt(kpis.households);
+  if (el2) el2.textContent = fmt(kpis.residents);
+  if (el3) el3.textContent = fmt(kpis.tempResidence);
+  if (el4) el4.textContent = fmt(kpis.tempAbsence);
 }
 
 async function renderBarChart(year) {
@@ -121,18 +203,19 @@ async function initYearSelect() {
   if (!sel) return;
   // Clear existing options to prevent duplicates
   sel.innerHTML = '';
-  const years = [2024, 2025];
+  const years = [2025, 2024];
   years.forEach(y => {
     const o = document.createElement('option');
     o.value = y;
     o.textContent = y;
     sel.appendChild(o);
   });
-  sel.value = years[years.length - 1];
   // Remove old listeners and add new one
   const newSel = sel.cloneNode(true);
   sel.replaceWith(newSel);
   newSel.addEventListener('change', () => renderBarChart(Number(newSel.value)));
+  // Ensure select shows the default and initial render uses the default year
+  newSel.value = defaultYear;
   await renderBarChart(Number(newSel.value));
 }
 
@@ -218,11 +301,11 @@ async function renderPeriodChart() {
   const from = document.querySelector('.fromDateStats'),
     to = document.querySelector('.toDateStats');
   if (!from || !to) return;
-  const { tam_tru, tam_vang } = await getTemporaryStats(from.value, to.value);
-  const labels = ['Tạm trú', 'Tạm vắng'],
-    values = [tam_tru, tam_vang];
+  const { tam_tru, tam_vang, chuyenDi } = await getTemporaryStats(from.value, to.value);
+  const labels = ['Tạm trú', 'Tạm vắng', 'Chuyển đi'],
+    values = [tam_tru, tam_vang, chuyenDi];
   if (periodChart) periodChart.destroy();
-  const palette = ['#f59e0b', '#ef4444'];
+  const palette = ['#f59e0b', '#ef4444', '#6366F1'];
   periodChart = new Chart(el, {
     type: 'bar',
     data: { labels, datasets: [{ label: 'Số lượng', data: values, borderRadius: 8, backgroundColor: palette }] },
@@ -265,10 +348,11 @@ async function renderPeriodTableStats() {
   const from = document.querySelector('.fromDateStats'),
     to = document.querySelector('.toDateStats');
   if (!from || !to) return;
-  const { tam_tru, tam_vang, total } = await getTemporaryStats(from.value, to.value);
+  const { tam_tru, tam_vang, chuyenDi, total } = await getTemporaryStats(from.value, to.value);
   const rows = [
     ['Tạm trú', tam_tru, total ? ((tam_tru / total) * 100).toFixed(1) + '%' : '0%'],
     ['Tạm vắng', tam_vang, total ? ((tam_vang / total) * 100).toFixed(1) + '%' : '0%'],
+    ['Chuyển đi', chuyenDi, total ? ((chuyenDi / total) * 100).toFixed(1) + '%' : '0%'],
     ['Tổng', total, '100%']
   ];
   const tbody = document.querySelector('#tblPeriodStats tbody');

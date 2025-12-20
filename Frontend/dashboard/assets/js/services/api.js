@@ -21,35 +21,168 @@ export function getHouseholds() {
   return data;
 }
 
-export function getResidenceShare() {
-  return mockData.residenceShare;
-}
+export async function getResidenceShare() {
+  try {
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-export function getGenderStats() {
-  return mockData.genderCounts;
-}
-
-export function getAgeGroupStats() {
-  return mockData.ageGroupCounts;
-}
-
-export function getEventStats(fromDate, toDate) {
-  const from = typeof fromDate === 'string' ? parseYmd(fromDate) : fromDate;
-  const to = typeof toDate === 'string' ? parseYmd(toDate) : toDate;
-  let cur = new Date(from.getFullYear(), from.getMonth(), 1);
-  const end = new Date(to.getFullYear(), to.getMonth(), 1);
-  let tam_tru = 0, tam_vang = 0;
-  while (cur <= end) {
-    const y = yearOf(cur), m = monthIndex(cur);
-    const bucket = mockData.eventMonthly[y];
-    if (bucket) {
-      tam_tru += bucket.tam_tru[m] || 0;
-      tam_vang += bucket.tam_vang[m] || 0;
+    const resp = await fetch('http://localhost:3000/api/statistics/dashboard', { method: 'GET', headers });
+    if (!resp.ok) {
+      try {
+        const txt = await resp.text();
+        console.warn('fetchResidenceShare failed', { status: resp.status, statusText: resp.statusText, body: txt.slice(0, 200) });
+      } catch (e) {
+        console.warn('fetchResidenceShare failed', { status: resp.status, statusText: resp.statusText });
+      }
+      return mockData.residenceShare;
     }
-    cur.setMonth(cur.getMonth() + 1);
+
+    const json = await resp.json();
+    const rates = json?.data?.charts?.residentRates;
+    if (!rates) return mockData.residenceShare;
+
+    return [
+      { label: 'Thường trú', value: Number(rates.ThuongTru || 0), color: '#3b82f6' },
+      { label: 'Tạm trú', value: Number(rates.TamTru || 0), color: '#22c55e' },
+      { label: 'Tạm vắng', value: Number(rates.TamVang || 0), color: '#f59e0b' }
+    ];
+  } catch (e) {
+    console.warn('fetchResidenceShare error', e);
+    return mockData.residenceShare;
   }
-  const total = tam_tru + tam_vang;
-  return { tam_tru, tam_vang, total };
+}
+
+export async function getGenderStats() {
+  try {
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const resp = await fetch('http://localhost:3000/api/statistics/dashboard', { method: 'GET', headers });
+    if (!resp.ok) {
+      try {
+        const txt = await resp.text();
+        console.warn('fetchGenderStats failed', { status: resp.status, statusText: resp.statusText, body: txt.slice(0, 200) });
+      } catch (e) {
+        console.warn('fetchGenderStats failed', { status: resp.status, statusText: resp.statusText });
+      }
+      return mockData.genderCounts;
+    }
+
+    const json = await resp.json();
+    const gender = json?.data?.demographic?.gender;
+    if (!gender) return mockData.genderCounts;
+
+    const male = Number(gender.male || 0);
+    const female = Number(gender.female || 0);
+    const total = Number(gender.total || (male + female));
+    return { male, female, total };
+  } catch (e) {
+    console.warn('fetchGenderStats error', e);
+    return mockData.genderCounts;
+  }
+}
+
+
+export async function getAgeGroupStats() {
+  try {
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const resp = await fetch('http://localhost:3000/api/statistics/dashboard', { method: 'GET', headers });
+    if (!resp.ok) {
+      try {
+        const txt = await resp.text();
+        console.warn('fetchAgeGroupStats failed', { status: resp.status, statusText: resp.statusText, body: txt.slice(0, 200) });
+      } catch (e) {
+        console.warn('fetchAgeGroupStats failed', { status: resp.status, statusText: resp.statusText });
+      }
+      return mockData.ageGroupCounts;
+    }
+
+    const json = await resp.json();
+    const age = json?.data?.demographic?.age;
+    if (!age) return mockData.ageGroupCounts;
+
+    return {
+      mamNon: Number(age.mamNon || 0),
+      mauGiao: Number(age.mauGiao || 0),
+      cap1: Number(age.cap1 || 0),
+      cap2: Number(age.cap2 || 0),
+      cap3: Number(age.cap3 || 0),
+      laoDong: Number(age.laoDong || 0),
+      nghiHuu: Number(age.nghiHuu || 0)
+    };
+  } catch (e) {
+    console.warn('fetchAgeGroupStats error', e);
+    return mockData.ageGroupCounts;
+  }
+}
+
+
+export async function getEventStats(fromDate, toDate) {
+  try {
+    // 1. Lấy token bảo mật từ localStorage
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    // 2. Xây dựng URL với Query Parameters
+    // Lưu ý: Backend dùng 'startDate' và 'endDate'
+    const params = new URLSearchParams();
+    if (fromDate) params.append('startDate', fromDate);
+    if (toDate) params.append('endDate', toDate);
+
+    const url = `http://localhost:3000/api/statistics/dashboard${params.toString() ? '?' + params.toString() : ''
+      }`;
+
+    // 3. Thực hiện gọi API
+    const resp = await fetch(url, {
+      method: 'GET',
+      headers
+    });
+
+    // 4. Kiểm tra phản hồi từ Server
+    if (!resp.ok) {
+      console.error(`Lỗi API: ${resp.status} - ${resp.statusText}`);
+      return { tam_tru: 0, tam_vang: 0, chuyenDi: 0, total: 0 };
+    }
+
+    const json = await resp.json();
+
+    /**
+     * 5. Truy xuất dữ liệu (Mapping)
+     * Cấu trúc Backend trả về: { success: true, data: { movement: { tamTru, tamVang, chuyenDi } } }
+     */
+    const mv = json?.data?.movement;
+
+    if (!mv) {
+      console.warn('Không tìm thấy dữ liệu movement trong phản hồi API');
+      return { tam_tru: 0, tam_vang: 0, chuyenDi: 0, total: 0 };
+    }
+
+    // 6. Chuyển đổi dữ liệu để khớp với các Component hiển thị của Frontend
+    // Backend trả về camelCase (tamTru), Frontend dùng snake_case (tam_tru)
+    const tam_tru = Number(mv.tamTru || 0);
+    const tam_vang = Number(mv.tamVang || 0);
+    const chuyenDi = Number(mv.chuyenDi || 0);
+
+    // Trả về Object đã được chuẩn hóa số liệu
+    return {
+      tam_tru,
+      tam_vang,
+      chuyenDi,
+      total: tam_tru + tam_vang + chuyenDi // Tính tổng cộng để hiển thị trên Dashboard
+    };
+
+  } catch (error) {
+    // 7. Xử lý lỗi ngoại lệ (Mất mạng, Crash...)
+    console.error('Lỗi thực thi getEventStats:', error);
+    // Trả về giá trị mặc định để giao diện không bị treo
+    return { tam_tru: 0, tam_vang: 0, chuyenDi: 0, total: 0 };
+  }
 }
 
 export function getProfile() {

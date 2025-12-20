@@ -1,50 +1,57 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trang Chủ - Quản lý Dân Phố</title>
-  </head>
-  <body>
-    <script>
-      // 1. HÀM ĐĂNG XUẤT (ĐƯỢC GỌI TỪ CÁC TRANG KHÁC)
-      // Trong hàm logout() của bạn
-      function logout() {
-        // 1. Xóa token và role (Hành động chính)
-        localStorage.removeItem("userToken");
-        localStorage.removeItem("userRole");
 
-        // 2. Chuyển hướng về trang gốc để logic index.html xử lý
-        window.location.replace("index.html");
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trang Chủ - Quản lý Dân Phố</title>
+  <!-- Inline transparent favicon to prevent automatic /favicon.ico 404 -->
+  <link rel="icon"
+    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=">
+</head>
 
-      // 2. LOGIC KIỂM TRA TRẠNG THÁI (CHUYỂN HƯỚNG)
+<body>
+  <script>
+    // 1. HÀM ĐĂNG XUẤT (ĐƯỢC GỌI TỪ CÁC TRANG KHÁC)
+    // Trong hàm logout() của bạn
+    function logout() {
+      // 1. Xóa token và role (Hành động chính)
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userRole");
 
-      // Lấy thông tin từ localStorage
-      const token = localStorage.getItem("userToken");
-      const role = localStorage.getItem("userRole");
+      // 2. Chuyển hướng về trang gốc để logic index.html xử lý
+      window.location.replace("index.html");
+    }
 
-      if (token) {
-        // Nếu đã đăng nhập, chuyển đến Dashboard hoặc trang phù hợp với vai trò
-        if (role === "quan ly") {
-          // window.location.replace("dashboard/dashboard.html");
-        } else if (role === "cu dan") {
-          // Ví dụ: Chuyển hướng đến trang thông tin/hồ sơ của cư dân
-          // window.location.replace("user/profile.html");
-        } else if (role === "tam thoi") {
-          // Ví dụ: Chuyển hướng đến trang đăng ký tạm trú
-          window.location.replace("resident_dashboard/resident_dashboard.html");
-          window.location.replace("newresident/newresident.html");
+    // 2. LOGIC KIỂM TRA TRẠNG THÁI (CHUYỂN HƯỚNG)
 
-        } else {
-          // Trường hợp có Token nhưng role không xác định
-          logout(); // Đăng xuất để làm sạch
-        }
+    // Lấy thông tin từ localStorage
+    const token = localStorage.getItem("userToken");
+    const role = localStorage.getItem("userRole");
+
+    if (token) {
+      // Nếu đã đăng nhập, chuyển đến Dashboard hoặc trang phù hợp với vai trò
+      if (role === "quan ly") {
+        // window.location.replace("dashboard/dashboard.html");
+        window.location.replace("dashboard/");
+      } else if (role === "cu dan") {
+        // Ví dụ: Chuyển hướng đến trang thông tin/hồ sơ của cư dân
+        // window.location.replace("user/profile.html");
+      } else if (role === "tam thoi") {
+        // Ví dụ: Chuyển hướng đến trang đăng ký tạm trú
+        window.location.replace("resident_dashboard/resident_dashboard.html");
+        window.location.replace("newresident/newresident.html");
+
       } else {
-        // Nếu chưa đăng nhập, chuyển đến trang Login
-        window.location.replace("Login/login.html");
+        // Trường hợp có Token nhưng role không xác định
+        logout(); // Đăng xuất để làm sạch
       }
-    </script>
-    <p>Đang kiểm tra trạng thái đăng nhập...</p>
-  </body>
+    } else {
+      // Nếu chưa đăng nhập, chuyển đến trang Login
+      window.location.replace("Login/login.html");
+    }
+  </script>
+  <p>Đang kiểm tra trạng thái đăng nhập...</p>
+</body>
+
 </html>

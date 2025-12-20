@@ -1,38 +1,49 @@
 <!doctype html>
 <html lang="vi">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Quản lý Tổ dân phố – Dashboard (v2.5 - Refactored)</title>
-  
+  <!-- Inline transparent favicon to prevent automatic /favicon.ico 404 -->
+  <link rel="icon"
+    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=">
+
   <!-- CSS Files -->
   <link rel="stylesheet" href="assets/css/base.css" />
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
   <link rel="stylesheet" href="assets/css/pages.css" />
-  
+
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
-  
+
   <!-- Main Application (ES6 Module) -->
   <script type="module" src="assets/js/app.js"></script>
 </head>
+
 <body>
   <div class="layout" id="layoutRoot" data-collapsed="false">
     <!-- SIDEBAR -->
     <aside class="sidebar" aria-label="Thanh điều hướng bên">
       <div class="brand">
         <span class="brand__icon" aria-hidden="true">🏘️</span>
-        <span class="brand__name">QUẢN LÝ<br/>TỔ DÂN PHỐ</span>
+        <span class="brand__name">QUẢN LÝ<br />TỔ DÂN PHỐ</span>
       </div>
 
       <nav class="menu" aria-label="Menu chính">
-        <a class="menu__item is-active" data-route="overview"  href="#/overview"><i aria-hidden="true">🏠</i><span> Tổng quan</span></a>
-        <a class="menu__item"        data-route="households" href="#/households"><i aria-hidden="true">📂</i><span> Hộ khẩu</span></a>
-        <a class="menu__item"        data-route="residents"  href="#/residents"><i aria-hidden="true">👥</i><span> Nhân khẩu</span></a>
-        <a class="menu__item"        data-route="temporary"  href="#/temporary"><i aria-hidden="true">🧳</i><span> Tạm trú / Tạm vắng</span></a>
-        <a class="menu__item"        data-route="feedback"   href="#/feedback"><i aria-hidden="true">📣</i><span> Phản ánh / Kiến nghị</span></a>
-        <a class="menu__item menu__logout" id="logoutLink" href="#"><i aria-hidden="true">🚪</i><span> Đăng xuất</span></a>
+        <a class="menu__item is-active" data-route="overview" href="#/overview"><i aria-hidden="true">🏠</i><span> Tổng
+            quan</span></a>
+        <a class="menu__item" data-route="households" href="#/households"><i aria-hidden="true">📂</i><span> Hộ
+            khẩu</span></a>
+        <a class="menu__item" data-route="residents" href="#/residents"><i aria-hidden="true">👥</i><span> Nhân
+            khẩu</span></a>
+        <a class="menu__item" data-route="temporary" href="#/temporary"><i aria-hidden="true">🧳</i><span> Tạm trú / Tạm
+            vắng</span></a>
+        <a class="menu__item" data-route="feedback" href="#/feedback"><i aria-hidden="true">📣</i><span> Phản ánh / Kiến
+            nghị</span></a>
+        <a class="menu__item menu__logout" id="logoutLink" href="#"><i aria-hidden="true">🚪</i><span> Đăng
+            xuất</span></a>
       </nav>
     </aside>
 
@@ -138,4 +149,5 @@
 
   </div>
 </body>
+
 </html>

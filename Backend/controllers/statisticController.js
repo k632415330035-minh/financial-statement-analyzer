@@ -1,6 +1,6 @@
-const { statisticModel: Stats } = require("../models/statisticModel");
+const Stats = require("../models/statisticModel");
 
-const statisticController = async (req, res) => {
+const getDashboardStats = async (req, res) => { // Đổi tên biến cho rõ ràng
     try {
         const { year, startDate, endDate } = req.query;
 
@@ -12,44 +12,33 @@ const statisticController = async (req, res) => {
             Stats.getMonthlyTrend(year)
         ]);
 
-        const totalNhanKhau = overview?.nhankhau || 0;
-        const totalTamTru = overview?.tamtru || 0;
-        const totalTamVang = overview?.tamvang || 0;
-
-        const response = {
+        res.status(200).json({
             success: true,
             data: {
                 overview,
-
-                demographic: {
-                    gender,
-                    age
-                },
-
+                demographic: { gender, age },
                 charts: {
                     residentRates: {
-                        ThuongTru: totalNhanKhau - totalTamTru,
-                        TamTru: totalTamTru,
-                        TamVang: totalTamVang
+                        ThuongTru: overview.nhankhau,
+                        TamTru: overview.tamtru,
+                        TamVang: overview.tamvang
                     },
-                    monthlyTrend: monthlyTrend
+                    monthlyTrend
                 },
-
                 movement
             }
-        };
-
-        res.status(200).json(response);
-
+        });
     } catch (error) {
-        console.error("Lỗi trong statisticController:", error);
+        console.error("LỖI CHI TIẾT TẠI ĐÂY:", error); // Dòng này sẽ in ra lỗi thật ở màn hình CMD/Terminal
         res.status(500).json({
             success: false,
-            message: "Đã xảy ra lỗi máy chủ nội bộ.",
+            message: error.message, // Trả về lỗi thật thay vì câu "Lỗi máy chủ nội bộ"
+            stack: error.stack
         });
     }
-}
+};
 
+// ĐẢM BẢO EXPORT ĐÚNG TÊN
 module.exports = {
-    getDashboardStats: statisticController
+    getDashboardStats
 };
