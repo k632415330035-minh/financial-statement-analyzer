@@ -39,7 +39,7 @@ async function getGenderChartData() {
 }
 
 async function getAgeGroupChartData() {
-  const data = dataService.getAgeGroupStats();
+  const data = dataService.getAgeGroupStats(); // fetch data thống kê độ tuổi ở đây
   return {
     labels: ['Mầm non', 'Mẫu giáo', 'Cấp 1', 'Cấp 2', 'Cấp 3', 'Lao động', 'Nghỉ hưu'],
     values: [data.mamNon || 0, data.mauGiao || 0, data.cap1 || 0, data.cap2 || 0, data.cap3 || 0, data.laoDong || 0, data.nghiHuu || 0],
@@ -54,11 +54,11 @@ async function getTemporaryStats(fromDate, toDate) {
 export async function initOverview() {
   // Always render to prevent data loss on navigation
   await renderKPIs();
-  
+
   // Always initialize year select and period controls to ensure event listeners are bound
   await initYearSelect();
   await initPeriodControlsStats();
-  
+
   // Render all charts
   await renderDonut();
   await renderGenderChart();
@@ -67,7 +67,7 @@ export async function initOverview() {
   await renderGenderTable();
   await renderAgeGroupTable();
   await renderPeriodTableStats();
-  
+
   // Only setup scroll button once
   if (!overviewInited) {
     document.getElementById('scrollDownBtn')?.addEventListener('click', () => {
@@ -98,12 +98,12 @@ async function renderBarChart(year) {
     if (barChart) barChart.destroy();
     barChart = new Chart(el, {
       type: 'bar',
-      data: { 
-        labels: chartData.labels, 
+      data: {
+        labels: chartData.labels,
         datasets: [
           { label: `Hộ khẩu ${year}`, data: chartData.households, borderRadius: 8, backgroundColor: '#3b82f6' },
           { label: `Nhân khẩu ${year}`, data: chartData.residents, borderRadius: 8, backgroundColor: '#22c55e' }
-        ] 
+        ]
       },
       options: {
         animation: { duration: 500 },
@@ -143,9 +143,9 @@ async function renderDonut() {
   if (donutChart) donutChart.destroy();
   donutChart = new Chart(el, {
     type: 'doughnut',
-    data: { 
-      labels: chartData.labels, 
-      datasets: [{ data: chartData.values, borderWidth: 0, backgroundColor: chartData.backgrounds }] 
+    data: {
+      labels: chartData.labels,
+      datasets: [{ data: chartData.values, borderWidth: 0, backgroundColor: chartData.backgrounds }]
     },
     options: {
       cutout: '58%',
@@ -181,9 +181,9 @@ async function renderGenderChart() {
   if (genderChart) genderChart.destroy();
   genderChart = new Chart(el, {
     type: 'bar',
-    data: { 
-      labels: chartData.labels, 
-      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }] 
+    data: {
+      labels: chartData.labels,
+      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }]
     },
     options: {
       animation: { duration: 500 },
@@ -200,9 +200,9 @@ async function renderAgeChart() {
   if (ageChart) ageChart.destroy();
   ageChart = new Chart(el, {
     type: 'bar',
-    data: { 
-      labels: chartData.labels, 
-      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }] 
+    data: {
+      labels: chartData.labels,
+      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }]
     },
     options: {
       animation: { duration: 500 },
@@ -257,7 +257,7 @@ async function renderAgeGroupTable() {
   });
   const tbody = document.querySelector('#tblAge tbody');
   if (!tbody) return;
-  tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1].toLocaleString('vi-VN')}</td><td>${r[2]}</td></tr>`).join('') + 
+  tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1].toLocaleString('vi-VN')}</td><td>${r[2]}</td></tr>`).join('') +
     `<tr><td><b>Tổng</b></td><td><b>${total.toLocaleString('vi-VN')}</b></td><td><b>100%</b></td></tr>`;
 }
 
@@ -299,14 +299,14 @@ function initPeriodControlsStats() {
     from.value = ymd(f);
     to.value = ymd(t);
   }
-  
+
   // Clone and replace chip buttons to remove old event listeners
   document.querySelectorAll('.chip').forEach(ch => {
     const newCh = ch.cloneNode(true);
     ch.replaceWith(newCh);
     newCh.addEventListener('click', () => setRange(newCh.dataset.range));
   });
-  
+
   // Clone and replace apply button to remove old event listener
   const applyBtn = document.querySelector('.btnApplyStats');
   if (applyBtn) {
