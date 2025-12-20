@@ -1,5 +1,4 @@
 const connection = require("../config/dbMySQL");
-const { get } = require("../routes/feedbackRoute");
 
 const getCountFeedbackStatus = async () => {
     let queryStatement = `SELECT trang_thai, COUNT(*) AS count FROM phan_anh GROUP BY trang_thai`;
