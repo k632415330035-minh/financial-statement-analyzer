@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Đăng ký tạm trú / thường trú - Người mới</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="newresident.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">Hệ thống quản lý cư dân</div>
+      <div class="header-help">
+        Cần hỗ trợ? <span>0123 456 789</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="card">
+      <div class="card-inner">
+        <!-- Cột trái: giới thiệu -->
+        <div class="card-left">
+          <div class="badge">Người mới</div>
+          <h1 class="card-title">Đăng ký tạm trú / thường trú</h1>
+          <p class="card-subtitle">
+            Dành cho người chưa được phê duyệt cư dân. Hãy điền đầy đủ thông tin để Ban Quản lý xem xét.
+          </p>
+
+          <div class="card-highlight">
+            <p>
+              Bạn hiện <strong>chưa được phê duyệt là cư dân</strong>. Sau khi gửi yêu cầu, thông tin sẽ được chuyển đến
+              <strong>Ban Quản lý</strong> để phê duyệt.
+            </p>
+          </div>
+
+          <ul class="feature-list">
+            <li>Hỗ trợ đăng ký cả tạm trú và thường trú</li>
+            <li>Thông tin chi tiết theo mẫu cư trú</li>
+            <li>Giao diện đơn giản, dễ sử dụng</li>
+          </ul>
+        </div>
+
+        <!-- Cột phải: form -->
+        <div class="card-right">
+          <!-- Thanh bước -->
+          <div class="steps" id="stepHeader">
+            <button type="button" class="step step-active" data-step="1">
+              <span class="step-number">1</span>
+              <span>Thông tin cá nhân</span>
+            </button>
+            <button type="button" class="step" data-step="2">
+              <span class="step-number">2</span>
+              <span>Thông tin cư trú</span>
+            </button>
+            <button type="button" class="step" data-step="3">
+              <span class="step-number">3</span>
+              <span>Xác nhận &amp; gửi</span>
+            </button>
+          </div>
+
+          <form id="registrationForm" class="form" novalidate>
+            <!-- STEP 1: Thông tin cá nhân + giấy tờ -->
+            <div class="step-pane" data-step="1">
+              <!-- 1. Thông tin cá nhân -->
+              <div class="form-section">
+                <h2 class="form-section-title">1. Thông tin cá nhân</h2>
+                <p class="form-section-desc">
+                  Các trường có dấu <span class="required">*</span> là bắt buộc.
+                </p>
+
+                <div class="grid">
+                  <div class="form-group">
+                    <label for="fullName">Họ và tên <span class="required">*</span></label>
+                    <input type="text" id="fullName" name="fullName" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="dob">Ngày sinh <span class="required">*</span></label>
+                    <input type="date" id="dob" name="dob" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="gender">Giới tính</label>
+                    <select id="gender" name="gender">
+                      <option value="">-- Chọn --</option>
+                      <option value="male">Nam</option>
+                      <option value="female">Nữ</option>
+                      <option value="other">Khác</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="tel" id="phone" name="phone" placeholder="VD: 09xxxxxxxx" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="idNumber">Số CCCD/CMND <span class="required">*</span></label>
+                    <input type="text" id="idNumber" name="idNumber" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="idIssueDate">Ngày cấp</label>
+                    <input type="date" id="idIssueDate" name="idIssueDate" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="idIssuePlace">Nơi cấp</label>
+                    <input type="text" id="idIssuePlace" name="idIssuePlace" placeholder="VD: Cục CSQLHC về TTXH" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="nationality">Quốc tịch</label>
+                    <input type="text" id="nationality" name="nationality" placeholder="VD: Việt Nam" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ethnicity">Dân tộc</label>
+                    <input type="text" id="ethnicity" name="ethnicity" placeholder="VD: Kinh" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="birthPlace">Nơi sinh</label>
+                    <input type="text" id="birthPlace" name="birthPlace" placeholder="VD: Hà Đông, Hà Nội" />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="origin">Nguyên quán</label>
+                    <input type="text" id="origin" name="origin" placeholder="VD: La Khê, Hà Đông, Hà Nội" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Thông tin giấy tờ & nghề nghiệp -->
+              <div class="form-section">
+                <h2 class="form-section-title">2. Thông tin giấy tờ &amp; nghề nghiệp</h2>
+
+                <div class="grid">
+                  <div class="form-group full-width">
+                    <label for="permanentAddress">Địa chỉ hộ khẩu thường trú</label>
+                    <input
+                      type="text"
+                      id="permanentAddress"
+                      name="permanentAddress"
+                      placeholder="VD: Số X, đường Y, phường Z, quận/huyện A, tỉnh/thành B"
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="currentAddress">Địa chỉ cư trú hiện tại (nếu khác hộ khẩu)</label>
+                    <input
+                      type="text"
+                      id="currentAddress"
+                      name="currentAddress"
+                      placeholder="VD: Căn hộ 101, Tòa A, Chung cư XYZ"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="job">Nghề nghiệp</label>
+                    <input type="text" id="job" name="job" placeholder="VD: Kỹ sư" />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="workplace">Nơi làm việc</label>
+                    <input type="text" id="workplace" name="workplace" placeholder="VD: Công ty TNHH ABC" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1b. Thành viên cùng hộ gia đình (ngoài bạn) -->
+              <div class="form-section">
+                <h2 class="form-section-title">1b. Thành viên cùng hộ gia đình</h2>
+                <p class="form-section-desc">
+                  Nếu nhà bạn có thêm người cùng đăng ký (vợ/chồng, con,…) hãy nhập số người và bấm
+                  <strong>Tạo form</strong>.<br />
+                  Ví dụ nhà có 3 người (gồm cả bạn) thì bạn điền thông tin của <strong>bạn</strong>
+                  ở phần 1, sau đó chọn <strong>Số thành viên thêm = 2</strong> cho 2 thành viên còn lại.
+                </p>
+
+                <div class="grid">
+                  <div class="form-group full-width">
+                    <label for="householdCount">Số thành viên thêm (ngoài bạn)</label>
+                    <div class="inline-input">
+                      <input
+                        type="number"
+                        id="householdCount"
+                        name="householdCount"
+                        min="0"
+                        max="10"
+                        value="0"
+                      />
+                      <button type="button" class="btn btn-ghost" id="generateMembersBtn">
+                        Tạo form cho từng người
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="householdMembersWrapper" class="members-wrapper hidden">
+                  <div id="memberTabs" class="member-tabs"></div>
+                  <div id="householdMembers" class="member-panels"></div>
+                  <div class="member-nav hidden" id="memberNav">
+                    <button type="button" class="btn btn-ghost btn-sm" id="prevMember">
+                      Thành viên trước
+                    </button>
+                    <div class="member-nav-status" id="memberStatus">1 / 1</div>
+                    <button type="button" class="btn btn-ghost btn-sm" id="nextMember">
+                      Thành viên sau
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2: Cư trú + loại đăng ký -->
+            <div class="step-pane hidden" data-step="2">
+              <!-- 3. Địa chỉ cư trú hiện tại -->
+              <div class="form-section">
+                <h2 class="form-section-title">3. Địa chỉ cư trú hiện tại</h2>
+                <p class="form-section-desc">
+                  Ghi đầy đủ địa chỉ theo thực tế. Ví dụ:
+                  <strong>Số 11, ngách 15, ngõ 359 Minh Khai, phường Vĩnh Tuy</strong>.
+                </p>
+
+                <div class="grid">
+                  <div class="form-group full-width">
+                    <label for="residenceAddress">Địa chỉ cư trú hiện tại</label>
+                    <input
+                      type="text"
+                      id="residenceAddress"
+                      name="residenceAddress"
+                      placeholder="VD: Số 11, ngách 15, ngõ 359 Minh Khai, phường Vĩnh Tuy"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Loại đăng ký cư trú -->
+              <div class="form-section">
+                <h2 class="form-section-title">4. Loại đăng ký cư trú</h2>
+                <p class="form-section-desc">Chọn loại đăng ký cư trú bạn muốn thực hiện.</p>
+
+                <div class="grid">
+                  <div class="form-group full-width">
+                    <label>Loại đăng ký</label>
+                    <div class="options">
+                      <label class="option-pill">
+                        <input type="radio" name="requestType" value="tam_tru" checked />
+                        <span>Tạm trú</span>
+                      </label>
+                      <label class="option-pill">
+                        <input type="radio" name="requestType" value="thuong_tru" />
+                        <span>Thường trú</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5A. Thông tin tạm trú -->
+              <div class="form-section" id="tamTruSection">
+                <h2 class="form-section-title">5A. Thông tin tạm trú</h2>
+
+                <div class="grid">
+                  <div class="form-group">
+                    <label for="tamTruFrom">Ngày bắt đầu tạm trú</label>
+                    <input type="date" id="tamTruFrom" name="tamTruFrom" />
+                  </div>
+                  <div class="form-group">
+                    <label for="tamTruTo">Ngày kết thúc tạm trú</label>
+                    <input type="date" id="tamTruTo" name="tamTruTo" />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="tamTruReason">Lý do tạm trú</label>
+                    <textarea id="tamTruReason" name="tamTruReason" rows="2"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5B. Thông tin thường trú -->
+              <div class="form-section hidden" id="thuongTruSection">
+                <h2 class="form-section-title">5B. Thông tin thường trú</h2>
+
+                <div class="grid">
+                  <div class="form-group full-width">
+                    <label for="thuongTruAddress">Địa chỉ thường trú</label>
+                    <input type="text" id="thuongTruAddress" name="thuongTruAddress" />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="thuongTruPrevAddress">Địa chỉ thường trú trước khi chuyển đến</label>
+                    <input
+                      type="text"
+                      id="thuongTruPrevAddress"
+                      name="thuongTruPrevAddress"
+                      placeholder="VD: Xã X, Huyện Y, Tỉnh Z"
+                    />
+                  </div>
+                </div>
+              </div>
+              <!-- (ĐÃ XOÁ PHẦN 6: Tài liệu đính kèm) -->
+            </div>
+
+            <!-- STEP 3: Xác nhận & cam kết -->
+            <div class="step-pane hidden" data-step="3">
+              <div class="form-section">
+                <h2 class="form-section-title">6. Xác nhận thông tin</h2>
+                <p class="form-section-desc">
+                  Vui lòng kiểm tra lại các thông tin đã nhập. Nếu đã chính xác, hãy tích cam kết bên dưới và gửi yêu cầu.
+                </p>
+              </div>
+
+              <div class="form-section">
+                <div class="checkbox-row form-group">
+                  <input type="checkbox" id="agreement" />
+                  <label for="agreement">
+                    Tôi cam kết chịu trách nhiệm trước pháp luật về tính chính xác của các thông tin đã cung cấp.
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hành động -->
+            <div class="form-actions">
+              <button type="button" class="btn btn-ghost" id="prevStep" disabled>Quay lại</button>
+              <button type="button" class="btn btn-primary" id="nextStep">Tiếp tục</button>
+              <button type="button" class="btn btn-primary hidden" id="submitBtn">Gửi yêu cầu</button>
+            </div>
+          </form>
+
+          <div id="resultMessage" class="result-message hidden"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left">© 2025 Ban Quản lý Chung cư</div>
+      <div class="footer-right">Phiên bản biểu mẫu cư trú dành cho người mới</div>
+    </div>
+  </footer>
+
+  <script src="newresident.js"></script>
+</body>
+</html>

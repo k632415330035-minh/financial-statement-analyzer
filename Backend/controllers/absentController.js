@@ -41,12 +41,10 @@ const getAbsentDetails = async (req, res) => {
 
     const AbsentData = await absentModel.getAbsent(cccd);
 
-    if (AbsentData) {
+    if (AbsentData && AbsentData.length > 0) {
       res.status(200).json(AbsentData);
     } else {
-      res
-        .status(404)
-        .json({ message: "Absent not found with the provided CCCD" });
+      res.status(200).json([]);
     }
   } catch (error) {
     console.error("Controller error: ", error);
