@@ -1,0 +1,232 @@
+/* Pages - Page Specific Styles */
+
+/* Tables */
+.table-wrap {
+  overflow: auto;
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: var(--surface);
+}
+
+.table th,
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f4f9 100%);
+  z-index: 1;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text);
+  transition: var(--transition);
+}
+
+.table th:hover {
+  background: linear-gradient(135deg, #f0f4f9 0%, #e8ecf1 100%);
+}
+
+.table tbody tr {
+  transition: var(--transition);
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(31, 74, 216, .04) 0%, transparent 100%);
+  border-color: var(--primary);
+}
+
+.table--compact th,
+.table--compact td {
+  padding: 11px 13px;
+}
+
+.table__footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.empty {
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal.is-open {
+  display: flex;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .5);
+  backdrop-filter: blur(6px);
+}
+
+.modal__content {
+  position: relative;
+  background: var(--surface);
+  border-radius: 18px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, .25);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, .5);
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f4f9 100%);
+}
+
+.modal__header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.modal__close {
+  background: transparent;
+  border: none;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: var(--transition);
+}
+
+.modal__close:hover {
+  background: #f0f4f9;
+  color: var(--text);
+}
+
+.modal__body {
+  padding: 28px;
+  overflow-y: auto;
+}
+
+.household-info {
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f4f9 100%);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 22px;
+  border: 1px solid var(--line);
+}
+
+.info-row {
+  display: flex;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .05);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row .label {
+  font-weight: 700;
+  color: var(--text);
+  min-width: 140px;
+}
+
+.info-row .value {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.modal__body h3 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* Stats Section */
+.stats-section {
+  margin-top: 48px;
+  padding-top: 48px;
+  border-top: 2px solid var(--line);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.section-header h2 {
+  margin: 0 0 10px;
+  font-size: 32px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #1f4ad8 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* Profile Page */
+.view[data-view="profile"] {
+  padding: 20px;
+}
+
+.view[data-view="profile"] .card {
+  margin: 0 auto;
+}
+
+/* Period card specific */
+.period-card .card__header--wrap {
+  flex-direction: column;
+  align-items: stretch;
+}

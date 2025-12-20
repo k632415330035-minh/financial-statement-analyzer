@@ -1,0 +1,114 @@
+<!-- KPI CARDS -->
+<section class="kpis">
+  <article class="kpi kpi--blue"><div class="kpi__title">Hộ khẩu</div><div class="kpi__value" id="kpiHouseholds">0</div></article>
+  <article class="kpi kpi--green"><div class="kpi__title">Nhân khẩu</div><div class="kpi__value" id="kpiResidents">0</div></article>
+  <article class="kpi kpi--purple"><div class="kpi__title">Thường trú</div><div class="kpi__value" id="kpiPermanent">0</div></article>
+  <article class="kpi kpi--orange"><div class="kpi__title">Tạm trú</div><div class="kpi__value" id="kpiTempRes">0</div></article>
+  <article class="kpi kpi--red"><div class="kpi__title">Tạm vắng</div><div class="kpi__value" id="kpiTempAbs">0</div></article>
+</section>
+
+<!-- BIỂU ĐỒ TỔNG QUAN (2 CỘT) -->
+<section class="grid">
+  <div class="card">
+    <div class="card__header">
+      <h2>Biến động nhân khẩu theo tháng</h2>
+      <div class="card__actions">
+        <label class="sr-only" for="yearSelect">Chọn năm</label>
+        <select id="yearSelect" aria-label="Chọn năm"></select>
+      </div>
+    </div>
+    <canvas id="barChart" height="140" role="img"></canvas>
+  </div>
+  <div class="card">
+    <div class="card__header"><h2>Tỉ lệ trạng thái cư trú</h2></div>
+    <canvas id="donutChart" height="140" role="img"></canvas>
+    <div class="legend" id="donutLegend"></div>
+  </div>
+</section>
+
+<!-- NÚT SCROLL XUỐNG -->
+<div class="scroll-indicator">
+  <button id="scrollDownBtn" class="scroll-btn" aria-label="Xem thống kê chi tiết">
+    <span>Xem thống kê chi tiết</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+</div>
+
+<!-- PHẦN THỐNG KÊ CHI TIẾT -->
+<section class="stats-section" id="statsSection">
+  <div class="section-header">
+    <h2>📊 Thống kê chi tiết</h2>
+    <p>Phân tích dữ liệu toàn diện về dân cư tổ dân phố</p>
+  </div>
+
+  <!-- 3 CARD THỐNG KÊ -->
+  <section class="grid-3">
+    <!-- CARD 1: GIỚI TÍNH -->
+    <div class="card card-stats">
+      <div class="card__header" style="min-height: 40px; display: flex; align-items: center;"><h2 style="margin: 0;">Thống kê theo giới tính</h2></div>
+      <div style="position: relative; height: 180px; margin-bottom: 12px; padding: 8px 0;">
+        <canvas id="genderChart" role="img"></canvas>
+      </div>
+      <div style="min-height: 100px; margin-top: 24px;">
+        <table class="table table--compact" id="tblGender">
+          <thead><tr><th>Nhóm</th><th>Số lượng</th><th>Tỷ lệ</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CARD 2: ĐỘ TUỔI -->
+    <div class="card card-stats">
+      <div class="card__header" style="min-height: 40px; display: flex; align-items: center;"><h2 style="margin: 0;">Theo độ tuổi (nhóm)</h2></div>
+      <div style="position: relative; height: 180px; margin-bottom: 12px; padding: 8px 0; margin-top: 24px;">
+        <canvas id="ageChart" role="img"></canvas>
+      </div>
+      <div style="min-height: 100px;">
+        <table class="table table--compact" id="tblAge">
+          <thead><tr><th>Nhóm tuổi</th><th>Số lượng</th><th>Tỷ lệ</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="note" style="font-size: 11px;">Nhóm: mầm non (0–2), mẫu giáo (3–5), cấp 1 (6–10), cấp 2 (11–14), cấp 3 (15–17), lao động (18–59), nghỉ hưu (60+).</div>
+      </div>
+    </div>
+
+    <!-- CARD 3: KHOẢNG THỜI GIAN -->
+    <div class="card card-stats">
+      <div class="card__header" style="min-height: 40px; display: flex; align-items: center;">
+        <h2 style="margin: 0;">Theo khoảng thời gian</h2>
+      </div>
+      
+      <div style="position: relative; height: 180px; margin-bottom: 12px; padding: 8px 0;">
+        <canvas id="periodChart" role="img"></canvas>
+      </div>
+      
+      <div style="min-height: 100px; margin-top: 25px;">
+        <table class="table table--compact" id="tblPeriodStats">
+          <thead><tr><th>Loại</th><th>Số lượng</th><th>Tỷ lệ</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="note" style="font-size: 11px;">Thường trú / tạm trú trong giai đoạn.</div>
+      </div>
+
+      <!-- PERIOD CONTROLS FOR THIS CARD -->
+      <div style="padding: 12px; background: #f8fafc; border-top: 1px solid var(--line); margin: 12px 0 0 0;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div class="input-group">
+            <span class="icon">🗓</span>
+            <input type="date" class="fromDateStats" style="padding: 4px 6px; border-radius: 4px; border: 1px solid var(--line); font-size: 11px; width: 120px;">
+          </div>
+          <span style="font-size: 14px;">→</span>
+          <div class="input-group">
+            <span class="icon">🗓</span>
+            <input type="date" class="toDateStats" style="padding: 4px 6px; border-radius: 4px; border: 1px solid var(--line); font-size: 11px; width: 120px;">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: center;">
+          <button class="btnApplyStats" style="padding: 6px 24px; font-size: 12px; font-weight: 600;">Áp dụng</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>

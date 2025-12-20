@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quản lý Tổ dân phố – Dashboard (v2.5 - Refactored)</title>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/pages.css" />
+  
+  <!-- External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  
+  <!-- Main Application (ES6 Module) -->
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+  <div class="layout" id="layoutRoot" data-collapsed="false">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Thanh điều hướng bên">
+      <div class="brand">
+        <span class="brand__icon" aria-hidden="true">🏘️</span>
+        <span class="brand__name">QUẢN LÝ<br/>TỔ DÂN PHỐ</span>
+      </div>
+
+      <nav class="menu" aria-label="Menu chính">
+        <a class="menu__item is-active" data-route="overview"  href="#/overview"><i aria-hidden="true">🏠</i><span> Tổng quan</span></a>
+        <a class="menu__item"        data-route="households" href="#/households"><i aria-hidden="true">📂</i><span> Hộ khẩu</span></a>
+        <a class="menu__item"        data-route="residents"  href="#/residents"><i aria-hidden="true">👥</i><span> Nhân khẩu</span></a>
+        <a class="menu__item"        data-route="temporary"  href="#/temporary"><i aria-hidden="true">🧳</i><span> Thường trú / Tạm trú</span></a>
+        <a class="menu__item"        data-route="absent"     href="#/absent"><i aria-hidden="true">✈️</i><span> Tạm vắng</span></a>
+        <a class="menu__item"        data-route="feedback"   href="#/feedback"><i aria-hidden="true">📣</i><span> Phản ánh / Kiến nghị</span></a>
+        <a class="menu__item menu__logout" id="logoutLink" href="#"><i aria-hidden="true">🚪</i><span> Đăng xuất</span></a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="topbar">
+        <h1 id="viewTitle">Tổng quan</h1>
+        <div class="topbar__right">
+          <a class="menu__item" data-route="profile" href="#/profile">
+            <div class="role">Tổ trưởng</div>
+            <div class="avatar" aria-label="Avatar">A</div>
+          </a>
+        </div>
+      </header>
+
+      <!-- Dynamic Page Content Container -->
+      <div id="mainContent"></div>
+    </main>
+
+    <!-- MODAL CHỈNH SỬA THÔNG TIN CÁ NHÂN -->
+    <div id="editProfileModal" class="modal">
+      <div class="modal__overlay"></div>
+      <div class="modal__content" style="max-width:800px;">
+        <div class="modal__header">
+          <h2>Chỉnh sửa thông tin cá nhân</h2>
+          <button id="closeEditProfileModal" class="modal__close" aria-label="Đóng">×</button>
+        </div>
+        <div class="modal__body">
+          <form id="editProfileForm" class="form">
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_hoTen">Họ tên *</label>
+                <input id="profile_hoTen" type="text" class="input" placeholder="Nhập họ tên" required />
+              </div>
+              <div class="form__group">
+                <label for="profile_biDanh">Bí danh</label>
+                <input id="profile_biDanh" type="text" class="input" placeholder="Nhập bí danh" />
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_ngaySinh">Ngày sinh</label>
+                <input id="profile_ngaySinh" type="date" class="input" />
+              </div>
+              <div class="form__group">
+                <label for="profile_gioiTinh">Giới tính</label>
+                <select id="profile_gioiTinh" class="input">
+                  <option value="">Chọn giới tính</option>
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_noiSinh">Nơi sinh</label>
+                <input id="profile_noiSinh" type="text" class="input" placeholder="Nhập nơi sinh" />
+              </div>
+              <div class="form__group">
+                <label for="profile_diaChiThuongTru">Địa chỉ thường trú</label>
+                <input id="profile_diaChiThuongTru" type="text" class="input" placeholder="Nhập địa chỉ" />
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_nguonQuan">Nguyên quán</label>
+                <input id="profile_nguonQuan" type="text" class="input" placeholder="Nhập nguyên quán" />
+              </div>
+              <div class="form__group">
+                <label for="profile_danToc">Dân tộc</label>
+                <input id="profile_danToc" type="text" class="input" placeholder="Nhập dân tộc" />
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_soDienThoai">Số điện thoại</label>
+                <input id="profile_soDienThoai" type="tel" class="input" placeholder="Nhập số điện thoại" />
+              </div>
+              <div class="form__group">
+                <label for="profile_cccd">CCCD/CMND</label>
+                <input id="profile_cccd" type="text" class="input" placeholder="Nhập số CCCD" />
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_ngayCapCCCD">Ngày cấp CCCD</label>
+                <input id="profile_ngayCapCCCD" type="date" class="input" />
+              </div>
+              <div class="form__group">
+                <label for="profile_noiCapCCCD">Nơi cấp CCCD</label>
+                <input id="profile_noiCapCCCD" type="text" class="input" placeholder="Nhập nơi cấp" />
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_coQuanCSQLHC">Cơ quan CSQLHC về TTXH</label>
+                <input id="profile_coQuanCSQLHC" type="text" class="input" placeholder="Nhập cơ quan" />
+              </div>
+              <div class="form__group">
+                <label for="profile_kySu">Kỹ sư</label>
+                <input id="profile_kySu" type="text" class="input" placeholder="Nhập kỹ sư" />
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_congTy">Công ty TNHH ABC</label>
+                <input id="profile_congTy" type="text" class="input" placeholder="Nhập công ty" />
+              </div>
+              <div class="form__group">
+                <label for="profile_con">Con</label>
+                <input id="profile_con" type="text" class="input" placeholder="Nhập thông tin con" />
+              </div>
+            </div>
+            <div class="form__row">
+              <div class="form__group">
+                <label for="profile_thuongTru">Thường trú</label>
+                <input id="profile_thuongTru" type="text" class="input" placeholder="Nhập thường trú" />
+              </div>
+              <div class="form__group">
+                <label for="profile_ngayDangKy">Ngày đăng ký</label>
+                <input id="profile_ngayDangKy" type="date" class="input" />
+              </div>
+            </div>
+            <div class="form__actions">
+              <button type="button" class="btn btn--secondary" id="cancelEditProfileBtn">Hủy</button>
+              <button type="submit" class="btn btn--primary">💾 Lưu thông tin</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL THÊM THÀNH VIÊN GIA ĐÌNH -->
+    <div id="addFamilyMembersModal" class="modal">
+      <div class="modal__overlay"></div>
+      <div class="modal__content" style="max-width: 900px;">
+        <div class="modal__header">
+          <h2>👨‍👩‍👧‍👦 Thêm thành viên cùng hộ gia đình</h2>
+          <button id="closeAddFamilyModal" class="modal__close" aria-label="Đóng">×</button>
+        </div>
+        <div class="modal__body" style="padding: 24px;">
+          <p style="color: #666; margin-bottom: 20px;">Nhập số thành viên (ngoài bạn) </p>
+          
+          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
+            <input id="familyMemberCount" type="number" class="input" placeholder="Số thành viên" min="0" max="20" style="width: 150px; padding: 10px 12px; border-radius: 6px;" />
+          </div>
+
+          <div id="familyMembersContainer"></div>
+
+          <div class="form__actions" style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+            <button type="button" id="cancelAddFamilyBtn" class="btn" style="padding: 10px 24px; background: #f3f4f6; color: #374151; border-radius: 6px;">Hủy</button>
+            <button type="button" id="saveFamilyMembersBtn" class="btn btn--primary" style="padding: 10px 24px; border-radius: 6px;">✓ Lưu thành viên</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
