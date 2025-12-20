@@ -1,0 +1,204 @@
+/* tam-tru-tam-vang.css */
+@import url("../resident.css");
+
+/* CARD CHUNG */
+.temp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* HEADER */
+.temp-header h2 {
+  margin-bottom: 4px;
+}
+
+.temp-subtitle {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* SECTION LỊCH SỬ */
+.temp-section {
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #f8fafc;
+  padding: 12px 14px;
+}
+
+.temp-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.temp-section__header h3 {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.temp-section__header p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* NÚT TẠO MỚI – LÀM NỔI HƠN CHÚT */
+#secTemp .btn-new {
+  font-size: 13px;
+  padding: 6px 16px;
+  white-space: nowrap;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #0ea5e9);
+  border: none;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+
+#secTemp .btn-new:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+}
+
+/* LIST TẠM VẮNG – TIMELINE */
+.tv-list {
+  position: relative;
+  margin-top: 10px;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* đường dọc timeline */
+.tv-list::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+/* một mục timeline */
+.tv-item {
+  position: relative;
+  margin-left: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  display: flex;
+  gap: 10px;
+}
+
+/* chấm tròn */
+.tv-item::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 16px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+/* cột ngày */
+.tv-item__date {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  min-width: 135px;
+}
+
+/* nội dung chính */
+.tv-item__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tv-item__dest {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tv-item__reason {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* item trống */
+.tv-empty {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px dashed var(--line);
+  background: #ffffff;
+  font-size: 13px;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+/* FORM PANEL – CARD RIÊNG, MẶC ĐỊNH ẨN */
+.temp-form-panel {
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  padding: 14px 16px;
+}
+
+.temp-form-header h3 {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.temp-form-header p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 10px;
+}
+
+/* Ẩn/hiện form bằng class */
+.is-hidden {
+  display: none;
+}
+
+/* HÀNG NÚT HỦY / GỬI – FULL 2 CỘT, CANH PHẢI */
+#secTemp .temp-form .form__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#secTemp .temp-form .form__actions .btn {
+  min-width: 90px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .temp-card {
+    gap: 12px;
+  }
+
+  .temp-section__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #secTemp .btn-new {
+    align-self: flex-start;
+  }
+
+  .tv-item {
+    flex-direction: column;
+  }
+
+  .tv-item__date {
+    min-width: 0;
+  }
+}

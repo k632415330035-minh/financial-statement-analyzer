@@ -1,0 +1,16 @@
+/* thong-tin-ho-khau.css */
+
+/* Nếu mở thong-tin-ho-khau.html riêng thì import lại style chung: */
+@import url("../resident.css");
+
+/* Chỉnh nhẹ cho phần hộ khẩu (tuỳ chọn, có thể xoá nếu không cần) */
+
+/* Giữ margin header gọn gàng */
+#secHousehold .card__header h2 {
+  margin: 0;
+}
+
+/* Căn phải ô chứa icon con mắt trong bảng */
+#hhMembers td:last-child {
+  text-align: right;
+}

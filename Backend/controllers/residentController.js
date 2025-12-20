@@ -2,7 +2,7 @@ const residentModel = require("../models/residentModel");
 
 const getResidentDetails = async (req, res) => {
   try {
-    const { cccd } = req.params; // Lấy cccd từ URL parameter
+    const { cccd } = req.params;
 
     if (!cccd) {
       return res.status(400).json({ message: "CCCD is required" });
@@ -18,7 +18,7 @@ const getResidentDetails = async (req, res) => {
         .json({ message: "Resident not found with the provided CCCD" });
     }
   } catch (error) {
-    console.error("Controller error: ", error);
+    console.error("Controller error (getResidentDetails): ", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -34,17 +34,28 @@ const getHouseholdDetails = async (req, res) => {
     const HouseholdData = await residentModel.getHousehold(cccd);
 
     if (HouseholdData && HouseholdData.length > 0) {
-      // Thực hiện tính toán và số nhân khẩu và tìm tên của chủ hộ
       const totalMembers = HouseholdData.length;
+
+      // Tìm Chủ hộ: Sử dụng trim() để đảm bảo khớp đúng
       const householder = HouseholdData.find(
-        (member) => member["Quan hệ với chủ hộ"] === "chu ho"
+        (member) =>
+          member["Quan hệ với chủ hộ"] &&
+          member["Quan hệ với chủ hộ"].toLowerCase().trim() === "chủ hộ"
       );
-      const householderName = householder ? householder["Họ tên"] : "_";
+
+      const sourceData = householder || HouseholdData[0];
+
+      const householderName = householder ? sourceData["Họ tên"] : "—";
+
+      const idHoKhau = sourceData["Số hộ khẩu"] || "—";
+      const address = sourceData["Địa chỉ"] || "—";
 
       const response = {
         householderName: householderName,
         totalMembers: totalMembers,
         members: HouseholdData,
+        idHoKhau: idHoKhau,
+        address: address,
       };
 
       res.status(200).json(response);
@@ -52,7 +63,7 @@ const getHouseholdDetails = async (req, res) => {
       res.status(404).json({ message: "Household of this resident not found" });
     }
   } catch (error) {
-    console.error("Controller error: ", error);
+    console.error("Controller error (getHouseholdDetails): ", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

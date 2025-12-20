@@ -1,0 +1,104 @@
+<!-- THÔNG TIN HỘ KHẨU – CHỈ LÀ ĐOẠN NỘI DUNG, KHÔNG CÓ <html>/<body> -->
+<section class="card" id="secHousehold">
+  <div class="card__header">
+    <h2>Thông tin hộ khẩu</h2>
+  </div>
+
+  <div class="grid two">
+    <!-- Cột trái: thông tin chung -->
+    <div>
+      <div class="field">
+        <span class="label">Số hộ khẩu</span>
+        <span class="value" id="hhNo">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Chủ hộ</span>
+        <span class="value" id="hhHead">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Địa chỉ</span>
+        <span class="value" id="hhAddress">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Ghi chú</span>
+        <span class="value" id="hhNote">—</span>
+      </div>
+    </div>
+
+    <!-- Cột phải: bảng thành viên -->
+    <div>
+      <div class="table-wrap">
+        <table class="table small" id="hhMembers">
+          <thead>
+            <tr>
+              <th>Thành viên trong hộ</th>
+              <th style="width: 40px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS sẽ render -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL THÔNG TIN THÀNH VIÊN HỘ KHẨU -->
+<div class="modal hide" id="memberModal">
+  <div class="modal__backdrop"></div>
+
+  <div class="modal__dialog">
+    <div class="modal__header">
+      <h3>Thông tin thành viên hộ khẩu</h3>
+      <button class="icon-btn" id="btnMemberClose" aria-label="Đóng">✕</button>
+    </div>
+
+    <div class="modal__body">
+      <div class="field">
+        <span class="label">Họ tên</span>
+        <span class="value" id="mName">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Vai trò</span>
+        <span class="value" id="mRole">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Quan hệ với chủ hộ</span>
+        <span class="value" id="mRelation">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Ngày sinh</span>
+        <span class="value" id="mDob">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Giới tính</span>
+        <span class="value" id="mGender">—</span>
+      </div>
+      <div class="field">
+        <span class="label">CCCD</span>
+        <span class="value mask" id="mCCCD">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Nghề nghiệp</span>
+        <span class="value" id="mJob">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Trạng thái cư trú</span>
+        <span class="value badge" id="mStatus">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Số điện thoại</span>
+        <span class="value" id="mPhone">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Địa chỉ cư trú</span>
+        <span class="value" id="mAddress">—</span>
+      </div>
+      <div class="field">
+        <span class="label">Ghi chú</span>
+        <span class="value" id="mNote">—</span>
+      </div>
+    </div>
+  </div>
+</div>

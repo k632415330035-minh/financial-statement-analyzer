@@ -10,6 +10,11 @@ const statisticRoute = require("./routes/statisticRoute");
 // Đường dẫn tới các trang liên quan
 const userRoute = require("./routes/userRoute");
 const residentRoute = require("./routes/residentRoute");
+const registerRoute = require("./routes/registerResidentRoute");
+const petitionRoute = require("./routes/petitionRoute");
+const absentRoute = require("./routes/absentRoute");
+const feedbackRouter = require("./routes/feedbackRoute");
+const historyRoute = require("./routes/historyRoute");
 
 
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
@@ -19,7 +24,14 @@ app.use(express.json());
 
 // API routes
 app.use("/api", userRoute);
-app.use("/api/", residentRoute);
+app.use("/api", residentRoute);
+app.use("/api", petitionRoute);
+app.use("/api", absentRoute);
+app.use("/api", feedbackRouter);
+app.use("/api", historyRoute);
+
+// Tuyến cần authMiddleware
+app.use("/api", authMiddleware, registerRoute);
 
 // Serve static files từ thư mục Frontend
 app.use(express.static(path.join(__dirname, "..", "Frontend")));

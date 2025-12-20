@@ -1,0 +1,284 @@
+/* dang-ky-thuong-tru.css – bố cục gọn, rõ section */
+@import url("../resident.css");
+
+/* Card chính */
+#secPermReg {
+  position: relative;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+
+  --perm-primary: #0d47a1;
+  --perm-primary-dark: #062c6f;
+  --perm-primary-soft: #e3eeff;
+  --perm-border-soft: #d4dbe9;
+
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  padding: 20px 22px 22px;
+  color: #111827;
+}
+
+/* Thanh nhấn mảnh phía trên */
+#secPermReg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 3px;
+  background: var(--perm-primary-dark);
+}
+
+/* Header */
+#secPermReg .card__header {
+  margin-bottom: 4px;
+}
+
+#secPermReg .card__header h2 {
+  margin: 0;
+  font-size: 1.28rem;
+  font-weight: 700;
+  color: var(--perm-primary-dark);
+}
+
+#secPermReg .muted {
+  margin: 4px 0 14px;
+  font-size: 0.88rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Form container */
+#secPermReg .form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Section trong form */
+#secPermReg .form__section {
+  padding-top: 10px;
+  border-top: 1px solid #edf0f4;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#secPermReg .form__section:first-of-type {
+  padding-top: 0;
+  border-top: none;
+}
+
+#secPermReg .section-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+#secPermReg .section-subtitle {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Hàng chung */
+#secPermReg .form__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#secPermReg .form__row.between {
+  align-items: center;
+}
+
+#secPermReg .form__row.end {
+  justify-content: flex-end;
+}
+
+/* Label & field */
+#secPermReg label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+#secPermReg label.row--inline {
+  flex-direction: row;
+  align-items: center;
+}
+
+#secPermReg .required {
+  color: #ef4444;
+}
+
+/* Input */
+#secPermReg input,
+#secPermReg select,
+#secPermReg textarea {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 7px 9px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  width: 100%;
+  min-height: 34px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#secPermReg input::placeholder,
+#secPermReg textarea::placeholder {
+  color: #9ca3af;
+  font-size: 0.87rem;
+}
+
+#secPermReg textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+#secPermReg input:focus,
+#secPermReg select:focus,
+#secPermReg textarea:focus {
+  outline: none;
+  border-color: var(--perm-primary);
+  box-shadow: 0 0 0 1px rgba(13, 71, 161, 0.16);
+}
+
+/* Helper text */
+#secPermReg .helper {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Lưới 2 cột cân nhau */
+#secPermReg .grid.two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+/* Lưới 3 cột (nếu cần sau này) */
+#secPermReg .grid.three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+/* Pill “Trẻ em” */
+#secPermReg .pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #f9fafb;
+  border: 1px solid var(--perm-border-soft);
+  color: var(--perm-primary-dark);
+}
+
+/* Nhóm radio loại đăng ký */
+#secPermReg .perm-type-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+#secPermReg .perm-type-group > label {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+#secPermReg .perm-type-group input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  min-height: auto;
+}
+
+/* Khung thời gian tạm trú */
+#secPermReg #tempTimeRow {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px dashed var(--perm-border-soft);
+}
+
+#secPermReg #tempTimeRow .grid.two {
+  width: 100%;
+}
+
+/* Nút */
+#secPermReg .btn {
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s ease, transform 0.05s ease,
+    box-shadow 0.1s ease;
+}
+
+#secPermReg .btn.light {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+#secPermReg .btn.light:hover {
+  background: #e5e7eb;
+  transform: translateY(-0.5px);
+}
+
+#secPermReg .btn:not(.light) {
+  background: var(--perm-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(13, 71, 161, 0.25);
+}
+
+#secPermReg .btn:not(.light):hover {
+  background: var(--perm-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(6, 44, 111, 0.3);
+}
+
+/* Hàng nút action */
+#secPermReg .form__row.actions {
+  padding-top: 10px;
+  border-top: 1px solid #edf0f4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #secPermReg {
+    padding: 18px 14px 20px;
+  }
+
+  #secPermReg .form__row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #secPermReg .form__row.end {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  #secPermReg .grid.two,
+  #secPermReg .grid.three {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

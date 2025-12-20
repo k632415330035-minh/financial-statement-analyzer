@@ -1,0 +1,20 @@
+/* thong-tin-ca-nhan.css */
+@import url("../resident.css");
+
+/* ===========================
+   Style riêng cho các dòng địa chỉ
+   =========================== */
+
+/* Cả 2 dòng địa chỉ: container căn theo đỉnh (cho label + value) */
+#citView .field.address-row {
+  align-items: flex-start; /* có tác dụng nếu .field là flex/grid */
+}
+
+/* Value địa chỉ: căn phải + cho phép xuống nhiều dòng */
+.address-value {
+  display: block;
+  text-align: right; /* CĂN PHẢI cả "phường ..." */
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}

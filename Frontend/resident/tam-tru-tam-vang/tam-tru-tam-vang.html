@@ -1,0 +1,60 @@
+<!-- TẠM VẮNG -->
+<section class="card temp-card" id="secTemp">
+  <!-- HEADER -->
+  <div class="temp-header">
+    <h2>Tạm vắng</h2>
+    <p class="temp-subtitle">Quản lý các lần khai báo tạm vắng của cư dân.</p>
+  </div>
+
+  <!-- LỊCH SỬ TẠM VẮNG -->
+  <section class="temp-section">
+    <div class="temp-section__header">
+      <div>
+        <h3>Lịch sử tạm vắng</h3>
+        <p>Danh sách các khoảng thời gian bạn đã/đang tạm vắng.</p>
+      </div>
+
+      <!-- NÚT TẠO MỚI -->
+      <button type="button" class="btn btn-new" id="btnNewTV">+ Tạo mới</button>
+    </div>
+
+    <div id="tvList" class="tv-list list">
+      <!-- JS sẽ render dữ liệu giả ở đây -->
+    </div>
+  </section>
+
+  <!-- FORM BÁO TẠM VẮNG (MẶC ĐỊNH ẨN, ẤN "TẠO MỚI" MỚI HIỆN) -->
+  <section class="temp-form-panel is-hidden" id="tvFormPanel">
+    <div class="temp-form-header">
+      <h3>Báo tạm vắng mới</h3>
+      <p>Nhập thông tin tạm vắng để lưu lại lịch sử.</p>
+    </div>
+
+    <form class="form grid two temp-form" id="formTV">
+      <label
+        >Từ ngày
+        <input type="date" name="from" id="tvFromDate" required />
+      </label>
+
+      <label
+        >Đến ngày
+        <input type="date" name="to" id="tvToDate" required />
+      </label>
+
+      <label
+        >Lý do
+        <input
+          name="reason"
+          required
+          placeholder="Du lịch, đi làm xa, thăm người thân…"
+        />
+      </label>
+
+      <!-- HÀNG NÚT – FULL 2 CỘT, CANH PHẢI -->
+      <div class="form__actions">
+        <button class="btn light" type="button" id="btnCancelTV">Hủy</button>
+        <button class="btn" type="submit">Gửi</button>
+      </div>
+    </form>
+  </section>
+</section>

@@ -1,0 +1,173 @@
+<!-- ĐĂNG KÝ THƯỜNG TRÚ / TẠM TRÚ CHO TRẺ EM -->
+<section class="card" id="secPermReg">
+  <div class="card__header">
+    <h2>Đăng ký thường trú / tạm trú cho trẻ em</h2>
+  </div>
+
+  <p class="muted">
+    Sử dụng khi hộ muốn đăng ký thường trú hoặc tạm trú cho trẻ em trong hộ.
+    Thông tin sẽ được Tổ dân phố tiếp nhận và cập nhật vào bảng nhân khẩu chính
+    thức.
+  </p>
+
+  <form id="permForm" class="form">
+    <!-- Đối tượng đăng ký -->
+    <div class="form__section">
+      <div class="form__row between">
+        <div>
+          <div class="section-title">Đối tượng đăng ký</div>
+          <div class="section-subtitle">
+            Áp dụng cho trẻ em trong hộ gia đình
+          </div>
+        </div>
+        <span class="pill">Trẻ em</span>
+      </div>
+    </div>
+
+    <!-- 1. Thông tin trẻ -->
+    <div class="form__section">
+      <div class="section-title">1. Thông tin trẻ</div>
+      <div class="grid two">
+        <!-- Cột trái -->
+        <div>
+          <label>
+            <span>Họ tên trẻ</span>
+            <input
+              name="ho_ten"
+              required
+              maxlength="120"
+              placeholder="Ví dụ: Nguyễn Văn B"
+            />
+            <small class="helper">Ghi đúng họ tên trên giấy khai sinh.</small>
+          </label>
+
+          <label>
+            <span>Bí danh (nếu có)</span>
+            <input name="bi_danh" maxlength="120" placeholder="Ví dụ: Tý" />
+          </label>
+
+          <label>
+            <span>Ngày sinh</span>
+            <input type="date" name="ngay_sinh" required />
+          </label>
+
+          <label>
+            <span>Giới tính</span>
+            <select name="gioi_tinh" required>
+              <option value="1">Nam</option>
+              <option value="2">Nữ</option>
+              <!-- <option value="0">Khác</option> -->
+            </select>
+          </label>
+        </div>
+
+        <!-- Cột phải -->
+        <div>
+          <label>
+            <span>Nơi sinh</span>
+            <input name="noi_sinh" placeholder="Ví dụ: Hà Đông, Hà Nội" />
+          </label>
+
+          <label>
+            <span>Nguyên quán</span>
+            <input
+              name="nguyen_quan"
+              placeholder="Ví dụ: La Khê, Hà Đông, Hà Nội"
+            />
+          </label>
+
+          <label>
+            <span>Dân tộc</span>
+            <input name="dan_toc" placeholder="Ví dụ: Kinh" />
+          </label>
+
+          <label>
+            <span>Nghề nghiệp (nếu có)</span>
+            <input name="nghe_nghiep" placeholder="Ví dụ: Học sinh" />
+          </label>
+
+          <label>
+            <span>Nơi làm việc (nếu có)</span>
+            <input
+              name="noi_lam_viec"
+              placeholder="Ví dụ: Trường mầm non Hoa Sen"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Thông tin hộ khẩu -->
+    <div class="form__section">
+      <div class="section-title">2. Thông tin hộ khẩu</div>
+      <div class="grid two">
+        <div>
+          <label>
+            <span>Quan hệ với chủ hộ</span>
+            <select name="quan_he_voi_chu_ho" required>
+              <option value="Con">Con</option>
+              <option value="Cháu">Cháu</option>
+              <!-- <option value="ANH_CHI_EM">Anh/Chị/Em</option> -->
+            </select>
+          </label>
+        </div>
+
+        <div>
+          <label>
+            <span>Địa chỉ thường trú trước khi chuyển đến (nếu có)</span>
+            <input
+              name="thuong_tru_truoc_khi_chuyen_den"
+              placeholder="Ví dụ: Xã X, Huyện Y, Tỉnh Z"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Hình thức đăng ký -->
+    <div class="form__section">
+      <div class="section-title">3. Hình thức đăng ký</div>
+
+      <!-- Loại đăng ký: thường trú / tạm trú -->
+      <div class="form__row">
+        <label class="row--inline" style="gap: 8px">
+          <span>Loại đăng ký</span>
+          <div class="perm-type-group">
+            <label>
+              <input type="radio" name="permType" value="PERM" checked />
+              <span>Thường trú</span>
+            </label>
+            <label>
+              <input type="radio" name="permType" value="TEMP" />
+              <span>Tạm trú</span>
+            </label>
+          </div>
+        </label>
+      </div>
+
+      <!-- Thời gian tạm trú (chỉ hiển thị khi chọn Tạm trú) -->
+      <div class="form__row" id="tempTimeRow" style="display: none">
+        <div class="grid two" style="width: 100%">
+          <label>
+            <span>Tạm trú từ ngày</span>
+            <input type="date" id="tempFrom" name="tam_tru_tu_ngay" />
+          </label>
+
+          <label>
+            <span>Đến ngày</span>
+            <input type="date" id="tempTo" name="tam_tru_den_ngay" />
+          </label>
+        </div>
+        <small class="helper">
+          Ghi rõ khoảng thời gian trẻ tạm trú tại địa chỉ hiện tại.
+        </small>
+      </div>
+    </div>
+
+    <!-- Nút -->
+    <div class="form__row end actions">
+      <button type="reset" class="btn light">Xóa</button>
+      <button type="submit" class="btn">Gửi đăng ký</button>
+    </div>
+  </form>
+</section>
