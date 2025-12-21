@@ -4,16 +4,24 @@ import { initOverview } from './controllers/overviewController.js';
 import { init as initHouseholds } from './controllers/householdsController.js';
 import { initResidents } from './controllers/residentsController.js';
 import { initTemporary } from './controllers/temporaryController.js';
+import { initAbsent } from './controllers/absentController.js';
 import { initFeedback } from './controllers/feedbackController.js';
-import { loadProfile } from './controllers/profileController.js';
+import { loadProfile, bindEditProfileModal } from './controllers/profileController.js';
 
 const controllers = {
   overview: initOverview,
   households: initHouseholds,
   residents: initResidents,
   temporary: initTemporary,
+  absent: initAbsent,
   feedback: initFeedback,
-  profile: loadProfile
+  profile: async () => {
+    console.log('[Navigation] Initializing profile page');
+    loadProfile();
+    console.log('[Navigation] Profile loaded, binding modal...');
+    bindEditProfileModal();
+    console.log('[Navigation] Profile modal bound');
+  }
 };
 
 function setActiveMenu(route) {

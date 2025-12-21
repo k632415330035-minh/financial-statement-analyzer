@@ -2,78 +2,17 @@
 import { save, load } from '../utils/helpers.js';
 
 let feedbackInited = false;
+let feedbackFiltersBound = false;
+let feedbackDetailBound = false;
 let allFeedback = [];
 let feedbackPage = 1;
 
-
-async function updateFeedbackStatus(id, newStatus, note) {
-  try {
-    const response = await fetch(`http://localhost:3000/api/update/FeedbackDone/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ "newStatus": newStatus, "note": note })
-    });
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error updating feedback status: ", error);
-    return null;
-  }
+function getFeedbackStats() {
+  const total = allFeedback.length;
+  const processing = allFeedback.filter(f => f.status === 'pending' || f.status === 'processing').length;
+  const resolved = allFeedback.filter(f => f.status === 'resolved').length;
+  return { total, processing, resolved };
 }
-async function getFeedbackData() {
-  //  { id: '6', name: 'Đỗ Văn F', phone: '0967890123', addr: 'Số 42, Đường D', type: 'hạ tầng', 
-  // content: 'Hệ thống thoát nước bị tắc', 
-  // anonymous: false, date: '13/11/2025', status: 'processing', processingNote: 'Đang sửa chữa', satisfaction: 2 }
-  try {
-    const response = await fetch("http://localhost:3000/api/get/FeedbackData");
-    const data = await response.json();
-    const newData = data.map(item => ({
-      id: item.id_pa,
-      name: item.ho_ten,
-      phone: '',
-      addr: item.address || '',
-      type: item.loai_phan_anh,
-      content: item.noi_dung,
-      anonymous: false,
-      date: new Date(item.date_time).toLocaleDateString('vi-VN'),
-      status: item.trang_thai,
-      processingNote: item.phan_hoi || '',
-      satisfaction: 0
-    }));
-    return newData;
-  }
-  catch (error) {
-    console.error("Error fetching feedback data: ", error);
-    return [];
-  }
-};
-
-async function getFeedbackStats() {
-  try {
-    const response = await fetch("http://localhost:3000/api/get/CountFeedbackStatus");
-    const data = await response.json();
-    const result = await data.reduce((acc, item) => {
-      acc[item.trang_thai] = item.count;
-      return acc;
-    }, {});
-    const pending = result['Đang chờ xử lý'] || 0;
-    const processing = result['Đang xử lý'] || 0;
-    const resolved = result['Đã xử lý'] || 0;
-    const total = processing + resolved + pending;
-    return { total, pending, processing, resolved };
-  }
-  catch (error) {
-    console.error("Error fetching feedback stats: ", error);
-    return { total: 0, pending: 0, processing: 0, resolved: 0 };
-  }
-}
-// function getFeedbackStats() {
-//   const total = allFeedback.length;
-//   const pending = allFeedback.filter(f => f.status === 'pending').length;
-//   const processing = allFeedback.filter(f => f.status === 'processing').length;
-//   const resolved = allFeedback.filter(f => f.status === 'resolved').length;
-//   return { total, pending, processing, resolved };
-// }
 
 function getSatisfactionStats() {
   const veryHappy = allFeedback.filter(f => f.satisfaction === 5).length;
@@ -93,13 +32,13 @@ function renderSatisfactionStats() {
   const satUnhappy = document.getElementById('satUnhappy');
   const avgSatisfaction = document.getElementById('avgSatisfaction');
   const satisfactionChart = document.getElementById('satisfactionChart');
-
+  
   if (satVeryHappy) satVeryHappy.textContent = stats.veryHappy;
   if (satHappy) satHappy.textContent = stats.happy;
   if (satNeutral) satNeutral.textContent = stats.neutral;
   if (satUnhappy) satUnhappy.textContent = stats.unhappy;
   if (avgSatisfaction) avgSatisfaction.textContent = stats.avgSatisfaction + '/5';
-
+  
   if (satisfactionChart && window.Chart) {
     if (window.satisfactionChartInstance) window.satisfactionChartInstance.destroy();
     window.satisfactionChartInstance = new Chart(satisfactionChart, {
@@ -134,44 +73,43 @@ function filterFeedback(q, typeFilter = '', statusFilter = '') {
 
 function getStatusBadge(status) {
   const statusMap = {
-    // pending: { label: 'Chưa xử lý', color: '#ef4444' },
-    'Đang xử lý': { label: 'Đang xử lý', color: '#f59e0b' },
-    'Đã xử lý': { label: 'Đã xử lý', color: '#22c55e' }
+    pending: { label: 'Đang xử lý', color: '#f59e0b' },
+    processing: { label: 'Đang xử lý', color: '#f59e0b' },
+    resolved: { label: 'Đã xử lý', color: '#22c55e' }
   };
   const s = statusMap[status] || { label: status, color: '#64748b' };
   return `<span style="background:${s.color};color:white;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;">${s.label}</span>`;
 }
 
-async function renderFeedbackTable() {
+function renderFeedbackTable() {
   const search = document.getElementById('feedbackSearch')?.value || '';
   const typeFilter = document.getElementById('feedbackTypeFilter')?.value || '';
   const statusFilter = document.getElementById('feedbackStatusFilter')?.value || '';
-
+  
   const filtered = filterFeedback(search, typeFilter, statusFilter);
   const PAGE_SIZE = 8;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   feedbackPage = Math.min(feedbackPage, totalPages);
-
+  
   const tbody = document.querySelector('#feedbackTable tbody');
   if (tbody) {
     const slice = filtered.slice((feedbackPage - 1) * PAGE_SIZE, (feedbackPage - 1) * PAGE_SIZE + PAGE_SIZE);
     tbody.innerHTML = slice.map((f, i) => `<tr>
       <td>${(feedbackPage - 1) * PAGE_SIZE + i + 1}</td>
-      <td><strong>${f.anonymous ? '(Ẩn danh)' : f.name}</strong></td>
-      <td>${f.phone || '-'}</td>
+      <td><strong>${f.name}</strong></td>
       <td><span style="background:#f0f0f0;padding:4px 8px;border-radius:4px;font-size:12px;">${f.type}</span></td>
       <td>${getStatusBadge(f.status)}</td>
       <td style="font-size:12px;color:var(--muted);">${f.date}</td>
       <td><button class="btn-view" data-fbid="${f.id}" style="font-size:12px;padding:6px 10px;">👁 Xem</button></td>
     </tr>`).join('');
   }
-
+  
   const empty = document.getElementById('emptyStateFeedback');
   if (empty) empty.style.display = filtered.length === 0 ? 'block' : 'none';
-
+  
   const pi = document.getElementById('pageInfoFeedback');
   if (pi) pi.textContent = `Trang ${feedbackPage}/${totalPages} (${filtered.length} kết quả)`;
-
+  
   const prev = document.getElementById('prevPageFeedback'), next = document.getElementById('nextPageFeedback');
   if (prev) {
     prev.disabled = feedbackPage <= 1;
@@ -181,44 +119,60 @@ async function renderFeedbackTable() {
     next.disabled = feedbackPage >= totalPages;
     next.onclick = () => { if (feedbackPage < totalPages) { feedbackPage++; renderFeedbackTable(); } };
   }
-
+  
   document.querySelectorAll('.btn-view').forEach(btn => {
     btn.addEventListener('click', () => openFeedbackDetailModal(btn.dataset.fbid));
   });
 }
 
 function bindFeedbackFilters() {
+  if (feedbackFiltersBound) return;
+  feedbackFiltersBound = true;
+  
   const search = document.getElementById('feedbackSearch');
   const typeFilter = document.getElementById('feedbackTypeFilter');
   const statusFilter = document.getElementById('feedbackStatusFilter');
   const prev = document.getElementById('prevPageFeedback');
   const next = document.getElementById('nextPageFeedback');
-
+  
   const onFilterChange = () => { feedbackPage = 1; renderFeedbackTable(); };
-
+  
   search?.addEventListener('input', onFilterChange);
   typeFilter?.addEventListener('change', onFilterChange);
   statusFilter?.addEventListener('change', onFilterChange);
 }
 
-async function openFeedbackDetailModal(feedbackId) {
-  const feedback = await allFeedback.find(f => f.id == feedbackId);
+function openFeedbackDetailModal(feedbackId) {
+  const feedback = allFeedback.find(f => f.id === feedbackId);
   if (!feedback) return;
-
-  document.getElementById('detailName').textContent = feedback.anonymous ? '(Ẩn danh)' : feedback.name;
+  
+  document.getElementById('detailName').textContent = feedback.name;
   document.getElementById('detailPhone').textContent = feedback.phone || '-';
   document.getElementById('detailAddr').textContent = feedback.addr || '-';
   document.getElementById('detailType').textContent = feedback.type;
-  document.getElementById('detailAnon').textContent = feedback.anonymous ? 'Có' : 'Không';
   document.getElementById('detailDate').textContent = feedback.date;
   document.getElementById('detailStatus').innerHTML = getStatusBadge(feedback.status);
   document.getElementById('detailContent').textContent = feedback.content;
-
-  document.getElementById('status_select').value = feedback.status;
-  document.getElementById('feedback_note').value = feedback.processingNote || '';
-
+  
+  document.getElementById('feedback_note').value = '';
+  
+  // Render history
+  const historyDiv = document.getElementById('feedbackHistory');
+  if (historyDiv) {
+    if (!feedback.history || feedback.history.length === 0) {
+      historyDiv.innerHTML = '<p style="color:var(--muted);margin:0;">Chưa có lịch sử xử lý</p>';
+    } else {
+      historyDiv.innerHTML = feedback.history.map(h => `
+        <div style="border-bottom:1px solid #e2e8f0;padding:8px 0;margin-bottom:8px;">
+          <div style="font-weight:600;color:#1e293b;margin-bottom:2px;">${h.timestamp} - ${h.user}</div>
+          <div style="color:#64748b;">${h.note}</div>
+        </div>
+      `).join('');
+    }
+  }
+  
   window.currentFeedback = feedback;
-
+  
   const modal = document.getElementById('feedbackDetailModal');
   if (modal) modal.classList.add('is-open');
 }
@@ -228,72 +182,74 @@ function closeFeedbackDetailModal() {
   if (modal) modal.classList.remove('is-open');
 }
 
-async function bindFeedbackModal() { //=================================================================================
-  //==============================================================================================================
-  //==============================================================================================================
+function bindFeedbackModal() {
+  if (feedbackDetailBound) return;
+  feedbackDetailBound = true;
+  
   document.getElementById('closeFeedbackDetailModal')?.addEventListener('click', closeFeedbackDetailModal);
   document.getElementById('closeFeedbackFormBtn')?.addEventListener('click', closeFeedbackDetailModal);
-
-  document.getElementById('feedbackStatusForm')?.addEventListener('submit', async (e) => {
-    await e.preventDefault();
-    const feedback = await window.currentFeedback;
+  
+  document.getElementById('feedbackStatusForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const feedback = window.currentFeedback;
     if (!feedback) return;
-    const id = await feedback.id;
-    let newStatus = await document.getElementById('status_select').value;
-    const note = await document.getElementById('feedback_note').value.trim();
-
-    // if (!newStatus) {
-    //   alert('Vui lòng chọn trạng thái');
-    //   return;
-    // }
-    if (note.length === 0) {
-      alert('Vui lòng phản hồi phản ánh');
+    
+    const note = document.getElementById('feedback_note').value.trim();
+    if (!note) {
+      alert('Vui lòng nhập ghi chú xử lý');
       return;
     }
-    else {
-      newStatus = await "Đã xử lý";
-      const fb = await updateFeedbackStatus(id, newStatus, note);
-      console.log("Update feedback response: ", fb);
-    }
-    // feedback.status = newStatus;
-    // feedback.processingNote = note;
-
-    allFeedback = await getFeedbackData();
+    
+    // Add to history
+    if (!feedback.history) feedback.history = [];
+    const now = new Date();
+    const timestamp = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const user = 'Admin'; // In reality this would be the logged-in user
+    
+    feedback.history.push({
+      timestamp: timestamp,
+      user: user,
+      note: note
+    });
+    
     save('allFeedback', allFeedback);
     updateFeedbackStats();
     renderFeedbackTable();
-    closeFeedbackDetailModal();
-    alert('Cập nhật trạng thái thành công!');
+    
+    // Re-open modal to show updated history
+    openFeedbackDetailModal(feedback.id);
+    alert('Lưu ghi chú xử lý thành công!');
   });
-
+  
   document.getElementById('feedbackDetailModal')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('feedbackDetailModal')) closeFeedbackDetailModal();
   });
 }
 
-async function updateFeedbackStats() {
-  const stats = await getFeedbackStats();
-  console.log("Feedback stats: ", stats);
+function updateFeedbackStats() {
+  const stats = getFeedbackStats();
   document.getElementById('totalFeedback').textContent = stats.total;
-  document.getElementById('pendingFeedback').textContent = stats.pending;
   document.getElementById('processingFeedback').textContent = stats.processing;
   document.getElementById('resolvedFeedback').textContent = stats.resolved;
   renderSatisfactionStats();
 }
 
-export async function initFeedback() {
+export function initFeedback() {
+  // Reset flags to rebind on each visit
+  feedbackFiltersBound = false;
+  feedbackDetailBound = false;
+  
   // Always refresh data to prevent loss on page navigation
-  // allFeedback = load('allFeedback', [
-  //   { id: '1', name: 'Trần Văn A', phone: '0912345678', addr: 'Số 5, Ngõ 1, La Khê', type: 'hạ tầng', content: 'Đường Ngõ 1 bị nứt nhiều, cần sửa chữa cấp tốc', anonymous: false, date: '18/11/2025', status: 'pending', processingNote: '', satisfaction: 3 },
-  //   { id: '2', name: 'Nguyễn Thị B', phone: '0987654321', addr: 'Số 12, Đường A', type: 'vệ sinh môi trường', content: 'Cần tăng cường vệ sinh tại khu vực sân chơi cộng đồng', anonymous: true, date: '17/11/2025', status: 'processing', processingNote: 'Đã lên kế hoạch vệ sinh', satisfaction: 4 },
-  //   { id: '3', name: 'Phạm Hữu C', phone: '0934567890', addr: 'Số 18, Phường La Khê', type: 'an ninh', content: 'Đèn chiếu sáng khu hẻm bị hỏng, gây mất an toàn', anonymous: false, date: '16/11/2025', status: 'resolved', processingNote: 'Đã sửa chữa', satisfaction: 5 },
-  //   { id: '4', name: 'Lê Văn D', phone: '0945678901', addr: 'Số 25, Đường B', type: 'thủ tục hành chính', content: 'Quy trình cấp giấy tờ rất phức tạp', anonymous: false, date: '15/11/2025', status: 'resolved', processingNote: 'Đã cải thiện quy trình', satisfaction: 4 },
-  //   { id: '5', name: 'Hoàng Thị E', phone: '0956789012', addr: 'Số 35, Đường C', type: 'khác', content: 'Cần bổ sung camera giám sát ở khu vực công cộng', anonymous: true, date: '14/11/2025', status: 'pending', processingNote: '', satisfaction: 5 },
-  //   { id: '6', name: 'Đỗ Văn F', phone: '0967890123', addr: 'Số 42, Đường D', type: 'hạ tầng', content: 'Hệ thống thoát nước bị tắc', anonymous: false, date: '13/11/2025', status: 'processing', processingNote: 'Đang sửa chữa', satisfaction: 2 }
-  // ]);
-  allFeedback = await getFeedbackData();
-  save('allFeedback', allFeedback);
-  await updateFeedbackStats();
+  allFeedback = load('allFeedback', [
+    {id: '1', name: 'Trần Văn A', phone: '0912345678', addr: 'Số 5, Ngõ 1, La Khê', type: 'hạ tầng', content: 'Đường Ngõ 1 bị nứt nhiều, cần sửa chữa cấp tốc', date: '18/11/2025', status: 'processing', history: [{timestamp: '19/11/2025 09:30', user: 'Admin', note: 'Đã ghi nhận, lên kế hoạch sửa chữa'}], satisfaction: 3},
+    {id: '2', name: 'Nguyễn Thị B', phone: '0987654321', addr: 'Số 12, Đường A', type: 'vệ sinh môi trường', content: 'Cần tăng cường vệ sinh tại khu vực sân chơi cộng đồng', date: '17/11/2025', status: 'processing', history: [{timestamp: '18/11/2025 10:15', user: 'Admin', note: 'Đã lên kế hoạch vệ sinh'}], satisfaction: 4},
+    {id: '3', name: 'Phạm Hữu C', phone: '0934567890', addr: 'Số 18, Phường La Khê', type: 'an ninh', content: 'Đèn chiếu sáng khu hẻm bị hỏng, gây mất an toàn', date: '16/11/2025', status: 'resolved', history: [{timestamp: '17/11/2025 14:00', user: 'Admin', note: 'Đã sửa chữa đèn'}, {timestamp: '17/11/2025 16:30', user: 'Admin', note: 'Kiểm tra lại, hoạt động bình thường'}], satisfaction: 5},
+    {id: '4', name: 'Lê Văn D', phone: '0945678901', addr: 'Số 25, Đường B', type: 'thủ tục hành chính', content: 'Quy trình cấp giấy tờ rất phức tạp', date: '15/11/2025', status: 'resolved', history: [{timestamp: '16/11/2025 11:00', user: 'Admin', note: 'Đã cải thiện quy trình'}, {timestamp: '16/11/2025 15:45', user: 'Admin', note: 'Thông báo quy trình mới cho cư dân'}], satisfaction: 4},
+    {id: '5', name: 'Hoàng Thị E', phone: '0956789012', addr: 'Số 35, Đường C', type: 'khác', content: 'Cần bổ sung camera giám sát ở khu vực công cộng', date: '14/11/2025', status: 'processing', history: [{timestamp: '15/11/2025 09:20', user: 'Admin', note: 'Đang xin kinh phí bổ sung camera'}], satisfaction: 5},
+    {id: '6', name: 'Đỗ Văn F', phone: '0967890123', addr: 'Số 42, Đường D', type: 'hạ tầng', content: 'Hệ thống thoát nước bị tắc', date: '13/11/2025', status: 'processing', history: [{timestamp: '14/11/2025 08:00', user: 'Admin', note: 'Đã liên hệ thợ sửa'}, {timestamp: '14/11/2025 13:30', user: 'Admin', note: 'Đang tiến hành sửa chữa'}], satisfaction: 2}
+  ]);
+  
+  updateFeedbackStats();
   if (!feedbackInited) {
     bindFeedbackFilters();
     bindFeedbackModal();

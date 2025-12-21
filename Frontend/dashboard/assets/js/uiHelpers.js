@@ -4,7 +4,7 @@ import { save, load } from './utils/helpers.js';
 export function bindSidebar() {
   const btn = document.getElementById('toggleSidebar');
   if (!btn) return; // Exit if toggle button doesn't exist
-
+  
   const stored = load('sidebarCollapsed', false);
   applyCollapsedState(stored);
   btn.addEventListener('click', () => {
@@ -28,7 +28,7 @@ export function bindLogout() {
     try {
       localStorage.clear();
       sessionStorage.clear();
-    } catch { }
-    window.location.href = '/index.html';
+    } catch {}
+    window.location.href = 'index.html';
   });
 }

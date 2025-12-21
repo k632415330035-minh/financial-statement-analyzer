@@ -17,8 +17,13 @@ export const routes = {
   },
   temporary: {
     path: '#/temporary',
-    title: 'Tạm trú / Tạm vắng',
+    title: 'Thường trú / Tạm trú',
     page: 'pages/temporary.html'
+  },
+  absent: {
+    path: '#/absent',
+    title: 'Tạm vắng',
+    page: 'pages/absent.html'
   },
   feedback: {
     path: '#/feedback',

@@ -16,9 +16,6 @@
         <option value="Nam">Nam</option>
         <option value="Nữ">Nữ</option>
       </select>
-      <select id="residentHouseholdFilter" class="input" style="width:180px;">
-        <option value="">Tất cả hộ khẩu</option>
-      </select>
     </div>
   </div>
   <div class="table-wrap">
@@ -100,7 +97,7 @@
       <h3>📄 Thông tin đăng ký cư trú</h3>
       <div class="household-info">
         <div class="info-row">
-          <span class="label">Ngày đăng ký thường trú:</span>
+          <span class="label">Ngày đăng ký thường trú/tạm trú:</span>
           <span class="value" id="residentRegDate">-</span>
         </div>
         <div class="info-row">
@@ -114,10 +111,6 @@
         <div class="info-row">
           <span class="label">Trạng thái cư trú:</span>
           <span class="value" id="residentStatus">-</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Số điện thoại:</span>
-          <span class="value" id="residentPhone">-</span>
         </div>
       </div>
 
@@ -175,13 +168,15 @@
     <div class="modal__body">
       <form id="editResidentForm" class="form">
         <h3>📋 Thông tin cá nhân</h3>
-        <div class="form__group">
-          <label for="edit_res_hoTen">Họ tên *</label>
-          <input id="edit_res_hoTen" type="text" class="input" required />
-        </div>
-        <div class="form__group">
-          <label for="edit_res_biDanh">Bí danh</label>
-          <input id="edit_res_biDanh" type="text" class="input" />
+        <div class="form__row">
+          <div class="form__group">
+            <label for="edit_res_hoTen">Họ tên *</label>
+            <input id="edit_res_hoTen" type="text" class="input" required />
+          </div>
+          <div class="form__group">
+            <label for="edit_res_biDanh">Bí danh</label>
+            <input id="edit_res_biDanh" type="text" class="input" />
+          </div>
         </div>
         <div class="form__row">
           <div class="form__group">
@@ -197,52 +192,58 @@
             </select>
           </div>
         </div>
-        <div class="form__group">
-          <label for="edit_res_cccd">CCCD/CMND</label>
-          <input id="edit_res_cccd" type="text" class="input" />
+        <div class="form__row">
+          <div class="form__group">
+            <label for="edit_res_cccd">CCCD/CMND</label>
+            <input id="edit_res_cccd" type="text" class="input" />
+          </div>
+          <div class="form__group">
+            <label for="edit_res_noiSinh">Nơi sinh</label>
+            <input id="edit_res_noiSinh" type="text" class="input" />
+          </div>
         </div>
-        <div class="form__group">
-          <label for="edit_res_noiSinh">Nơi sinh</label>
-          <input id="edit_res_noiSinh" type="text" class="input" />
+        <div class="form__row">
+          <div class="form__group">
+            <label for="edit_res_nguonQuan">Nguyên quán</label>
+            <input id="edit_res_nguonQuan" type="text" class="input" />
+          </div>
+          <div class="form__group">
+            <label for="edit_res_danToc">Dân tộc</label>
+            <input id="edit_res_danToc" type="text" class="input" />
+          </div>
         </div>
-        <div class="form__group">
-          <label for="edit_res_nguonQuan">Nguyên quán</label>
-          <input id="edit_res_nguonQuan" type="text" class="input" />
-        </div>
-        <div class="form__group">
-          <label for="edit_res_danToc">Dân tộc</label>
-          <input id="edit_res_danToc" type="text" class="input" />
+        <div class="form__row" id="cccdFieldsRow" style="display:none;">
+          <div class="form__group">
+            <label for="edit_res_noiCapCCCD">Nơi cấp CCCD/CMND</label>
+            <input id="edit_res_noiCapCCCD" type="text" class="input" />
+          </div>
+          <div class="form__group">
+            <label for="edit_res_ngayCapCCCD">Ngày cấp CCCD/CMND</label>
+            <input id="edit_res_ngayCapCCCD" type="date" class="input" />
+          </div>
         </div>
         <h3>📄 Thông tin đăng ký cư trú</h3>
-        <div class="form__group">
-          <label for="edit_res_ngayDangKy">Ngày đăng ký thường trú</label>
-          <input id="edit_res_ngayDangKy" type="date" class="input" />
+        <div class="form__row">
+          <div class="form__group">
+            <label for="edit_res_ngayDangKy">Ngày đăng ký thường trú</label>
+            <input id="edit_res_ngayDangKy" type="date" class="input" />
+          </div>
+          <div class="form__group">
+            <label for="edit_res_diaChiTruocDo">Địa chỉ trước đó</label>
+            <input id="edit_res_diaChiTruocDo" type="text" class="input" />
+          </div>
         </div>
-        <div class="form__group">
-          <label for="edit_res_diaChiTruocDo">Địa chỉ trước đó</label>
-          <input id="edit_res_diaChiTruocDo" type="text" class="input" />
-        </div>
-        <div class="form__group">
-          <label for="edit_res_sdt">Số điện thoại</label>
-          <input id="edit_res_sdt" type="tel" class="input" />
-        </div>
-        <h3>🆔 Thông tin giấy tờ</h3>
-        <div class="form__group">
-          <label for="edit_res_noiCapCCCD">Nơi cấp CCCD/CMND</label>
-          <input id="edit_res_noiCapCCCD" type="text" class="input" />
-        </div>
-        <div class="form__group">
-          <label for="edit_res_ngayCapCCCD">Ngày cấp CCCD/CMND</label>
-          <input id="edit_res_ngayCapCCCD" type="date" class="input" />
-        </div>
+        <h3 id="cccdSectionTitle" style="display:none;">🆔 Thông tin giấy tờ</h3>
         <h3>💼 Thông tin việc làm</h3>
-        <div class="form__group">
-          <label for="edit_res_nghePhuong">Nghề nghiệp</label>
-          <input id="edit_res_nghePhuong" type="text" class="input" />
-        </div>
-        <div class="form__group">
-          <label for="edit_res_noiLamViec">Nơi làm việc</label>
-          <input id="edit_res_noiLamViec" type="text" class="input" />
+        <div class="form__row">
+          <div class="form__group">
+            <label for="edit_res_nghePhuong">Nghề nghiệp</label>
+            <input id="edit_res_nghePhuong" type="text" class="input" />
+          </div>
+          <div class="form__group">
+            <label for="edit_res_noiLamViec">Nơi làm việc</label>
+            <input id="edit_res_noiLamViec" type="text" class="input" />
+          </div>
         </div>
         <div class="form__actions">
           <button type="submit" class="btn btn--primary">✓ Lưu thay đổi</button>
