@@ -35,7 +35,11 @@ export async function getResidenceShare() {
       } catch (e) {
         console.warn('fetchResidenceShare failed', { status: resp.status, statusText: resp.statusText });
       }
-      return mockData.residenceShare;
+      return [
+        { label: 'Thường trú', value: 0, color: '#3b82f6' },
+        { label: 'Tạm trú', value: 0, color: '#22c55e' },
+        { label: 'Tạm vắng', value: 0, color: '#f59e0b' }
+      ];
     }
 
     const json = await resp.json();
@@ -80,7 +84,7 @@ export async function getGenderStats() {
     return { male, female, total };
   } catch (e) {
     console.warn('fetchGenderStats error', e);
-    return mockData.genderCounts;
+    return { male: 0, female: 0 };
   }
 }
 
@@ -98,12 +102,16 @@ export async function getAgeGroupStats() {
       } catch (e) {
         console.warn('fetchAgeGroupStats failed', { status: resp.status, statusText: resp.statusText });
       }
-      return mockData.ageGroupCounts;
+      return {
+        mamNon: 0, mauGiao: 0, cap1: 0, cap2: 0, cap3: 0, laoDong: 0, nghiHuu: 0,
+      };
     }
 
     const json = await resp.json();
     const age = json?.data?.demographic?.age;
-    if (!age) return mockData.ageGroupCounts;
+    if (!age) return {
+      mamNon: 0, mauGiao: 0, cap1: 0, cap2: 0, cap3: 0, laoDong: 0, nghiHuu: 0,
+    };
 
     return {
       mamNon: Number(age.mamNon || 0),
@@ -116,7 +124,9 @@ export async function getAgeGroupStats() {
     };
   } catch (e) {
     console.warn('fetchAgeGroupStats error', e);
-    return mockData.ageGroupCounts;
+    return {
+      mamNon: 0, mauGiao: 0, cap1: 0, cap2: 0, cap3: 0, laoDong: 0, nghiHuu: 0,
+    };
   }
 }
 
