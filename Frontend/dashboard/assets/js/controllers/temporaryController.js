@@ -2,6 +2,8 @@
 import { save, load, ymd } from '../utils/helpers.js';
 
 let temporaryInited = false;
+let tempFiltersBound = false;
+let activeFiltersBound = false;
 let allTemp = [];
 let tempPage = 1;
 let activePage = 1;
@@ -23,6 +25,9 @@ function updateTempStats() {
 }
 
 function bindTempFilters() {
+  if (tempFiltersBound) return;
+  tempFiltersBound = true;
+  
   const statusSelect = document.getElementById('tempStatusFilter');
   const typeSelect = document.getElementById('tempTypeFilter');
   if (statusSelect) statusSelect.addEventListener('change', renderTempTable);
@@ -59,11 +64,9 @@ function renderTempTable() {
       return `<tr>
         <td>${(tempPage - 1) * PAGE_SIZE + i + 1}</td>
         <td><strong>${t.name}</strong></td>
-        <td>${t.phone}</td>
         <td>${typeText}</td>
         <td>${t.fromDate}</td>
         <td>${t.toDate}</td>
-        <td>${t.reason || '-'}</td>
         <td><span style="background:${statusColor}20;color:${statusColor};padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;">${statusText}</span></td>
         <td style="text-align:center;">${actionBtns}</td>
       </tr>`;
@@ -125,6 +128,9 @@ function getActiveDays(fromDate, toDate) {
 }
 
 function bindActiveFilters() {
+  if (activeFiltersBound) return;
+  activeFiltersBound = true;
+  
   const typeSelect = document.getElementById('activeTypeFilter');
   const searchInput = document.getElementById('activeSearch');
   if (typeSelect) typeSelect.addEventListener('change', renderActiveTable);
@@ -134,11 +140,9 @@ function bindActiveFilters() {
 function filterActive() {
   const typeFilter = document.getElementById('activeTypeFilter')?.value || '';
   const searchText = document.getElementById('activeSearch')?.value.toLowerCase() || '';
-  const today = ymd(new Date());
   
   return allTemp.filter(t => {
     if (t.status !== 'approved') return false;
-    if (t.fromDate > today || t.toDate < today) return false;
     const matchType = !typeFilter || t.type === typeFilter;
     const matchSearch = !searchText || t.name.toLowerCase().includes(searchText) || t.phone.includes(searchText);
     return matchType && matchSearch;
@@ -161,12 +165,10 @@ function renderActiveTable() {
       return `<tr>
         <td>${(activePage - 1) * PAGE_SIZE + i + 1}</td>
         <td><strong>${t.name}</strong></td>
-        <td>${t.phone}</td>
         <td>${typeText}</td>
         <td>${t.fromDate}</td>
         <td>${t.toDate}</td>
-        <td>${t.addr}</td>
-        <td>${t.reason || '-'}</td>
+        <td>${t.reason}</td>
         <td><span style="color:${daysColor};font-weight:600;">${daysLeft} ngày</span></td>
       </tr>`;
     }).join('');
@@ -190,46 +192,50 @@ function renderActiveTable() {
 }
 
 export function initTemporary() {
+  // Reset flags to rebind on each visit
+  tempFiltersBound = false;
+  activeFiltersBound = false;
+  
   // Always refresh data to prevent loss on page navigation
   allTemp = load('allTemp', [
     {id: '1', name: 'Nguyễn Văn A', phone: '0912345678', addr: 'Đà Nẵng, Nhật Bản', type: 'tam_tru', fromDate: '2025-11-20', toDate: '2025-12-20', reason: 'Công tác', status: 'approved', createdDate: '2025-11-18'},
-    {id: '2', name: 'Trần Thị B', phone: '0987654321', addr: 'Hà Nội', type: 'tam_vang', fromDate: '2025-11-20', toDate: '2025-11-30', reason: 'Thăm người thân', status: 'approved', createdDate: '2025-11-17'},
+    {id: '2', name: 'Trần Thị B', phone: '0987654321', addr: 'Hà Nội', type: 'tam_tru', fromDate: '2025-11-20', toDate: '2025-11-30', reason: 'Thăm người thân', status: 'approved', createdDate: '2025-11-17'},
     {id: '3', name: 'Phạm Hữu C', phone: '0934567890', addr: 'TP.HCM', type: 'tam_tru', fromDate: '2025-11-25', toDate: '2026-01-25', reason: 'Học tập', status: 'pending', createdDate: '2025-11-19'},
-    {id: '4', name: 'Lê Văn D', phone: '0945678901', addr: 'Hải Phòng', type: 'tam_vang', fromDate: '2025-12-01', toDate: '2025-12-10', reason: 'Công việc riêng', status: 'approved', createdDate: '2025-11-16'},
+    {id: '4', name: 'Lê Văn D', phone: '0945678901', addr: 'Hải Phòng', type: 'tam_tru', fromDate: '2025-12-01', toDate: '2025-12-10', reason: 'Công việc riêng', status: 'approved', createdDate: '2025-11-16'},
     {id: '5', name: 'Hoàng Thị E', phone: '0956789012', addr: 'Cần Thơ', type: 'tam_tru', fromDate: '2025-11-22', toDate: '2025-12-22', reason: 'Du lịch', status: 'pending', createdDate: '2025-11-15'},
-    {id: '6', name: 'Đỗ Văn F', phone: '0967890123', addr: 'Hà Nam', type: 'tam_vang', fromDate: '2025-11-18', toDate: '2025-11-25', reason: 'Gia đình', status: 'approved', createdDate: '2025-11-14'},
+    {id: '6', name: 'Đỗ Văn F', phone: '0967890123', addr: 'Hà Nam', type: 'tam_tru', fromDate: '2025-11-18', toDate: '2025-11-25', reason: 'Gia đình', status: 'approved', createdDate: '2025-11-14'},
     {id: '7', name: 'Nguyễn Thị G', phone: '0978901234', addr: 'Bắc Ninh', type: 'tam_tru', fromDate: '2025-11-23', toDate: '2026-02-23', reason: 'Làm việc', status: 'approved', createdDate: '2025-11-13'},
-    {id: '8', name: 'Tạ Văn H', phone: '0989012345', addr: 'Vĩnh Phúc', type: 'tam_vang', fromDate: '2025-12-05', toDate: '2025-12-15', reason: 'Sự kiện', status: 'pending', createdDate: '2025-11-12'},
+    {id: '8', name: 'Tạ Văn H', phone: '0989012345', addr: 'Vĩnh Phúc', type: 'tam_tru', fromDate: '2025-12-05', toDate: '2025-12-15', reason: 'Sự kiện', status: 'pending', createdDate: '2025-11-12'},
     {id: '9', name: 'Vũ Thị I', phone: '0901234567', addr: 'Quảng Ninh', type: 'tam_tru', fromDate: '2025-11-28', toDate: '2025-12-28', reason: 'Đi làm', status: 'approved', createdDate: '2025-11-11'},
-    {id: '10', name: 'Bùi Văn K', phone: '0912345679', addr: 'Hải Dương', type: 'tam_vang', fromDate: '2025-11-29', toDate: '2025-12-05', reason: 'Khám bệnh', status: 'rejected', createdDate: '2025-11-10'},
+    {id: '10', name: 'Bùi Văn K', phone: '0912345679', addr: 'Hải Dương', type: 'tam_tru', fromDate: '2025-11-29', toDate: '2025-12-05', reason: 'Khám bệnh', status: 'rejected', createdDate: '2025-11-10'},
     {id: '11', name: 'Lê Thị L', phone: '0923456780', addr: 'Hà Nội', type: 'tam_tru', fromDate: '2025-11-21', toDate: '2025-12-21', reason: 'Đào tạo', status: 'approved', createdDate: '2025-11-09'},
-    {id: '12', name: 'Trần Văn M', phone: '0934567891', addr: 'Đà Nẵng', type: 'tam_vang', fromDate: '2025-12-02', toDate: '2025-12-12', reason: 'Nghỉ mát', status: 'approved', createdDate: '2025-11-08'},
+    {id: '12', name: 'Trần Văn M', phone: '0934567891', addr: 'Đà Nẵng', type: 'tam_tru', fromDate: '2025-12-02', toDate: '2025-12-12', reason: 'Nghỉ mát', status: 'approved', createdDate: '2025-11-08'},
     {id: '13', name: 'Nguyễn Văn N', phone: '0945678902', addr: 'Nha Trang', type: 'tam_tru', fromDate: '2025-11-24', toDate: '2026-01-24', reason: 'Kinh doanh', status: 'pending', createdDate: '2025-11-07'},
-    {id: '14', name: 'Phạm Thị O', phone: '0956789013', addr: 'Huế', type: 'tam_vang', fromDate: '2025-11-26', toDate: '2025-12-08', reason: 'Thăm hỏi', status: 'approved', createdDate: '2025-11-06'},
+    {id: '14', name: 'Phạm Thị O', phone: '0956789013', addr: 'Huế', type: 'tam_tru', fromDate: '2025-11-26', toDate: '2025-12-08', reason: 'Thăm hỏi', status: 'approved', createdDate: '2025-11-06'},
     {id: '15', name: 'Hoàng Văn P', phone: '0967890124', addr: 'Việt Trì', type: 'tam_tru', fromDate: '2025-11-27', toDate: '2025-12-27', reason: 'Tập huấn', status: 'approved', createdDate: '2025-11-05'},
-    {id: '16', name: 'Đào Thị Q', phone: '0978901235', addr: 'Thanh Hóa', type: 'tam_vang', fromDate: '2025-12-03', toDate: '2025-12-09', reason: 'Học buổi', status: 'pending', createdDate: '2025-11-04'},
+    {id: '16', name: 'Đào Thị Q', phone: '0978901235', addr: 'Thanh Hóa', type: 'tam_tru', fromDate: '2025-12-03', toDate: '2025-12-09', reason: 'Học buổi', status: 'pending', createdDate: '2025-11-04'},
     {id: '17', name: 'Võ Văn R', phone: '0989012346', addr: 'Nghệ An', type: 'tam_tru', fromDate: '2025-11-22', toDate: '2025-12-22', reason: 'Công tác', status: 'approved', createdDate: '2025-11-03'},
-    {id: '18', name: 'Lý Thị S', phone: '0901234568', addr: 'Hà Tĩnh', type: 'tam_vang', fromDate: '2025-12-01', toDate: '2025-12-07', reason: 'Du lịch', status: 'approved', createdDate: '2025-11-02'},
+    {id: '18', name: 'Lý Thị S', phone: '0901234568', addr: 'Hà Tĩnh', type: 'tam_tru', fromDate: '2025-12-01', toDate: '2025-12-07', reason: 'Du lịch', status: 'approved', createdDate: '2025-11-02'},
     {id: '19', name: 'Dương Văn T', phone: '0912345680', addr: 'Quảng Bình', type: 'tam_tru', fromDate: '2025-11-25', toDate: '2026-02-25', reason: 'Dự án', status: 'rejected', createdDate: '2025-11-01'},
-    {id: '20', name: 'Phan Thị U', phone: '0923456781', addr: 'Quảng Trị', type: 'tam_vang', fromDate: '2025-11-30', toDate: '2025-12-10', reason: 'Công việc', status: 'approved', createdDate: '2025-10-31'},
+    {id: '20', name: 'Phan Thị U', phone: '0923456781', addr: 'Quảng Trị', type: 'tam_tru', fromDate: '2025-11-30', toDate: '2025-12-10', reason: 'Công việc', status: 'approved', createdDate: '2025-10-31'},
     {id: '21', name: 'Mai Văn V', phone: '0934567892', addr: 'Thừa Thiên Huế', type: 'tam_tru', fromDate: '2025-11-23', toDate: '2025-12-23', reason: 'Tham quan', status: 'approved', createdDate: '2025-10-30'},
-    {id: '22', name: 'Tô Thị W', phone: '0945678903', addr: 'Quảng Nam', type: 'tam_vang', fromDate: '2025-12-04', toDate: '2025-12-14', reason: 'Gia đình', status: 'pending', createdDate: '2025-10-29'},
+    {id: '22', name: 'Tô Thị W', phone: '0945678903', addr: 'Quảng Nam', type: 'tam_tru', fromDate: '2025-12-04', toDate: '2025-12-14', reason: 'Gia đình', status: 'pending', createdDate: '2025-10-29'},
     {id: '23', name: 'Hà Văn X', phone: '0956789014', addr: 'Quảng Ngãi', type: 'tam_tru', fromDate: '2025-11-26', toDate: '2026-01-26', reason: 'Làm ăn', status: 'approved', createdDate: '2025-10-28'},
-    {id: '24', name: 'Cao Thị Y', phone: '0967890125', addr: 'Bình Định', type: 'tam_vang', fromDate: '2025-11-28', toDate: '2025-12-06', reason: 'Nghỉ phép', status: 'approved', createdDate: '2025-10-27'},
+    {id: '24', name: 'Cao Thị Y', phone: '0967890125', addr: 'Bình Định', type: 'tam_tru', fromDate: '2025-11-28', toDate: '2025-12-06', reason: 'Nghỉ phép', status: 'approved', createdDate: '2025-10-27'},
     {id: '25', name: 'Lê Văn Z', phone: '0978901236', addr: 'Phú Yên', type: 'tam_tru', fromDate: '2025-11-24', toDate: '2025-12-24', reason: 'Công tác', status: 'approved', createdDate: '2025-10-26'},
-    {id: '26', name: 'Nguyễn Thị AA', phone: '0989012347', addr: 'Khánh Hòa', type: 'tam_vang', fromDate: '2025-12-02', toDate: '2025-12-11', reason: 'Du lịch', status: 'rejected', createdDate: '2025-10-25'},
+    {id: '26', name: 'Nguyễn Thị AA', phone: '0989012347', addr: 'Khánh Hòa', type: 'tam_tru', fromDate: '2025-12-02', toDate: '2025-12-11', reason: 'Du lịch', status: 'rejected', createdDate: '2025-10-25'},
     {id: '27', name: 'Trần Văn BB', phone: '0901234569', addr: 'Ninh Thuận', type: 'tam_tru', fromDate: '2025-11-29', toDate: '2026-01-29', reason: 'Học tập', status: 'pending', createdDate: '2025-10-24'},
-    {id: '28', name: 'Phạm Thị CC', phone: '0912345681', addr: 'Bình Thuận', type: 'tam_vang', fromDate: '2025-11-27', toDate: '2025-12-09', reason: 'Thăm thân', status: 'approved', createdDate: '2025-10-23'},
+    {id: '28', name: 'Phạm Thị CC', phone: '0912345681', addr: 'Bình Thuận', type: 'tam_tru', fromDate: '2025-11-27', toDate: '2025-12-09', reason: 'Thăm thân', status: 'approved', createdDate: '2025-10-23'},
     {id: '29', name: 'Hoàng Văn DD', phone: '0923456782', addr: 'Bình Phước', type: 'tam_tru', fromDate: '2025-11-25', toDate: '2025-12-25', reason: 'Kiểm tra', status: 'approved', createdDate: '2025-10-22'},
-    {id: '30', name: 'Đỗ Thị EE', phone: '0934567893', addr: 'Tây Ninh', type: 'tam_vang', fromDate: '2025-12-01', toDate: '2025-12-08', reason: 'Công việc', status: 'approved', createdDate: '2025-10-21'},
+    {id: '30', name: 'Đỗ Thị EE', phone: '0934567893', addr: 'Tây Ninh', type: 'tam_tru', fromDate: '2025-12-01', toDate: '2025-12-08', reason: 'Công việc', status: 'approved', createdDate: '2025-10-21'},
     {id: '31', name: 'Vũ Văn FF', phone: '0945678904', addr: 'Bình Dương', type: 'tam_tru', fromDate: '2025-11-21', toDate: '2026-02-21', reason: 'Làm việc', status: 'approved', createdDate: '2025-10-20'},
-    {id: '32', name: 'Bùi Thị GG', phone: '0956789015', addr: 'Đồng Nai', type: 'tam_vang', fromDate: '2025-11-30', toDate: '2025-12-13', reason: 'Nghỉ mát', status: 'pending', createdDate: '2025-10-19'},
+    {id: '32', name: 'Bùi Thị GG', phone: '0956789015', addr: 'Đồng Nai', type: 'tam_tru', fromDate: '2025-11-30', toDate: '2025-12-13', reason: 'Nghỉ mát', status: 'pending', createdDate: '2025-10-19'},
     {id: '33', name: 'Lê Văn HH', phone: '0967890126', addr: 'Bà Rịa', type: 'tam_tru', fromDate: '2025-11-26', toDate: '2025-12-26', reason: 'Kiểm tra', status: 'approved', createdDate: '2025-10-18'},
-    {id: '34', name: 'Trần Thị II', phone: '0978901237', addr: 'Long An', type: 'tam_vang', fromDate: '2025-12-03', toDate: '2025-12-12', reason: 'Thăm thân', status: 'approved', createdDate: '2025-10-17'},
+    {id: '34', name: 'Trần Thị II', phone: '0978901237', addr: 'Long An', type: 'tam_tru', fromDate: '2025-12-03', toDate: '2025-12-12', reason: 'Thăm thân', status: 'approved', createdDate: '2025-10-17'},
     {id: '35', name: 'Nguyễn Văn JJ', phone: '0989012348', addr: 'Tiền Giang', type: 'tam_tru', fromDate: '2025-11-22', toDate: '2025-12-22', reason: 'Du lịch', status: 'rejected', createdDate: '2025-10-16'},
-    {id: '36', name: 'Phạm Văn KK', phone: '0901234570', addr: 'Bến Tre', type: 'tam_vang', fromDate: '2025-11-28', toDate: '2025-12-07', reason: 'Công tác', status: 'approved', createdDate: '2025-10-15'},
+    {id: '36', name: 'Phạm Văn KK', phone: '0901234570', addr: 'Bến Tre', type: 'tam_tru', fromDate: '2025-11-28', toDate: '2025-12-07', reason: 'Công tác', status: 'approved', createdDate: '2025-10-15'},
     {id: '37', name: 'Hoàng Thị LL', phone: '0912345682', addr: 'Trà Vinh', type: 'tam_tru', fromDate: '2025-11-24', toDate: '2026-01-24', reason: 'Làm việc', status: 'approved', createdDate: '2025-10-14'},
-    {id: '38', name: 'Đào Văn MM', phone: '0923456783', addr: 'Vĩnh Long', type: 'tam_vang', fromDate: '2025-12-04', toDate: '2025-12-15', reason: 'Học tập', status: 'pending', createdDate: '2025-10-13'}
+    {id: '38', name: 'Đào Văn MM', phone: '0923456783', addr: 'Vĩnh Long', type: 'tam_tru', fromDate: '2025-12-04', toDate: '2025-12-15', reason: 'Học tập', status: 'pending', createdDate: '2025-10-13'}
   ]);
   
   updateTempStats();

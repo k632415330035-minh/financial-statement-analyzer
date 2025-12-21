@@ -9,7 +9,7 @@
 <!-- DANH SÁCH QUẢN LÝ -->
 <div class="card">
   <div class="card__header card__header--wrap">
-    <h2>🧳 Quản lý Tạm trú / Tạm vắng</h2>
+    <h2>🧳 Quản lý Thường trú / Tạm trú</h2>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <select id="tempStatusFilter" class="input" style="width:150px;">
         <option value="" selected>Tất cả trạng thái</option>
@@ -19,8 +19,8 @@
       </select>
       <select id="tempTypeFilter" class="input" style="width:150px;">
         <option value="">Tất cả loại</option>
+        <option value="thuong_tru">Thường trú</option>
         <option value="tam_tru">Tạm trú</option>
-        <option value="tam_vang">Tạm vắng</option>
       </select>
     </div>
   </div>
@@ -30,11 +30,9 @@
         <tr>
           <th style="width:50px;">STT</th>
           <th>Họ tên</th>
-          <th>SĐT</th>
           <th>Loại</th>
           <th>Từ ngày</th>
           <th>Đến ngày</th>
-          <th>Lý do</th>
           <th>Trạng thái</th>
           <th style="width:120px;">Hành động</th>
         </tr>
@@ -50,15 +48,15 @@
   </div>
 </div>
 
-<!-- DANH SÁCH NGƯỜI ĐANG TẠM TRÚ / TẠM VẮNG -->
+<!-- DANH SÁCH NGƯỜI ĐANG TẠM TRÚ -->
 <div class="card">
   <div class="card__header card__header--wrap">
-    <h2>📍 Danh sách người đang tạm trú / tạm vắng</h2>
+    <h2>📍 Danh sách người đang tạm trú</h2>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <select id="activeTypeFilter" class="input" style="width:150px;">
         <option value="">Tất cả loại</option>
+        <option value="thuong_tru">Thường trú</option>
         <option value="tam_tru">Tạm trú</option>
-        <option value="tam_vang">Tạm vắng</option>
       </select>
       <input type="text" id="activeSearch" class="input" placeholder="Tìm theo tên hoặc SĐT..." style="flex:1;max-width:300px;">
     </div>
@@ -67,15 +65,13 @@
     <table class="table" id="activeTable">
       <thead>
         <tr>
-          <th style="width:50px;">STT</th>
-          <th>Họ tên</th>
-          <th>SĐT</th>
-          <th>Loại</th>
-          <th>Từ ngày</th>
-          <th>Đến ngày</th>
-          <th>Địa chỉ</th>
-          <th>Lý do</th>
-          <th>Còn lại</th>
+          <th style="width: 50px; text-align: center;">STT</th>
+          <th style="width: 140px;">Họ tên</th>
+          <th style="width: 100px; text-align: center;">Loại</th>
+          <th style="width: 110px; text-align: center;">Từ ngày</th>
+          <th style="width: 110px; text-align: center;">Đến ngày</th>
+          <th style="width: 140px;">Lý do</th>
+          <th style="width: 100px; text-align: center;">Còn lại</th>
         </tr>
       </thead>
       <tbody></tbody>

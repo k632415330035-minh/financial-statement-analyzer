@@ -2,6 +2,9 @@
 import * as dataService from '../services/api.js';
 
 let residentsInited = false;
+let residentsFiltersBound = false;
+let residentsDetailModalBound = false;
+let residentsEditModalBound = false;
 let allMembers = [];
 let residentPage = 1;
 let residentSortState = { key: null, dir: 1 };
@@ -128,7 +131,6 @@ function openResidentDetailModal(resident) {
   document.getElementById('residentPreviousAddr').textContent = resident.diaChiTruocDo || '-';
   document.getElementById('residentCurrentAddr').textContent = resident.diaChiHienTai || '-';
   document.getElementById('residentStatus').textContent = resident.trangThaiCuTru || '-';
-  document.getElementById('residentPhone').textContent = resident.sdt || '-';
   
   document.getElementById('residentCCCDPlace').textContent = resident.noiCapCCCD || '-';
   document.getElementById('residentCCCDDate').textContent = resident.ngayCapCCCD || '-';
@@ -150,6 +152,9 @@ function closeResidentDetailModal() {
 }
 
 function bindResidentDetailModal() {
+  if (residentsDetailModalBound) return;
+  residentsDetailModalBound = true;
+  
   document.getElementById('closeResidentDetailModal')?.addEventListener('click', closeResidentDetailModal);
   document.getElementById('closeResidentDetailBtn')?.addEventListener('click', closeResidentDetailModal);
   document.getElementById('editResidentBtn')?.addEventListener('click', openEditResidentModal);
@@ -159,18 +164,23 @@ function bindResidentDetailModal() {
 }
 
 function bindResidentFilters() {
+  if (residentsFiltersBound) return;
+  residentsFiltersBound = true;
+  
   const search = document.getElementById('residentSearch');
   const genderFilter = document.getElementById('residentGenderFilter');
   const householdFilter = document.getElementById('residentHouseholdFilter');
-  const prev = document.getElementById('prevPageResidents');
-  const next = document.getElementById('nextPageResidents');
   
-  const onFilterChange = () => { residentPage = 1; renderResidentTable(); };
+  const onFilterChange = () => { 
+    residentPage = 1; 
+    renderResidentTable(); 
+  };
   
   search?.addEventListener('input', onFilterChange);
   genderFilter?.addEventListener('change', onFilterChange);
   householdFilter?.addEventListener('change', onFilterChange);
   
+  // Bind sort on table headers
   document.querySelectorAll('#residentTable thead th').forEach((th, idx) => {
     if (idx > 0) th.style.cursor = 'pointer';
     th.addEventListener('click', () => {
@@ -205,18 +215,29 @@ export function initResidents() {
   document.getElementById('femaleResidents').textContent = stats.female;
   document.getElementById('avgAge').textContent = stats.avgAge;
   
-  if (!residentsInited) {
-    bindResidentFilters();
-    bindResidentDetailModal();
-    bindEditResidentModal();
-    residentsInited = true;
-  }
+  // Bind event listeners (reset flags each time to rebind)
+  residentsFiltersBound = false;
+  residentsDetailModalBound = false;
+  residentsEditModalBound = false;
   
-  // Always rebind detail modal and edit modal to ensure event listeners work on re-entry
+  bindResidentFilters();
   bindResidentDetailModal();
   bindEditResidentModal();
   
   renderResidentTable();
+}
+
+function updateCCCDFieldsVisibility(tuoi) {
+  const cccdFieldsRow = document.getElementById('cccdFieldsRow');
+  const cccdSectionTitle = document.getElementById('cccdSectionTitle');
+  
+  if (tuoi < 14) {
+    if (cccdFieldsRow) cccdFieldsRow.style.display = 'none';
+    if (cccdSectionTitle) cccdSectionTitle.style.display = 'none';
+  } else {
+    if (cccdFieldsRow) cccdFieldsRow.style.display = '';
+    if (cccdSectionTitle) cccdSectionTitle.style.display = '';
+  }
 }
 
 function openEditResidentModal() {
@@ -233,11 +254,24 @@ function openEditResidentModal() {
   document.getElementById('edit_res_danToc').value = resident.danToc || '';
   document.getElementById('edit_res_ngayDangKy').value = resident.ngayDangKy || '';
   document.getElementById('edit_res_diaChiTruocDo').value = resident.diaChiTruocDo || '';
-  document.getElementById('edit_res_sdt').value = resident.sdt || '';
   document.getElementById('edit_res_noiCapCCCD').value = resident.noiCapCCCD || '';
   document.getElementById('edit_res_ngayCapCCCD').value = resident.ngayCapCCCD || '';
   document.getElementById('edit_res_nghePhuong').value = resident.nghePhuong || '';
   document.getElementById('edit_res_noiLamViec').value = resident.noiLamViec || '';
+  
+  // Check age and show/hide CCCD fields
+  const tuoiHienTai = new Date().getFullYear() - resident.namSinh;
+  updateCCCDFieldsVisibility(tuoiHienTai);
+  
+  // Add change listener for year of birth field
+  const namSinhInput = document.getElementById('edit_res_namSinh');
+  if (namSinhInput && !namSinhInput.hasAttribute('data-listener-added')) {
+    namSinhInput.addEventListener('change', (e) => {
+      const tuoi = new Date().getFullYear() - parseInt(e.target.value);
+      updateCCCDFieldsVisibility(tuoi);
+    });
+    namSinhInput.setAttribute('data-listener-added', 'true');
+  }
   
   const modal = document.getElementById('editResidentModal');
   if (modal) modal.classList.add('is-open');
@@ -249,6 +283,9 @@ function closeEditResidentModal() {
 }
 
 function bindEditResidentModal() {
+  if (residentsEditModalBound) return;
+  residentsEditModalBound = true;
+  
   const modal = document.getElementById('editResidentModal');
   const closeBtn = document.getElementById('closeEditResidentModal');
   const cancelBtn = document.getElementById('cancelEditResidentBtn');
@@ -277,7 +314,6 @@ function bindEditResidentModal() {
     resident.danToc = document.getElementById('edit_res_danToc').value.trim();
     resident.ngayDangKy = document.getElementById('edit_res_ngayDangKy').value;
     resident.diaChiTruocDo = document.getElementById('edit_res_diaChiTruocDo').value.trim();
-    resident.sdt = document.getElementById('edit_res_sdt').value.trim();
     resident.noiCapCCCD = document.getElementById('edit_res_noiCapCCCD').value.trim();
     resident.ngayCapCCCD = document.getElementById('edit_res_ngayCapCCCD').value;
     resident.nghePhuong = document.getElementById('edit_res_nghePhuong').value.trim();

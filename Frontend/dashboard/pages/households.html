@@ -5,7 +5,6 @@
       <input id="tableSearch" class="input" placeholder="Tìm theo số hộ khẩu / chủ hộ / địa chỉ…" />
       <button id="openCreateHouseholdModal" class="btn btn--primary">➕ Tạo hộ khẩu mới</button>
       <button id="exportCsv" class="ghost">⬇ CSV</button>
-      <button id="printTable" class="ghost">🖨 In</button>
     </div>
   </div>
   <div class="table-wrap">
@@ -56,7 +55,6 @@
       
       <div style="display:flex;gap:8px;margin-bottom:16px;">
         <button id="editHouseholdBtn" class="btn btn--primary">✎ Chỉnh sửa</button>
-        <button id="splitHouseholdBtn" class="btn">🔀 Tách hộ</button>
       </div>
 
       <h3>Danh sách nhân khẩu</h3>
@@ -91,61 +89,85 @@
 <!-- Modal: Create Household -->
 <div id="createHouseholdModal" class="modal">
   <div class="modal__overlay"></div>
-  <div class="modal__content" style="max-width:550px;">
-    <div class="modal__header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 28px;">📋</span>
-        <div>
-          <h2 style="margin: 0; color: white;">Tạo hộ khẩu mới</h2>
-          <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">Điền thông tin cơ bản để đăng ký hộ khẩu</p>
-        </div>
-      </div>
-      <button id="closeCreateModal" class="modal__close" aria-label="Đóng" style="color: white;">×</button>
+  <div class="modal__content" style="max-width: 800px;">
+    <div class="modal__header" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; padding: 20px;">
+      <h2 style="margin: 0; font-size: 18px;">📋 Tạo hộ khẩu mới</h2>
+      <button id="closeCreateModal" class="modal__close" aria-label="Đóng" style="color: white; font-size: 24px;">×</button>
     </div>
-    <div class="modal__body" style="padding: 28px;">
+    <div class="modal__body" style="padding: 24px; max-height: 600px; overflow-y: auto;">
       <form id="createHouseholdForm" class="form">
-        <div class="form__group" style="margin-bottom: 20px;">
-          <label for="nhk_soHK" style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 8px;">
-            <span style="color: #667eea;">📌</span>
-            Số hộ khẩu <span style="color: #ef4444;">*</span>
-          </label>
-          <input id="nhk_soHK" type="text" class="input" placeholder="VD: HK-001, HK-002..." list="soHKList" required 
-            style="border: 2px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; font-size: 14px; transition: all 0.3s ease;"
-          />
-          <datalist id="soHKList"></datalist>
+        <h3 style="font-size: 14px; margin: 0 0 12px 0; font-weight: 600;">📋 Thông tin chủ hộ</h3>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="nhk_hoTen">Họ và tên *</label>
+            <input id="nhk_hoTen" type="text" class="input" placeholder="Nhập họ và tên" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
+          <div class="form__group">
+            <label for="nhk_ngaySinh">Ngày sinh *</label>
+            <input id="nhk_ngaySinh" type="date" class="input" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
         </div>
-
-        <div class="form__group" style="margin-bottom: 20px;">
-          <label for="nhk_chuHo" style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 8px;">
-            <span style="color: #667eea;">👤</span>
-            Chủ hộ <span style="color: #ef4444;">*</span>
-          </label>
-          <input id="nhk_chuHo" type="text" class="input" placeholder="Nhập tên chủ hộ" list="chuHoList" required 
-            style="border: 2px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; font-size: 14px; transition: all 0.3s ease;"
-          />
-          <datalist id="chuHoList"></datalist>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="nhk_gioiTinh">Giới tính *</label>
+            <select id="nhk_gioiTinh" class="input" required style="padding: 10px 12px; border-radius: 6px;">
+              <option value="">Chọn giới tính</option>
+              <option value="Nam">Nam</option>
+              <option value="Nữ">Nữ</option>
+            </select>
+          </div>
+          <div class="form__group">
+            <label for="nhk_soCCCD">Số CCCD *</label>
+            <input id="nhk_soCCCD" type="text" class="input" placeholder="Nhập số CCCD" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
         </div>
-
-        <div class="form__group" style="margin-bottom: 28px;">
-          <label for="nhk_diaChi" style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 8px;">
-            <span style="color: #667eea;">🏠</span>
-            Địa chỉ <span style="color: #ef4444;">*</span>
-          </label>
-          <input id="nhk_diaChi" type="text" class="input" placeholder="Nhập địa chỉ nhà ở" list="diaChiList" required 
-            style="border: 2px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; font-size: 14px; transition: all 0.3s ease;"
-          />
-          <datalist id="diaChiList"></datalist>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="nhk_ngayCap">Ngày cấp *</label>
+            <input id="nhk_ngayCap" type="date" class="input" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
+          <div class="form__group">
+            <label for="nhk_noiCap">Nơi cấp *</label>
+            <input id="nhk_noiCap" type="text" class="input" placeholder="Nhập nơi cấp" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
         </div>
-
-        <div class="form__actions" style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-          <button type="button" id="cancelCreateBtn" class="btn" 
-            style="background: #f3f4f6; color: #374151; border: 2px solid #d1d5db; border-radius: 10px; padding: 10px 24px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-            ✕ Hủy
-          </button>
-          <button type="submit" class="btn btn--primary" 
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; padding: 10px 28px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
-            ✓ Tạo hộ khẩu
-          </button>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="nhk_noiSinh">Nơi sinh *</label>
+            <input id="nhk_noiSinh" type="text" class="input" placeholder="Nhập nơi sinh" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
+          <div class="form__group">
+            <label for="nhk_nguonQuan">Nguyên quán *</label>
+            <input id="nhk_nguonQuan" type="text" class="input" placeholder="Nhập nguyên quán" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
+        </div>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="nhk_ngheNghiep">Nghề nghiệp *</label>
+            <input id="nhk_ngheNghiep" type="text" class="input" placeholder="Nhập nghề nghiệp" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
+          <div class="form__group">
+            <label for="nhk_noiLamViec">Nơi làm việc *</label>
+            <input id="nhk_noiLamViec" type="text" class="input" placeholder="Nhập nơi làm việc" required style="padding: 10px 12px; border-radius: 6px;" />
+          </div>
+        </div>
+        
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">🏠 Thông tin hộ khẩu</h3>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="nhk_diaChiTruoc">Địa chỉ thường trú trước đây *</label>
+            <input id="nhk_diaChiTruoc" type="text" class="input" placeholder="Nhập địa chỉ" list="diaChiList" required style="padding: 10px 12px; border-radius: 6px;" />
+            <datalist id="diaChiList"></datalist>
+          </div>
+        </div>
+        <div class="form__group">
+          <label for="nhk_diaChi">Địa chỉ hộ khẩu hiện tại *</label>
+          <input id="nhk_diaChi" type="text" class="input" placeholder="Nhập địa chỉ" required style="padding: 10px 12px; border-radius: 6px;" />
+        </div>
+        
+        <div class="form__actions" style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+          <button type="button" id="cancelCreateBtn" class="btn" style="padding: 10px 24px; background: #f3f4f6; color: #374151; border-radius: 6px;">Hủy</button>
+          <button type="submit" class="btn btn--primary" style="padding: 10px 24px; border-radius: 6px;">✓ Tạo hộ khẩu</button>
         </div>
       </form>
     </div>
@@ -162,10 +184,6 @@
     </div>
     <div class="modal__body">
       <form id="editHouseholdForm" class="form">
-        <div class="form__group">
-          <label for="edit_soHK">Số hộ khẩu</label>
-          <input id="edit_soHK" type="text" class="input" disabled />
-        </div>
         <div class="form__group">
           <label for="edit_chuHo">Chủ hộ *</label>
           <input id="edit_chuHo" type="text" class="input" placeholder="Nhập tên chủ hộ" required />
@@ -186,31 +204,37 @@
 <!-- Modal: Split Household -->
 <div id="splitHouseholdModal" class="modal">
   <div class="modal__overlay"></div>
-  <div class="modal__content">
+  <div class="modal__content" style="max-width: 700px;">
     <div class="modal__header">
       <h2>Tách hộ khẩu</h2>
       <button id="closeSplitModal" class="modal__close" aria-label="Đóng">×</button>
     </div>
-    <div class="modal__body">
-      <p style="color:var(--muted);margin-bottom:16px;">Chọn nhân khẩu để tách thành hộ khẩu mới</p>
-      <div id="splitMemberList" style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:16px;max-height:250px;overflow-y:auto;">
-      </div>
+    <div class="modal__body" style="max-height: 70vh; overflow-y: auto;">
+      <h3 style="font-size: 14px; margin: 0 0 12px 0; font-weight: 600;">📋 Danh sách thành viên được chọn</h3>
+      <div id="splitMemberList" style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:16px;max-height:150px;overflow-y:auto;"></div>
+      
       <form id="splitHouseholdForm" class="form">
-        <div class="form__group">
-          <label for="split_soHK">Số hộ khẩu mới *</label>
-          <input id="split_soHK" type="text" class="input" placeholder="Nhập số hộ khẩu mới" required />
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">📋 Thông tin hộ khẩu mới</h3>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="split_chuHoMoi">Chủ hộ mới *</label>
+            <select id="split_chuHoMoi" class="input" required>
+              <option value="">-- Chọn chủ hộ mới --</option>
+            </select>
+            <input type="hidden" id="split_chuHoMoi_hidden" required />
+          </div>
+          <div class="form__group">
+            <label for="split_diaChi">Địa chỉ hộ khẩu mới *</label>
+            <input id="split_diaChi" type="text" class="input" placeholder="Nhập địa chỉ hộ khẩu mới" required />
+          </div>
         </div>
-        <div class="form__group">
-          <label for="split_chuHo">Chủ hộ mới *</label>
-          <input id="split_chuHo" type="text" class="input" placeholder="Nhập tên chủ hộ mới" required />
-        </div>
-        <div class="form__group">
-          <label for="split_diaChi">Địa chỉ mới *</label>
-          <input id="split_diaChi" type="text" class="input" placeholder="Nhập địa chỉ mới" required />
-        </div>
-        <div class="form__actions">
-          <button type="submit" class="btn btn--primary">✓ Tách hộ</button>
-          <button type="button" id="cancelSplitBtn" class="btn">Hủy</button>
+
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">👥 Chọn lại quan hệ với chủ hộ mới</h3>
+        <div id="relationContainer" style="background: #f8fafc; border-radius: 12px; padding: 12px; max-height: 200px; overflow-y: auto;"></div>
+
+        <div class="form__actions" style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+          <button type="button" id="cancelSplitBtn" class="btn" style="padding: 10px 24px; background: #f3f4f6; color: #374151; border-radius: 6px;">Hủy</button>
+          <button type="submit" class="btn btn--primary" style="padding: 10px 24px; border-radius: 6px;">✓ Tách hộ</button>
         </div>
       </form>
     </div>
@@ -220,21 +244,18 @@
 <!-- Modal: Add Member -->
 <div id="addMemberModal" class="modal">
   <div class="modal__overlay"></div>
-  <div class="modal__content">
+  <div class="modal__content" style="max-width: 700px;">
     <div class="modal__header">
       <h2>Thêm thành viên mới</h2>
-      <button id="closeAddMemberModal" class="modal__close" aria-label="Đóng">×</button>
+      <button id="closeAddMemberModal" class="modal__close" aria-label="Đóng" style="pointer-events: auto; z-index: 10;">×</button>
     </div>
     <div class="modal__body">
       <form id="addMemberForm" class="form">
-        <div class="form__group">
-          <label for="member_hoTen">Họ tên *</label>
-          <input id="member_hoTen" type="text" class="input" placeholder="Nhập họ tên" required />
-        </div>
-        <div class="form__row">
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">📋 Thông tin cơ bản</h3>
+        <div class="form__row" style="gap: 16px;">
           <div class="form__group">
-            <label for="member_namSinh">Năm sinh *</label>
-            <input id="member_namSinh" type="number" class="input" placeholder="Ví dụ: 1990" min="1900" max="2025" required />
+            <label for="member_hoTen">Họ và tên *</label>
+            <input id="member_hoTen" type="text" class="input" placeholder="Nhập họ và tên" required />
           </div>
           <div class="form__group">
             <label for="member_gioiTinh">Giới tính *</label>
@@ -245,29 +266,105 @@
             </select>
           </div>
         </div>
-        <div class="form__group">
-          <label for="member_quanHe">Quan hệ với chủ hộ *</label>
-          <select id="member_quanHe" class="input" required>
-            <option value="">Chọn quan hệ</option>
-            <option value="Chủ hộ">Chủ hộ</option>
-            <option value="Vợ">Vợ</option>
-            <option value="Chồng">Chồng</option>
-            <option value="Con">Con</option>
-            <option value="Mẹ">Mẹ</option>
-            <option value="Cha">Cha</option>
-            <option value="Anh">Anh</option>
-            <option value="Em">Em</option>
-            <option value="Cháu">Cháu</option>
-            <option value="Khác">Khác</option>
-          </select>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="member_ngaySinh">Ngày sinh *</label>
+            <input id="member_ngaySinh" type="date" class="input" required />
+          </div>
+          <div class="form__group">
+            <label for="member_quanHe">Quan hệ với chủ hộ *</label>
+            <select id="member_quanHe" class="input" required>
+              <option value="">Chọn quan hệ</option>
+              <option value="Chủ hộ">Chủ hộ</option>
+              <option value="Vợ">Vợ</option>
+              <option value="Chồng">Chồng</option>
+              <option value="Con">Con</option>
+              <option value="Mẹ">Mẹ</option>
+              <option value="Cha">Cha</option>
+              <option value="Anh">Anh</option>
+              <option value="Em">Em</option>
+              <option value="Cháu">Cháu</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+        </div>
+
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">🆔 Thông tin giấy tờ</h3>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="member_cccd">Số CCCD/CMND</label>
+            <input id="member_cccd" type="text" class="input" placeholder="Nhập số CCCD/CMND" />
+          </div>
+          <div class="form__group">
+            <label for="member_ngayCapCCCD">Ngày cấp</label>
+            <input id="member_ngayCapCCCD" type="date" class="input" />
+          </div>
         </div>
         <div class="form__group">
-          <label for="member_cccd">CCCD/CMND</label>
-          <input id="member_cccd" type="text" class="input" placeholder="Nhập số CCCD/CMND" />
+          <label for="member_noiCapCCCD">Nơi cấp</label>
+          <input id="member_noiCapCCCD" type="text" class="input" placeholder="Nhập nơi cấp CCCD/CMND" />
         </div>
-        <div class="form__actions">
-          <button type="submit" class="btn btn--primary">✓ Thêm thành viên</button>
-          <button type="button" id="cancelAddMemberBtn" class="btn">Hủy</button>
+
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">🌍 Thông tin cá nhân</h3>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="member_diaChiTruoc">Thường trú trước đây</label>
+            <input id="member_diaChiTruoc" type="text" class="input" placeholder="Nhập địa chỉ thường trú trước đây" />
+          </div>
+          <div class="form__group">
+            <label for="member_danToc">Dân tộc</label>
+            <input id="member_danToc" type="text" class="input" placeholder="Nhập dân tộc" />
+          </div>
+        </div>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="member_noiSinh">Nơi sinh</label>
+            <input id="member_noiSinh" type="text" class="input" placeholder="Nhập nơi sinh" />
+          </div>
+          <div class="form__group">
+            <label for="member_nguonQuan">Nguyên quán</label>
+            <input id="member_nguonQuan" type="text" class="input" placeholder="Nhập nguyên quán" />
+          </div>
+        </div>
+
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">💼 Thông tin việc làm</h3>
+        <div class="form__row" style="gap: 16px;">
+          <div class="form__group">
+            <label for="member_ngheNghiep">Nghề nghiệp</label>
+            <input id="member_ngheNghiep" type="text" class="input" placeholder="Nhập nghề nghiệp" />
+          </div>
+          <div class="form__group">
+            <label for="member_noiLamViec">Nơi làm việc</label>
+            <input id="member_noiLamViec" type="text" class="input" placeholder="Nhập nơi làm việc" />
+          </div>
+        </div>
+
+        <div class="form__actions" style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+          <button type="button" id="cancelAddMemberBtn" class="btn" style="padding: 10px 24px; background: #f3f4f6; color: #374151; border-radius: 6px;">Hủy</button>
+          <button type="submit" class="btn btn--primary" style="padding: 10px 24px; border-radius: 6px;">✓ Thêm thành viên</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Remove Member with Reason -->
+<div id="removeMemberReasonModal" class="modal">
+  <div class="modal__overlay"></div>
+  <div class="modal__content" style="max-width: 500px;">
+    <div class="modal__header">
+      <h2>Xóa thành viên</h2>
+      <button id="closeRemoveMemberReasonModal" class="modal__close" aria-label="Đóng" style="pointer-events: auto; z-index: 10;">×</button>
+    </div>
+    <div class="modal__body">
+      <form id="removeMemberReasonForm" class="form">
+        <div class="form__group">
+          <label for="removeMemberReason">Nhập lý do xóa *</label>
+          <textarea id="removeMemberReason" class="input" placeholder="Nhập lý do xóa thành viên..." rows="4" required style="padding: 10px 12px; border-radius: 6px; font-family: inherit;"></textarea>
+        </div>
+        <div class="form__actions" style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+          <button type="button" id="cancelRemoveMemberReasonBtn" class="btn" style="padding: 10px 24px; background: #f3f4f6; color: #374151; border-radius: 6px;">Hủy</button>
+          <button type="submit" class="btn btn--primary" style="padding: 10px 24px; border-radius: 6px;">✓ Xóa thành viên</button>
         </div>
       </form>
     </div>

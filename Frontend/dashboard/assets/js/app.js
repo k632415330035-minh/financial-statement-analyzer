@@ -1,7 +1,6 @@
 // Main Application Entry Point
 import { navigate, bindMenu, initRouter } from './navigation.js';
 import { bindSidebar, bindLogout } from './uiHelpers.js';
-import { bindEditProfileModal } from './controllers/profileController.js';
 
 // Initialize Chart.js defaults
 function initChartDefaults() {
@@ -22,7 +21,6 @@ async function init() {
   bindSidebar();
   bindLogout();
   bindMenu();
-  bindEditProfileModal();
   
   // Initialize router
   initRouter();
