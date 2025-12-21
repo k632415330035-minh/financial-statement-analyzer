@@ -204,7 +204,6 @@ async function openFeedbackDetailModal(feedbackId) {
   if (!feedback) return;
 
   document.getElementById('detailName').textContent = feedback.name;
-  document.getElementById('detailPhone').textContent = feedback.phone || '-';
   document.getElementById('detailAddr').textContent = feedback.addr || '-';
   document.getElementById('detailType').textContent = feedback.type;
   document.getElementById('detailDate').textContent = feedback.date;
