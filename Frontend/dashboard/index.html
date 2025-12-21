@@ -42,11 +42,19 @@
             vắng</span></a>
         <a class="menu__item" data-route="feedback" href="#/feedback"><i aria-hidden="true">📣</i><span> Phản ánh / Kiến
             nghị</span></a>
-        <a class="menu__item menu__logout" id="logoutLink" href="#"><i aria-hidden="true">🚪</i><span> Đăng
+        <a class="menu__item menu__logout" id="logoutLink"><i aria-hidden="true">🚪</i><span> Đăng
             xuất</span></a>
       </nav>
     </aside>
-
+    <script> document.getElementById("logoutLink").addEventListener("click", function (e) {
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userRole");
+        console.log("Đã đăng xuất thành công.");
+        // 2. Chuyển hướng về trang gốc để logic index.html xử lý
+        window.location.replace("/index.html");
+        // window.location.href = "/index.html"; // chuyển sang trang login 
+      }); 
+    </script>
     <!-- MAIN -->
     <main class="main">
       <header class="topbar">
