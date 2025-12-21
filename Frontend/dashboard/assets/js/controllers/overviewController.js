@@ -6,22 +6,126 @@ let barChart, donutChart, genderChart, ageChart, periodChart, overviewInited = f
 
 // Business logic functions (moved from overviewService.js)
 async function getKPIData() {
-  return dataService.getKPIs();
+  try {
+    // 1. Lấy token từ localStorage
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    // 2. Gọi API lấy dữ liệu thống kê
+    const response = await fetch('http://localhost:3000/api/statistics/dashboard', {
+      method: 'GET',
+      headers
+    });
+
+    // 3. Xử lý lỗi phản hồi từ server
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      console.warn('KPI request failed', {
+        status: response.status,
+        statusText: response.statusText,
+        body: body.slice(0, 200)
+      });
+      return {
+        ok: false,
+        households: null,
+        residents: null,
+        tempResidence: null,
+        tempAbsence: null,
+        permResidence: null // Bổ sung trường mới
+      };
+    }
+
+    const result = await response.json();
+    const overview = result?.data?.overview ?? {};
+
+    // Helper function để chuyển đổi dữ liệu an toàn về kiểu Number
+    const toNumber = (val) => (typeof val === 'number' ? val : (Number(val) || 0));
+
+    // 4. Trả về object đã map các trường dữ liệu
+    return {
+      ok: true,
+      households: toNumber(overview.hokhau),
+      residents: toNumber(overview.nhankhau),
+      tempResidence: toNumber(overview.tamtru),
+      tempAbsence: toNumber(overview.tamvang),
+      permResidence: toNumber(overview.thuongtru) // Map từ 'thuongtru' ở backend sang 'permResidence'
+    };
+
+  } catch (error) {
+    console.error('Lỗi khi gọi getKPIData:', error);
+    return {
+      ok: false,
+      households: null,
+      residents: null,
+      tempResidence: null,
+      tempAbsence: null,
+      permResidence: null
+    };
+  }
 }
 
 async function getMonthlyChartData(year) {
-  const data = dataService.getMonthlyData(year);
-  if (!data) return { labels: [], households: [], residents: [] };
+  // const data = dataService.getMonthlyData(year);
+  // if (!data) return { labels: [], households: [], residents: [] };
+  // const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+  // return {
+  //   labels: months,
+  //   households: data,
+  //   residents: data.map(x => x * 3)
+  // };
   const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
-  return {
-    labels: months,
-    households: data,
-    residents: data.map(x => x * 3)
-  };
+  try {
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const url = `http://localhost:3000/api/statistics/dashboard?year=${encodeURIComponent(year)}`;
+    const resp = await fetch(url, { method: 'GET', headers });
+
+    if (!resp.ok) {
+      try {
+        const text = await resp.text();
+        console.warn('MonthlyTrend fetch failed', { status: resp.status, statusText: resp.statusText, body: text.slice(0, 200) });
+      } catch (e) {
+        console.warn('MonthlyTrend fetch failed', { status: resp.status, statusText: resp.statusText });
+      }
+      return { labels: months, households: new Array(12).fill(0), residents: new Array(12).fill(0) };
+    }
+
+    const json = await resp.json();
+    const monthly = json?.data?.charts?.monthlyTrend || [];
+
+    // Prefer explicit monthly fields from backend when available
+    const households = new Array(12).fill(0);
+    const residents = new Array(12).fill(0);
+
+    monthly.forEach(m => {
+      const idx = Number(m.month) - 1;
+      if (idx < 0 || idx >= 12) return;
+
+      // Households: prefer explicit count_ho_khau; fallback to heuristic
+      const hoKhau = m.count_ho_khau != null
+        ? Number(m.count_ho_khau)
+        : (m.count_thuong_tru != null ? Math.round(Number(m.count_thuong_tru) / 3) : (m.count != null ? Math.round(Number(m.count) / 3) : 0));
+
+      const ct_thuong_tru = m.count_thuong_tru != null ? Number(m.count_thuong_tru) : (m.count != null ? Number(m.count) : 0);
+      const cTamTru = m.count_tam_tru != null ? Number(m.count_tam_tru) : 0;
+      const cTamVang = m.count_tam_vang != null ? Number(m.count_tam_vang) : 0;
+
+      households[idx] = hoKhau;
+      residents[idx] = ct_thuong_tru + cTamTru - cTamVang; // total present residents
+    });
+
+    return { labels: months, households, residents };
+  } catch (e) {
+    console.error('MonthlyTrend fetch error:', e);
+    return { labels: months, households: new Array(12).fill(0), residents: new Array(12).fill(0) };
+  }
 }
 
 async function getResidenceChartData() {
-  const data = dataService.getResidenceShare();
+  const data = await dataService.getResidenceShare();
   return {
     labels: data.map(d => d.label),
     values: data.map(d => d.value),
@@ -30,7 +134,7 @@ async function getResidenceChartData() {
 }
 
 async function getGenderChartData() {
-  const data = dataService.getGenderStats();
+  const data = await dataService.getGenderStats();
   return {
     labels: ['Nam', 'Nữ'],
     values: [data.male || 0, data.female || 0],
@@ -38,8 +142,9 @@ async function getGenderChartData() {
   };
 }
 
+
 async function getAgeGroupChartData() {
-  const data = dataService.getAgeGroupStats();
+  const data = await dataService.getAgeGroupStats();
   return {
     labels: ['Mầm non', 'Mẫu giáo', 'Cấp 1', 'Cấp 2', 'Cấp 3', 'Lao động', 'Nghỉ hưu'],
     values: [data.mamNon || 0, data.mauGiao || 0, data.cap1 || 0, data.cap2 || 0, data.cap3 || 0, data.laoDong || 0, data.nghiHuu || 0],
@@ -48,17 +153,17 @@ async function getAgeGroupChartData() {
 }
 
 async function getTemporaryStats(fromDate, toDate) {
-  return dataService.getEventStats(fromDate, toDate);
+  return await dataService.getEventStats(fromDate, toDate);
 }
 
 export async function initOverview() {
   // Always render to prevent data loss on navigation
   await renderKPIs();
-  
+
   // Always initialize year select and period controls to ensure event listeners are bound
   await initYearSelect();
   await initPeriodControlsStats();
-  
+
   // Render all charts
   await renderDonut();
   await renderGenderChart();
@@ -67,7 +172,7 @@ export async function initOverview() {
   await renderGenderTable();
   await renderAgeGroupTable();
   await renderPeriodTableStats();
-  
+
   // Only setup scroll button once
   if (!overviewInited) {
     document.getElementById('scrollDownBtn')?.addEventListener('click', () => {
@@ -84,10 +189,12 @@ async function renderKPIs() {
   const el2 = gid('kpiResidents');
   const el3 = gid('kpiTempRes');
   const el4 = gid('kpiTempAbs');
+  const el5 = gid('kpiPermanent');
   if (el1) el1.textContent = kpis.households.toLocaleString('vi-VN');
   if (el2) el2.textContent = kpis.residents.toLocaleString('vi-VN');
   if (el3) el3.textContent = kpis.tempResidence.toLocaleString('vi-VN');
   if (el4) el4.textContent = kpis.tempAbsence.toLocaleString('vi-VN');
+  if (el5) el5.textContent = kpis.permResidence.toLocaleString('vi-VN');
 }
 
 async function renderBarChart(year) {
@@ -98,12 +205,12 @@ async function renderBarChart(year) {
     if (barChart) barChart.destroy();
     barChart = new Chart(el, {
       type: 'bar',
-      data: { 
-        labels: chartData.labels, 
+      data: {
+        labels: chartData.labels,
         datasets: [
           { label: `Hộ khẩu ${year}`, data: chartData.households, borderRadius: 8, backgroundColor: '#3b82f6' },
           { label: `Nhân khẩu ${year}`, data: chartData.residents, borderRadius: 8, backgroundColor: '#22c55e' }
-        ] 
+        ]
       },
       options: {
         animation: { duration: 500 },
@@ -121,7 +228,7 @@ async function initYearSelect() {
   if (!sel) return;
   // Clear existing options to prevent duplicates
   sel.innerHTML = '';
-  const years = [2024, 2025];
+  const years = [2025, 2024];
   years.forEach(y => {
     const o = document.createElement('option');
     o.value = y;
@@ -143,9 +250,9 @@ async function renderDonut() {
   if (donutChart) donutChart.destroy();
   donutChart = new Chart(el, {
     type: 'doughnut',
-    data: { 
-      labels: chartData.labels, 
-      datasets: [{ data: chartData.values, borderWidth: 0, backgroundColor: chartData.backgrounds }] 
+    data: {
+      labels: chartData.labels,
+      datasets: [{ data: chartData.values, borderWidth: 0, backgroundColor: chartData.backgrounds }]
     },
     options: {
       cutout: '58%',
@@ -181,9 +288,9 @@ async function renderGenderChart() {
   if (genderChart) genderChart.destroy();
   genderChart = new Chart(el, {
     type: 'bar',
-    data: { 
-      labels: chartData.labels, 
-      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }] 
+    data: {
+      labels: chartData.labels,
+      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }]
     },
     options: {
       animation: { duration: 500 },
@@ -200,9 +307,9 @@ async function renderAgeChart() {
   if (ageChart) ageChart.destroy();
   ageChart = new Chart(el, {
     type: 'bar',
-    data: { 
-      labels: chartData.labels, 
-      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }] 
+    data: {
+      labels: chartData.labels,
+      datasets: [{ label: 'Số lượng', data: chartData.values, borderRadius: 8, backgroundColor: chartData.backgrounds }]
     },
     options: {
       animation: { duration: 500 },
@@ -257,7 +364,7 @@ async function renderAgeGroupTable() {
   });
   const tbody = document.querySelector('#tblAge tbody');
   if (!tbody) return;
-  tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1].toLocaleString('vi-VN')}</td><td>${r[2]}</td></tr>`).join('') + 
+  tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1].toLocaleString('vi-VN')}</td><td>${r[2]}</td></tr>`).join('') +
     `<tr><td><b>Tổng</b></td><td><b>${total.toLocaleString('vi-VN')}</b></td><td><b>100%</b></td></tr>`;
 }
 
@@ -299,14 +406,14 @@ function initPeriodControlsStats() {
     from.value = ymd(f);
     to.value = ymd(t);
   }
-  
+
   // Clone and replace chip buttons to remove old event listeners
   document.querySelectorAll('.chip').forEach(ch => {
     const newCh = ch.cloneNode(true);
     ch.replaceWith(newCh);
     newCh.addEventListener('click', () => setRange(newCh.dataset.range));
   });
-  
+
   // Clone and replace apply button to remove old event listener
   const applyBtn = document.querySelector('.btnApplyStats');
   if (applyBtn) {

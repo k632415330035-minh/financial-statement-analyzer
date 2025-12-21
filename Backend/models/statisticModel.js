@@ -4,12 +4,23 @@ const statisticModel = {
   // 1. Lấy tổng quan số liệu hiện tại (Current Status)
   getOverview: async () => {
     try {
+      // 1. Tổng số hộ khẩu trong hệ thống (bao gồm cả Thường trú và Tạm trú)
       const [hk] = await db.query("SELECT COUNT(*) AS total FROM ho_khau");
+
+      // 2. Tổng số nhân khẩu đã đăng ký trong các hộ khẩu
       const [nk] = await db.query("SELECT COUNT(*) AS total FROM nhan_khau");
-      // Chỉ đếm những người đang trong hạn tạm trú
+
+      // 3. Đếm những người đang trong hạn tạm trú (Đã duyệt và chưa hết hạn)
       const [tt] = await db.query(
         "SELECT COUNT(*) AS total FROM don_dang_ky WHERE _type = 'Tạm trú' AND state = 'Đã duyệt' AND (`end` >= CURDATE() OR `end` IS NULL)"
       );
+
+      // 4. Đếm số lượng nhân khẩu Thường trú (Dựa trên liên kết bảng nhan_khau và ho_khau)
+      const [tht] = await db.query(
+        "SELECT COUNT(*) AS total FROM nhan_khau nk JOIN ho_khau hk ON nk.id_ho_khau = hk.id_ho_khau WHERE hk._type = 'Thường trú'"
+      );
+
+      // 5. Tổng số người đang khai báo tạm vắng
       const [tv] = await db.query("SELECT COUNT(*) AS total FROM tam_vang");
 
       return {
@@ -17,6 +28,7 @@ const statisticModel = {
         nhankhau: nk[0]?.total || 0,
         tamtru: tt[0]?.total || 0,
         tamvang: tv[0]?.total || 0,
+        thuongtru: tht[0]?.total || 0, // Kết quả từ biến tht
       };
     } catch (error) {
       console.error("Lỗi Model getOverview:", error);

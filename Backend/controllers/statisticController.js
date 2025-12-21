@@ -19,7 +19,7 @@ const getDashboardStats = async (req, res) => { // Đổi tên biến cho rõ r�
                 demographic: { gender, age },
                 charts: {
                     residentRates: {
-                        ThuongTru: overview.nhankhau,
+                        ThuongTru: overview.thuongtru,
                         TamTru: overview.tamtru,
                         TamVang: overview.tamvang
                     },
