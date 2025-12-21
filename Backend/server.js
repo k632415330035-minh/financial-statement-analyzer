@@ -1,4 +1,5 @@
 const express = require("express");
+// const morgan = require("morgan");
 const cors = require("cors");
 const path = require("path");
 const authMiddleware = require("./middleware/authMiddleware");
@@ -11,11 +12,14 @@ const registerRoute = require("./routes/registerResidentRoute");
 const petitionRoute = require("./routes/petitionRoute");
 const absentRoute = require("./routes/absentRoute");
 const historyRoute = require("./routes/historyRoute");
+const newresidentRoute = require("./routes/newresidentRoute");
+const extendRoute = require("./routes/extendRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
 
 app.use(cors());
+// app.use(morgan("dev"));
 app.use(express.json());
 
 // API routes
@@ -27,6 +31,8 @@ app.use("/api", historyRoute);
 
 // Tuyến cần authMiddleware
 app.use("/api", authMiddleware, registerRoute);
+app.use("/api", authMiddleware, newresidentRoute);
+app.use("/api", authMiddleware, extendRoute);
 
 // Serve static files từ thư mục Frontend
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
