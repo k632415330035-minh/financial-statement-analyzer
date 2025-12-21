@@ -1,7 +1,6 @@
-// resident.js (Phiên bản đã sửa lỗi tải động và thêm fetch KPI)
-
+// resident.js (Bản đầy đủ đã sửa)
 // ==========================================================
-// HÀM TIỆN ÍCH CẦN THIẾT (Nếu chưa có trong phạm vi toàn cục)
+// HÀM TIỆN ÍCH CẦN THIẾT
 // ==========================================================
 function decodeToken(token) {
   if (!token) return null;
@@ -28,7 +27,6 @@ function decodeToken(token) {
 function getCCCDFromToken() {
   const token = localStorage.getItem("userToken");
   if (!token) return null;
-
   const payload = decodeToken(token);
   return payload ? payload.userID : null;
 }
@@ -36,19 +34,14 @@ function getCCCDFromToken() {
 // ==========================================================
 // LOGIC FETCH DỮ LIỆU CHO KPI
 // ==========================================================
-
 function updateStatusChip(statusString) {
   const statusEl = document.getElementById("kpiStatus");
   if (!statusEl) return;
 
   let statusClass = "chip--unknown";
-  if (statusString === "Thường trú") {
-    statusClass = "chip--primary";
-  } else if (statusString === "Tạm trú") {
-    statusClass = "chip--warning";
-  } else if (statusString === "Tạm vắng") {
-    statusClass = "chip--secondary";
-  }
+  if (statusString === "Thường trú") statusClass = "chip--primary";
+  else if (statusString === "Tạm trú") statusClass = "chip--warning";
+  else if (statusString === "Tạm vắng") statusClass = "chip--secondary";
 
   statusEl.textContent = statusString || "—";
   statusEl.className = `kpi__chip ${statusClass}`;
@@ -56,25 +49,16 @@ function updateStatusChip(statusString) {
 
 async function fetchKPIData() {
   const cccd = getCCCDFromToken();
-  if (!cccd) {
-    console.warn("Không thể lấy CCCD để tải KPI.");
-    return;
-  }
-
-  const apiURL = `/api/household/${cccd}`;
+  if (!cccd) return;
 
   try {
-    const response = await fetch(apiURL);
-    if (!response.ok) {
-      throw new Error(`Lỗi tải KPI: ${response.status}`);
-    }
-    const data = await response.json();
+    const res = await fetch(`/api/household/${cccd}`);
+    if (!res.ok) throw new Error(`Lỗi tải KPI: ${res.status}`);
+    const data = await res.json();
 
-    // Lấy thông tin từ response
     const hoKhauNumber = data.idHoKhau;
     const totalMembers = data.totalMembers;
     const householderName = data.householderName;
-    // Lấy trạng thái cư trú của chính người dùng (lấy từ bản ghi đầu tiên, hoặc từ API /resident/:cccd nếu có)
     const userStatus =
       data.members && data.members.length > 0
         ? (data.members.find((m) => m.CCCD === cccd) || data.members[0])[
@@ -83,7 +67,6 @@ async function fetchKPIData() {
         : "—";
     localStorage.setItem("currentResidentStatus", userStatus);
 
-    // Điền dữ liệu vào các khung KPI
     const hkEl = document.getElementById("kpiHK");
     const memEl = document.getElementById("kpiMembers");
     const headEl = document.getElementById("kpiHead");
@@ -96,17 +79,193 @@ async function fetchKPIData() {
     updateStatusChip(userStatus);
   } catch (error) {
     console.error("Lỗi khi fetch KPI:", error);
-    // Để lại dữ liệu mặc định hoặc hiển thị lỗi nhẹ
     document.getElementById("kpiHK").textContent = "Lỗi tải";
   }
 }
 
 // ==========================================================
-// LOGIC KHỞI TẠO CHÍNH (Đã sửa lỗi tải động và thêm fetch KPI)
+// LOGIC GIA HẠN TẠM TRÚ + ĐỒNG HỒ
 // ==========================================================
+const btnExtendStay = document.getElementById("btnExtendStay");
+const extendRemainText = document.getElementById("extendRemainText");
+const modalExtend = document.getElementById("modalExtendStay");
+const btnExtendClose = document.getElementById("btnExtendClose");
+const btnExtendCancel = document.getElementById("btnExtendCancel");
+const btnExtendSubmit = document.getElementById("btnExtendSubmit");
+const extendExpireDate = document.getElementById("extendExpireDate");
+const extendRemainDetail = document.getElementById("extendRemainDetail");
+const extendMemberList = document.getElementById("extendMemberList");
 
+let householdMembers = [];
+let currentHouseId = null;
+let hasPendingExtension = false;
+let expired = false;
+
+async function refreshHistory() {
+  if (window.initHistoryPage) {
+    await window.initHistoryPage();
+  } else {
+    const event = new CustomEvent("refreshHistory");
+    document.dispatchEvent(event);
+  }
+}
+
+async function fetchTempExtensionInfo() {
+  try {
+    const res = await fetch("/api/temp-extension/info", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` },
+    });
+    if (!res.ok) throw new Error("Không thể tải dữ liệu gia hạn");
+    const data = await res.json();
+    if (!data.success) return;
+
+    const info = data.data;
+    currentHouseId = info.id_ho_khau;
+    householdMembers = info.members || [];
+    hasPendingExtension = info.hasPendingExtension || false;
+
+    const now = new Date();
+    const endDate = new Date(info.end);
+    const remainingDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+    expired = remainingDays < 0;
+
+    if (hasPendingExtension) {
+      btnExtendStay.hidden = false;
+      extendRemainText.hidden = false;
+      extendRemainText.textContent = "Bạn đã gia hạn tạm trú, đang chờ duyệt";
+      extendExpireDate.textContent = new Date(
+        info.pendingEnd
+      ).toLocaleDateString("vi-VN");
+      extendRemainDetail.textContent =
+        "Đơn gia hạn đang chờ duyệt, một số chức năng bị khóa.";
+    } else if (!expired) {
+      btnExtendStay.hidden = false;
+      extendRemainText.hidden = false;
+      extendRemainText.textContent = `Còn ${remainingDays} ngày đến hạn tạm trú`;
+      extendExpireDate.textContent = endDate.toLocaleDateString("vi-VN");
+      extendRemainDetail.textContent = `Bạn có thể gia hạn trước ngày hết hạn 15 ngày.`;
+    } else {
+      btnExtendStay.hidden = false;
+      extendRemainText.hidden = false;
+      extendRemainText.textContent = "Hết hạn tạm trú. Vui lòng gia hạn.";
+      extendExpireDate.textContent = endDate.toLocaleDateString("vi-VN");
+      extendRemainDetail.textContent =
+        "Một số chức năng bị khóa do tạm trú hết hạn.";
+    }
+
+    const lockPages = [
+      "dang-ky-thuong-tru",
+      "tam-tru-tam-vang",
+      "phan-anh-cua-toi",
+    ];
+    lockPages.forEach((page) => {
+      const btn = document.querySelector(`.sidenav__item[data-page="${page}"]`);
+      if (!btn) return;
+      if (expired || hasPendingExtension) {
+        btn.classList.add("locked");
+        btn.title =
+          "Chức năng bị khóa do tạm trú hết hạn hoặc đơn gia hạn chưa duyệt";
+        btn.style.pointerEvents = "none"; // khóa click hoàn toàn
+      } else {
+        btn.classList.remove("locked");
+        btn.title = "";
+        btn.style.pointerEvents = "auto"; // mở click
+      }
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Hiển thị modal khi nhấn nút gia hạn
+if (btnExtendStay) {
+  btnExtendStay.addEventListener("click", () => {
+    if (!householdMembers.length) return;
+    extendMemberList.innerHTML = householdMembers
+      .map(
+        (m) => `
+      <label>
+        <input type="checkbox" class="extend-member" data-id="${m.id_cd}" ${
+          m.remaining_days > 0 ? "" : "checked"
+        } />
+        ${m.ho_ten} (${m.quan_he_voi_chu_ho}) - còn ${m.remaining_days} ngày
+      </label>
+    `
+      )
+      .join("");
+    modalExtend.classList.remove("hide");
+  });
+}
+
+// Đóng modal
+[btnExtendClose, btnExtendCancel].forEach((btn) => {
+  btn.addEventListener("click", () => {
+    modalExtend.classList.add("hide");
+  });
+});
+
+// Gửi yêu cầu gia hạn
+if (btnExtendSubmit) {
+  btnExtendSubmit.addEventListener("click", async () => {
+    const newEndDate = document.getElementById("extendToDate").value;
+    if (!newEndDate) {
+      alert("Vui lòng chọn ngày gia hạn.");
+      return;
+    }
+
+    const selectedPeople = Array.from(
+      document.querySelectorAll(".extend-member:checked")
+    ).map((el) => {
+      const member = householdMembers.find((m) => m.id_cd == el.dataset.id);
+      return {
+        id_cd: member.id_cd,
+        quan_he_voi_chu_ho: member.quan_he_voi_chu_ho,
+        thuong_tru_truoc_day: member.thuong_tru_truoc_day || "",
+      };
+    });
+
+    if (!selectedPeople.length) {
+      alert("Vui lòng chọn ít nhất một thành viên để gia hạn.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/temp-extension/extend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+        },
+        body: JSON.stringify({ newEndDate, selectedPeople }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        modalExtend.classList.add("hide");
+        await fetchTempExtensionInfo();
+        refreshHistory();
+        alert("Đã gửi đơn gia hạn tạm trú, đang chờ duyệt.");
+      } else {
+        alert("Lỗi: " + result.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Có lỗi xảy ra khi gửi yêu cầu gia hạn.");
+    }
+  });
+}
+
+// Đóng modal khi click backdrop
+document.querySelectorAll("[data-close-extend]").forEach((el) => {
+  el.addEventListener("click", () => modalExtend.classList.add("hide"));
+});
+
+// ==========================================================
+// LOGIC KHỞI TẠO CHÍNH
+// ==========================================================
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Chào buổi sáng + ngày giờ
+  fetchTempExtensionInfo();
+  fetchKPIData();
+
   const now = new Date();
   const h = now.getHours();
   let hello = "Chào buổi sáng";
@@ -121,22 +280,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sbHello").textContent = hello;
   document.getElementById("sbDate").textContent = timeStr;
 
-  // 2. KHỞI TẠO DỮ LIỆU KPI THẬT
-  fetchKPIData();
-
-  // 3. Xử lý copy Số hộ khẩu
   const btnCopyHK = document.getElementById("btnCopyHK");
   if (btnCopyHK) {
     btnCopyHK.addEventListener("click", () => {
       const hkEl = document.getElementById("kpiHK");
       if (!hkEl || hkEl.textContent.includes("—")) return;
-      const val = hkEl.textContent.trim();
-      navigator.clipboard?.writeText(val);
-      alert("Đã sao chép số hộ khẩu: " + val);
+      navigator.clipboard?.writeText(hkEl.textContent.trim());
+      alert("Đã sao chép số hộ khẩu: " + hkEl.textContent.trim());
     });
   }
 
-  // 4. Cấu hình các "trang con"
   const pageConfig = {
     "thong-tin-ca-nhan": {
       html: "thong-tin-ca-nhan/thong-tin-ca-nhan.html",
@@ -180,13 +333,11 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadPage(pageKey) {
     const cfg = pageConfig[pageKey];
     if (!cfg || !container) return;
-
-    // 1. Load HTML
     try {
       const res = await fetch(cfg.html);
       if (!res.ok) throw new Error("Không tải được " + cfg.html);
       const html = await res.text();
-      container.innerHTML = html; // CHÈN HTML VÀO DOM TRƯỚC
+      container.innerHTML = html;
     } catch (err) {
       console.error(err);
       container.innerHTML =
@@ -194,8 +345,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `<p class="muted">Không tải được nội dung: ${cfg.html}</p></section>`;
       return;
     }
-
-    // 2. CSS cho trang
     if (cfg.css && !loadedCss.has(cfg.css)) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
@@ -204,12 +353,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.head.appendChild(link);
       loadedCss.add(cfg.css);
     }
-
-    // 3. JS cho trang
     document
       .querySelectorAll("script[data-page-js]")
       .forEach((s) => s.remove());
-
     if (cfg.js) {
       await new Promise((resolve) => {
         const script = document.createElement("script");
@@ -223,8 +369,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(script);
       });
     }
-
-    // 4. GỌI HÀM INIT
     if (cfg.initFunc && window[cfg.initFunc]) {
       console.log(`Đang gọi hàm khởi tạo: ${cfg.initFunc}`);
       window[cfg.initFunc]();
@@ -232,7 +376,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 5. Bắt sự kiện click menu + lối tắt
   const menuButtons = document.querySelectorAll(
     ".sidenav__item, .action[data-page]"
   );
@@ -255,20 +398,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 6. Load mặc định "Thông tin cá nhân" lúc mở trang
   loadPage("thong-tin-ca-nhan");
 
-  // 7. XỬ LÝ ĐĂNG XUẤT
   const btnLogout = document.getElementById("btnLogout");
   if (btnLogout) {
     btnLogout.addEventListener("click", () => {
       const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
       if (!confirmLogout) return;
-
       localStorage.removeItem("userToken");
       localStorage.removeItem("userRole");
       localStorage.removeItem("currentResidentStatus");
-
       window.location.replace("../index.html");
     });
   }

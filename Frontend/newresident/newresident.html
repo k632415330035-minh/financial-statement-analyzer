@@ -1,347 +1,707 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <title>Đăng ký tạm trú / thường trú - Người mới</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="newresident.css" />
-</head>
-<body>
-  <header class="header">
-    <div class="header-inner">
-      <div class="logo">Hệ thống quản lý cư dân</div>
-      <div class="header-help">
-        Cần hỗ trợ? <span>0123 456 789</span>
-      </div>
-    </div>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>newresident</title>
+    <link rel="stylesheet" href="newresident.css" />
+    <script src="newresident.js" defer></script>
+  </head>
 
-  <main class="page">
-    <div class="card">
-      <div class="card-inner">
-        <!-- Cột trái: giới thiệu -->
-        <div class="card-left">
-          <div class="badge">Người mới</div>
-          <h1 class="card-title">Đăng ký tạm trú / thường trú</h1>
-          <p class="card-subtitle">
-            Dành cho người chưa được phê duyệt cư dân. Hãy điền đầy đủ thông tin để Ban Quản lý xem xét.
-          </p>
-
-          <div class="card-highlight">
-            <p>
-              Bạn hiện <strong>chưa được phê duyệt là cư dân</strong>. Sau khi gửi yêu cầu, thông tin sẽ được chuyển đến
-              <strong>Ban Quản lý</strong> để phê duyệt.
-            </p>
+  <body class="nr-page">
+    <header class="topbar">
+      <div class="wrap topbar__inner">
+        <div class="brand">
+          <div class="brand__logo">NR</div>
+          <div>
+            <div class="brand__title">Người mới</div>
+            <div class="brand__sub">Đăng ký cư trú (3 bước)</div>
           </div>
-
-          <ul class="feature-list">
-            <li>Hỗ trợ đăng ký cả tạm trú và thường trú</li>
-            <li>Thông tin chi tiết theo mẫu cư trú</li>
-            <li>Giao diện đơn giản, dễ sử dụng</li>
-          </ul>
         </div>
 
-        <!-- Cột phải: form -->
-        <div class="card-right">
-          <!-- Thanh bước -->
-          <div class="steps" id="stepHeader">
-            <button type="button" class="step step-active" data-step="1">
-              <span class="step-number">1</span>
-              <span>Thông tin cá nhân</span>
+        <div class="right">
+          <div class="stepper" aria-label="Stepper">
+            <button class="stepBtn active" type="button" data-step="1">
+              1
             </button>
-            <button type="button" class="step" data-step="2">
-              <span class="step-number">2</span>
-              <span>Thông tin cư trú</span>
-            </button>
-            <button type="button" class="step" data-step="3">
-              <span class="step-number">3</span>
-              <span>Xác nhận &amp; gửi</span>
-            </button>
+            <span class="stepLine"></span>
+            <button class="stepBtn" type="button" data-step="2">2</button>
+            <span class="stepLine"></span>
+            <button class="stepBtn" type="button" data-step="3">3</button>
+          </div>
+          <button class="btn btnGhost" type="button" id="logoutBtn">
+            Đăng xuất
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="nr-split">
+      <aside class="nr-side" aria-label="Giới thiệu">
+        <div class="nr-side__inner">
+          <h2 class="nr-side__title">Đăng ký cư trú trực tuyến</h2>
+          <p class="nr-side__text">
+            Điền thông tin theo 3 bước. Hệ thống sẽ kiểm tra chủ hộ và hỗ trợ
+            thêm thành viên trong cùng một hộ gia đình.
+          </p>
+
+          <div class="nr-side__media">
+            <!-- Thay intro.mp4 bằng video của bạn (cùng thư mục với file HTML) 
+          <video class="nr-side__video" autoplay muted loop playsinline controls preload="metadata">
+            <source src="intro.mp4" type="video/mp4" />
+            Trình duyệt của bạn không hỗ trợ video.
+          </video> -->
+            <!-- Hoặc dùng YouTube (bỏ comment) -->
+
+            <iframe
+              width="560"
+              height="315"
+              src="https://www.youtube.com/embed/1M-UBK5zb5M?si=kXHYJHsGmmBmw1Sz"
+              title="YouTube video player"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
           </div>
 
-          <form id="registrationForm" class="form" novalidate>
-            <!-- STEP 1: Thông tin cá nhân + giấy tờ -->
-            <div class="step-pane" data-step="1">
-              <!-- 1. Thông tin cá nhân -->
-              <div class="form-section">
-                <h2 class="form-section-title">1. Thông tin cá nhân</h2>
-                <p class="form-section-desc">
-                  Các trường có dấu <span class="required">*</span> là bắt buộc.
-                </p>
+          <ul class="nr-side__bullets">
+            <li>3 bước — nhanh gọn</li>
+            <li>Kiểm tra CCCD chủ hộ</li>
+            <li>Tóm tắt &amp; xác nhận trước khi gửi</li>
+          </ul>
+          <div class="nr-side__note">
+            Mẹo: Nếu video không chạy, bạn có thể để phần này là lời giới
+            thiệu/QR hướng dẫn.
+          </div>
+        </div>
+      </aside>
 
-                <div class="grid">
-                  <div class="form-group">
-                    <label for="fullName">Họ và tên <span class="required">*</span></label>
-                    <input type="text" id="fullName" name="fullName" required />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="dob">Ngày sinh <span class="required">*</span></label>
-                    <input type="date" id="dob" name="dob" required />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="gender">Giới tính</label>
-                    <select id="gender" name="gender">
-                      <option value="">-- Chọn --</option>
-                      <option value="male">Nam</option>
-                      <option value="female">Nữ</option>
-                      <option value="other">Khác</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="phone">Số điện thoại</label>
-                    <input type="tel" id="phone" name="phone" placeholder="VD: 09xxxxxxxx" />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="idNumber">Số CCCD/CMND <span class="required">*</span></label>
-                    <input type="text" id="idNumber" name="idNumber" required />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="idIssueDate">Ngày cấp</label>
-                    <input type="date" id="idIssueDate" name="idIssueDate" />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="idIssuePlace">Nơi cấp</label>
-                    <input type="text" id="idIssuePlace" name="idIssuePlace" placeholder="VD: Cục CSQLHC về TTXH" />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="nationality">Quốc tịch</label>
-                    <input type="text" id="nationality" name="nationality" placeholder="VD: Việt Nam" />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="ethnicity">Dân tộc</label>
-                    <input type="text" id="ethnicity" name="ethnicity" placeholder="VD: Kinh" />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="birthPlace">Nơi sinh</label>
-                    <input type="text" id="birthPlace" name="birthPlace" placeholder="VD: Hà Đông, Hà Nội" />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="origin">Nguyên quán</label>
-                    <input type="text" id="origin" name="origin" placeholder="VD: La Khê, Hà Đông, Hà Nội" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- 2. Thông tin giấy tờ & nghề nghiệp -->
-              <div class="form-section">
-                <h2 class="form-section-title">2. Thông tin giấy tờ &amp; nghề nghiệp</h2>
-
-                <div class="grid">
-                  <div class="form-group full-width">
-                    <label for="permanentAddress">Địa chỉ hộ khẩu thường trú</label>
-                    <input
-                      type="text"
-                      id="permanentAddress"
-                      name="permanentAddress"
-                      placeholder="VD: Số X, đường Y, phường Z, quận/huyện A, tỉnh/thành B"
-                    />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="currentAddress">Địa chỉ cư trú hiện tại (nếu khác hộ khẩu)</label>
-                    <input
-                      type="text"
-                      id="currentAddress"
-                      name="currentAddress"
-                      placeholder="VD: Căn hộ 101, Tòa A, Chung cư XYZ"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="job">Nghề nghiệp</label>
-                    <input type="text" id="job" name="job" placeholder="VD: Kỹ sư" />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="workplace">Nơi làm việc</label>
-                    <input type="text" id="workplace" name="workplace" placeholder="VD: Công ty TNHH ABC" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- 1b. Thành viên cùng hộ gia đình (ngoài bạn) -->
-              <div class="form-section">
-                <h2 class="form-section-title">1b. Thành viên cùng hộ gia đình</h2>
-                <p class="form-section-desc">
-                  Nếu nhà bạn có thêm người cùng đăng ký (vợ/chồng, con,…) hãy nhập số người và bấm
-                  <strong>Tạo form</strong>.<br />
-                  Ví dụ nhà có 3 người (gồm cả bạn) thì bạn điền thông tin của <strong>bạn</strong>
-                  ở phần 1, sau đó chọn <strong>Số thành viên thêm = 2</strong> cho 2 thành viên còn lại.
-                </p>
-
-                <div class="grid">
-                  <div class="form-group full-width">
-                    <label for="householdCount">Số thành viên thêm (ngoài bạn)</label>
-                    <div class="inline-input">
-                      <input
-                        type="number"
-                        id="householdCount"
-                        name="householdCount"
-                        min="0"
-                        max="10"
-                        value="0"
-                      />
-                      <button type="button" class="btn btn-ghost" id="generateMembersBtn">
-                        Tạo form cho từng người
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div id="householdMembersWrapper" class="members-wrapper hidden">
-                  <div id="memberTabs" class="member-tabs"></div>
-                  <div id="householdMembers" class="member-panels"></div>
-                  <div class="member-nav hidden" id="memberNav">
-                    <button type="button" class="btn btn-ghost btn-sm" id="prevMember">
-                      Thành viên trước
-                    </button>
-                    <div class="member-nav-status" id="memberStatus">1 / 1</div>
-                    <button type="button" class="btn btn-ghost btn-sm" id="nextMember">
-                      Thành viên sau
-                    </button>
-                  </div>
-                </div>
-              </div>
+      <main class="main nr-main">
+        <div class="wrap">
+          <!-- ===================== PAGE 1 ===================== -->
+          <section class="card page active" data-page="1">
+            <div class="head">
+              <h1 class="h1">Bước 1: Thông tin cư trú</h1>
             </div>
 
-            <!-- STEP 2: Cư trú + loại đăng ký -->
-            <div class="step-pane hidden" data-step="2">
-              <!-- 3. Địa chỉ cư trú hiện tại -->
-              <div class="form-section">
-                <h2 class="form-section-title">3. Địa chỉ cư trú hiện tại</h2>
-                <p class="form-section-desc">
-                  Ghi đầy đủ địa chỉ theo thực tế. Ví dụ:
-                  <strong>Số 11, ngách 15, ngõ 359 Minh Khai, phường Vĩnh Tuy</strong>.
-                </p>
+            <div class="subcard">
+              <div class="subhead">
+                <div class="subtitle">Loại hộ</div>
+              </div>
 
-                <div class="grid">
-                  <div class="form-group full-width">
-                    <label for="residenceAddress">Địa chỉ cư trú hiện tại</label>
+              <div class="field">
+                <label class="label"
+                  >Chọn loại hộ <span class="req">*</span></label
+                >
+                <div class="seg">
+                  <label class="segItem">
                     <input
-                      type="text"
-                      id="residenceAddress"
-                      name="residenceAddress"
-                      placeholder="VD: Số 11, ngách 15, ngõ 359 Minh Khai, phường Vĩnh Tuy"
+                      type="radio"
+                      name="householdType"
+                      value="existing"
+                      checked
                     />
-                  </div>
-                </div>
-              </div>
-
-              <!-- 4. Loại đăng ký cư trú -->
-              <div class="form-section">
-                <h2 class="form-section-title">4. Loại đăng ký cư trú</h2>
-                <p class="form-section-desc">Chọn loại đăng ký cư trú bạn muốn thực hiện.</p>
-
-                <div class="grid">
-                  <div class="form-group full-width">
-                    <label>Loại đăng ký</label>
-                    <div class="options">
-                      <label class="option-pill">
-                        <input type="radio" name="requestType" value="tam_tru" checked />
-                        <span>Tạm trú</span>
-                      </label>
-                      <label class="option-pill">
-                        <input type="radio" name="requestType" value="thuong_tru" />
-                        <span>Thường trú</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 5A. Thông tin tạm trú -->
-              <div class="form-section" id="tamTruSection">
-                <h2 class="form-section-title">5A. Thông tin tạm trú</h2>
-
-                <div class="grid">
-                  <div class="form-group">
-                    <label for="tamTruFrom">Ngày bắt đầu tạm trú</label>
-                    <input type="date" id="tamTruFrom" name="tamTruFrom" />
-                  </div>
-                  <div class="form-group">
-                    <label for="tamTruTo">Ngày kết thúc tạm trú</label>
-                    <input type="date" id="tamTruTo" name="tamTruTo" />
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="tamTruReason">Lý do tạm trú</label>
-                    <textarea id="tamTruReason" name="tamTruReason" rows="2"></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 5B. Thông tin thường trú -->
-              <div class="form-section hidden" id="thuongTruSection">
-                <h2 class="form-section-title">5B. Thông tin thường trú</h2>
-
-                <div class="grid">
-                  <div class="form-group full-width">
-                    <label for="thuongTruAddress">Địa chỉ thường trú</label>
-                    <input type="text" id="thuongTruAddress" name="thuongTruAddress" />
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="thuongTruPrevAddress">Địa chỉ thường trú trước khi chuyển đến</label>
-                    <input
-                      type="text"
-                      id="thuongTruPrevAddress"
-                      name="thuongTruPrevAddress"
-                      placeholder="VD: Xã X, Huyện Y, Tỉnh Z"
-                    />
-                  </div>
-                </div>
-              </div>
-              <!-- (ĐÃ XOÁ PHẦN 6: Tài liệu đính kèm) -->
-            </div>
-
-            <!-- STEP 3: Xác nhận & cam kết -->
-            <div class="step-pane hidden" data-step="3">
-              <div class="form-section">
-                <h2 class="form-section-title">6. Xác nhận thông tin</h2>
-                <p class="form-section-desc">
-                  Vui lòng kiểm tra lại các thông tin đã nhập. Nếu đã chính xác, hãy tích cam kết bên dưới và gửi yêu cầu.
-                </p>
-              </div>
-
-              <div class="form-section">
-                <div class="checkbox-row form-group">
-                  <input type="checkbox" id="agreement" />
-                  <label for="agreement">
-                    Tôi cam kết chịu trách nhiệm trước pháp luật về tính chính xác của các thông tin đã cung cấp.
+                    <span>Đăng ký vào hộ đã có</span>
+                  </label>
+                  <label class="segItem">
+                    <input type="radio" name="householdType" value="new" />
+                    <span>Tạo hộ mới</span>
                   </label>
                 </div>
               </div>
             </div>
 
-            <!-- Hành động -->
-            <div class="form-actions">
-              <button type="button" class="btn btn-ghost" id="prevStep" disabled>Quay lại</button>
-              <button type="button" class="btn btn-primary" id="nextStep">Tiếp tục</button>
-              <button type="button" class="btn btn-primary hidden" id="submitBtn">Gửi yêu cầu</button>
+            <!-- Existing box -->
+            <div class="subcard" id="existingBox">
+              <div class="subhead">
+                <div class="subtitle">Xác minh chủ hộ</div>
+                <div class="muted small">
+                  Nhập CCCD chủ hộ và bấm “Kiểm tra”.
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="ownerCccd"
+                    >CCCD chủ hộ <span class="req">*</span></label
+                  >
+                  <input
+                    class="input"
+                    id="ownerCccd"
+                    inputmode="numeric"
+                    maxlength="12"
+                    placeholder="012345678901"
+                  />
+                  <div class="error" data-err="ownerCccd"></div>
+                </div>
+
+                <div class="field">
+                  <label class="label">&nbsp;</label>
+                  <button class="btn" type="button" id="verifyOwnerBtn">
+                    Kiểm tra
+                  </button>
+                  <div class="muted small" id="verifyHint">Chưa xác minh</div>
+                </div>
+              </div>
+
+              <div class="notice" id="verifyNotice" style="display: none"></div>
+
+              <div class="info" id="ownerInfo" style="display: none">
+                <div class="infoRow">
+                  <div>
+                    <div class="muted small">Tên chủ hộ</div>
+                    <div class="strong" id="ownerName">—</div>
+                  </div>
+                  <div>
+                    <div class="muted small">Mã hộ</div>
+                    <div class="strong" id="householdId">—</div>
+                  </div>
+                </div>
+                <div style="margin-top: 8px">
+                  <div class="muted small">Địa chỉ hộ</div>
+                  <div class="strong" id="householdAddress">—</div>
+                </div>
+                <div class="row end" style="margin-top: 10px">
+                  <button
+                    class="btn btnGhost light"
+                    type="button"
+                    id="changeOwnerBtn"
+                  >
+                    Đổi CCCD chủ hộ
+                  </button>
+                </div>
+              </div>
             </div>
-          </form>
 
-          <div id="resultMessage" class="result-message hidden"></div>
+            <!-- Address box -->
+            <div class="subcard" id="addressBox">
+              <div class="subhead">
+                <div class="subtitle">Địa chỉ cư trú hiện tại</div>
+                <div class="muted small" id="addressHint"></div>
+              </div>
+
+              <div class="grid2">
+                <div class="field span2">
+                  <label class="label" for="addressText"
+                    >Địa chỉ đầy đủ <span class="req">*</span></label
+                  >
+                  <input
+                    class="input"
+                    id="addressText"
+                    placeholder="VD: 12 Trần Thái Tông, Dịch Vọng, Cầu Giấy, Hà Nội"
+                    autocomplete="street-address"
+                  />
+                  <div class="error" data-err="addressText"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subhead">
+                <div class="subtitle">Loại cư trú</div>
+                <div class="muted small">Thường trú / Tạm trú.</div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label"
+                    >Hình thức <span class="req">*</span></label
+                  >
+                  <div class="seg">
+                    <label class="segItem">
+                      <input
+                        type="radio"
+                        name="residenceType"
+                        value="permanent"
+                        checked
+                      />
+                      <span>Thường trú</span>
+                    </label>
+                    <label class="segItem">
+                      <input
+                        type="radio"
+                        name="residenceType"
+                        value="temporary"
+                      />
+                      <span>Tạm trú</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="field" id="tempDates" style="display: none">
+                  <label class="label"
+                    >Thời gian tạm trú <span class="req">*</span></label
+                  >
+                  <div class="row">
+                    <div class="grow">
+                      <input class="input" type="date" id="tempFrom" />
+                      <div class="error" data-err="tempFrom"></div>
+                    </div>
+                    <div class="grow">
+                      <input class="input" type="date" id="tempTo" />
+                      <div class="error" data-err="tempTo"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row end" style="margin-top: 14px">
+              <button class="btn" type="button" id="next1Btn">Tiếp tục</button>
+            </div>
+          </section>
+
+          <!-- ===================== PAGE 2 ===================== -->
+          <section class="card page" data-page="2">
+            <div class="head">
+              <h1 class="h1">Bước 2: Thông tin cá nhân</h1>
+              <p class="muted">
+                Điền thông tin cá nhân + nghề nghiệp. Khai báo thành viên gia
+                đình theo tab TV.
+              </p>
+            </div>
+
+            <div class="subcard">
+              <div class="subhead">
+                <div class="subtitle">Thông tin cá nhân</div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="fullName"
+                    >Họ và tên <span class="req">*</span></label
+                  >
+                  <input class="input" id="fullName" />
+                  <div class="error" data-err="fullName"></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="dob"
+                    >Ngày sinh <span class="req">*</span></label
+                  >
+                  <input class="input" type="date" id="dob" />
+                  <div class="error" data-err="dob"></div>
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="gender"
+                    >Giới tính <span class="req">*</span></label
+                  >
+                  <select class="input" id="gender">
+                    <option value="">-- Chọn --</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <!-- <option value="Khác">Khác</option> -->
+                  </select>
+                  <div class="error" data-err="gender"></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="cccd"
+                    >Số CCCD <span class="req">*</span></label
+                  >
+                  <input
+                    class="input"
+                    id="cccd"
+                    inputmode="numeric"
+                    maxlength="12"
+                    placeholder="012345678901"
+                  />
+                  <div class="error" data-err="cccd"></div>
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="issueDate"
+                    >Ngày cấp <span class="req">*</span></label
+                  >
+                  <input class="input" type="date" id="issueDate" />
+                  <div class="error" data-err="issueDate"></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="issuePlace"
+                    >Nơi cấp <span class="req">*</span></label
+                  >
+                  <input class="input" id="issuePlace" />
+                  <div class="error" data-err="issuePlace"></div>
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="birthPlace"
+                    >Nơi sinh <span class="req">*</span></label
+                  >
+                  <input class="input" id="birthPlace" />
+                  <div class="error" data-err="birthPlace"></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="hometown"
+                    >Nguyên quán <span class="req">*</span></label
+                  >
+                  <input class="input" id="hometown" />
+                  <div class="error" data-err="hometown"></div>
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="ethnicity"
+                    >Dân tộc <span class="req">*</span></label
+                  >
+                  <input
+                    class="input"
+                    id="ethnicity"
+                    placeholder="Ví dụ: Kinh"
+                  />
+                  <div class="error" data-err="ethnicity"></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="alias">Bí danh</label>
+                  <input class="input" id="alias" placeholder="Nếu có" />
+                  <div class="error" data-err="alias"></div>
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="job"
+                    >Nghề nghiệp <span class="req">*</span></label
+                  >
+                  <input class="input" id="job" />
+                  <div class="error" data-err="job"></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="workplace"
+                    >Nơi làm việc <span class="req">*</span></label
+                  >
+                  <input class="input" id="workplace" />
+                  <div class="error" data-err="workplace"></div>
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field span2">
+                  <label class="label" for="prevAddr"
+                    >Địa chỉ thường trú trước đây
+                    <span class="req">*</span></label
+                  >
+                  <input class="input" id="prevAddr" />
+                  <div class="error" data-err="prevAddr"></div>
+                </div>
+              </div>
+
+              <div class="grid2">
+                <div class="field span2">
+                  <label class="label"
+                    >Mối quan hệ với chủ hộ <span class="req">*</span></label
+                  >
+                  <select class="input" id="pRelation">
+                    <option value="">-- Chọn --</option>
+                    <option>Chủ hộ</option>
+                    <option>Vợ/Chồng</option>
+                    <option>Con</option>
+                    <option>Cha/Mẹ</option>
+                    <option>Anh/Chị/Em</option>
+                    <option>Ông/Bà</option>
+                    <option>Cháu</option>
+                    <option>Người thân khác</option>
+                    <option>Khác</option>
+                  </select>
+                  <div class="error" data-err="pRelation"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAMILY -->
+            <div class="subcard">
+              <div class="subhead">
+                <div class="subtitle">Thành viên cùng hộ gia đình</div>
+                <div class="muted small">
+                  Nhập số thành viên (ngoài bạn) → Tạo form → điền theo từng tab
+                  TV.
+                </div>
+              </div>
+
+              <div class="row" style="align-items: flex-end; margin-top: 10px">
+                <div class="field" style="max-width: 260px; margin-top: 0">
+                  <label class="label" for="extraCount"
+                    >Số thành viên thêm (ngoài bạn)</label
+                  >
+                  <input
+                    class="input"
+                    type="number"
+                    id="extraCount"
+                    min="0"
+                    max="10"
+                    value="0"
+                  />
+                </div>
+                <button class="btn" type="button" id="createFamilyBtn">
+                  Tạo form
+                </button>
+              </div>
+
+              <div class="tabsRow" id="familyTabs" style="display: none"></div>
+
+              <div class="dashedBox" id="familyBox" style="display: none">
+                <div class="strong" id="memberTitle">Thành viên 1</div>
+
+                <!-- Nhóm tuổi -->
+                <div class="field" style="margin-top: 10px">
+                  <label class="label"
+                    >Nhóm tuổi <span class="req">*</span></label
+                  >
+                  <div class="seg">
+                    <label class="segItem">
+                      <input type="radio" name="mAgeGroup" value="under14" />
+                      <span>Dưới 14 tuổi</span>
+                    </label>
+                    <label class="segItem">
+                      <input
+                        type="radio"
+                        name="mAgeGroup"
+                        value="over14"
+                        checked
+                      />
+                      <span>Từ 14 tuổi trở lên</span>
+                    </label>
+                  </div>
+                  <div class="error" data-err="mAgeGroup"></div>
+                </div>
+
+                <div class="grid2">
+                  <div class="field">
+                    <label class="label" for="mName"
+                      >Họ và tên <span class="req">*</span></label
+                    >
+                    <input class="input" id="mName" />
+                    <div class="error" data-err="mName"></div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="mDob"
+                      >Ngày sinh <span class="req">*</span></label
+                    >
+                    <input class="input" type="date" id="mDob" />
+                    <div class="error" data-err="mDob"></div>
+                  </div>
+                </div>
+
+                <div class="grid2">
+                  <div class="field">
+                    <label class="label" for="mGender"
+                      >Giới tính <span class="req">*</span></label
+                    >
+                    <select class="input" id="mGender">
+                      <option value="">-- Chọn --</option>
+                      <option>Nam</option>
+                      <option>Nữ</option>
+                      <!-- <option>Khác</option> -->
+                    </select>
+                    <div class="error" data-err="mGender"></div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label" for="mRelation"
+                      >Mối quan hệ với chủ hộ <span class="req">*</span></label
+                    >
+                    <select class="input" id="mRelation">
+                      <option value="">-- Chọn --</option>
+                      <option>Vợ/Chồng</option>
+                      <option>Con</option>
+                      <option>Cha/Mẹ</option>
+                      <option>Anh/Chị/Em</option>
+                      <option>Ông/Bà</option>
+                      <option>Cháu</option>
+                      <option>Người thân khác</option>
+                      <option>Khác</option>
+                    </select>
+                    <div class="error" data-err="mRelation"></div>
+                  </div>
+                </div>
+
+                <div class="grid2">
+                  <div class="field" id="mCccdWrap">
+                    <label class="label" for="mCccd"
+                      >Số CCCD/CMND <span class="req">*</span></label
+                    >
+                    <input
+                      class="input"
+                      id="mCccd"
+                      inputmode="numeric"
+                      maxlength="12"
+                      placeholder="012345678901"
+                    />
+                    <div class="error" data-err="mCccd"></div>
+                  </div>
+
+                  <div class="field" id="mIssueDateWrap">
+                    <label class="label" for="mIssueDate"
+                      >Ngày cấp <span class="req">*</span></label
+                    >
+                    <input class="input" type="date" id="mIssueDate" />
+                    <div class="error" data-err="mIssueDate"></div>
+                  </div>
+                </div>
+
+                <div class="grid2">
+                  <div class="field" id="mIssuePlaceWrap">
+                    <label class="label" for="mIssuePlace"
+                      >Nơi cấp <span class="req">*</span></label
+                    >
+                    <input class="input" id="mIssuePlace" />
+                    <div class="error" data-err="mIssuePlace"></div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label" for="mBirthPlace"
+                      >Nơi sinh <span class="req">*</span></label
+                    >
+                    <input class="input" id="mBirthPlace" />
+                    <div class="error" data-err="mBirthPlace"></div>
+                  </div>
+                </div>
+
+                <div class="grid2">
+                  <div class="field">
+                    <label class="label" for="mHometown"
+                      >Nguyên quán <span class="req">*</span></label
+                    >
+                    <input class="input" id="mHometown" />
+                    <div class="error" data-err="mHometown"></div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="mJob"
+                      >Nghề nghiệp <span class="req">*</span></label
+                    >
+                    <input class="input" id="mJob" />
+                    <div class="error" data-err="mJob"></div>
+                  </div>
+                </div>
+
+                <div class="grid2">
+                  <div class="field">
+                    <label class="label" for="mEthnicity"
+                      >Dân tộc <span class="req">*</span></label
+                    >
+                    <input
+                      class="input"
+                      id="mEthnicity"
+                      placeholder="Ví dụ: Kinh"
+                    />
+                    <div class="error" data-err="mEthnicity"></div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="mAlias">Bí danh</label>
+                    <input class="input" id="mAlias" placeholder="Nếu có" />
+                    <div class="error" data-err="mAlias"></div>
+                  </div>
+                </div>
+
+                <div class="grid2">
+                  <div class="field">
+                    <label class="label" for="mWorkplace"
+                      >Nơi làm việc <span class="req">*</span></label
+                    >
+                    <input class="input" id="mWorkplace" />
+                    <div class="error" data-err="mWorkplace"></div>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="mPrevAddr"
+                      >Địa chỉ thường trú trước đây
+                      <span class="req">*</span></label
+                    >
+                    <input class="input" id="mPrevAddr" />
+                    <div class="error" data-err="mPrevAddr"></div>
+                  </div>
+                </div>
+
+                <div class="familyNav">
+                  <button
+                    class="btn btnGhost light"
+                    type="button"
+                    id="memPrevBtn"
+                  >
+                    Trước
+                  </button>
+                  <div class="muted" id="memCounter">Thành viên 1/1</div>
+                  <button
+                    class="btn btnGhost light"
+                    type="button"
+                    id="memNextBtn"
+                  >
+                    Sau
+                  </button>
+                </div>
+
+                <div class="error" data-err="familyAll"></div>
+              </div>
+            </div>
+
+            <div class="row between" style="margin-top: 14px">
+              <button class="btn btnGhost light" type="button" id="back2Btn">
+                Quay lại
+              </button>
+              <button class="btn" type="button" id="next2Btn">Tiếp tục</button>
+            </div>
+          </section>
+
+          <!-- ===================== PAGE 3 ===================== -->
+          <section class="card page" data-page="3">
+            <div class="head">
+              <h1 class="h1">Bước 3: Xác nhận & gửi</h1>
+              <p class="muted">Kiểm tra lại thông tin trước khi gửi.</p>
+            </div>
+
+            <div class="subcard">
+              <div class="subtitle">Tóm tắt cư trú</div>
+              <div class="summary" id="sumResidence"></div>
+            </div>
+
+            <div class="subcard">
+              <div class="subtitle">Tóm tắt cá nhân</div>
+              <div class="summary" id="sumPerson"></div>
+            </div>
+
+            <div class="subcard">
+              <div class="subtitle">Thành viên cùng hộ gia đình</div>
+              <div id="sumFamily" class="muted" style="margin-top: 8px">
+                Không có
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subtitle">Cam kết</div>
+              <label class="check" style="margin-top: 10px">
+                <input type="checkbox" id="agree1" />
+                <span>Tôi cam kết thông tin khai báo là đúng sự thật.</span>
+              </label>
+              <label class="check" style="margin-top: 8px">
+                <input type="checkbox" id="agree2" />
+                <span>Tôi đồng ý điều khoản và chính sách xử lý dữ liệu.</span>
+              </label>
+              <div class="error" data-err="agreements"></div>
+            </div>
+
+            <div class="row between" style="margin-top: 14px">
+              <button class="btn btnGhost light" type="button" id="back3Btn">
+                Quay lại
+              </button>
+              <button class="btn" type="button" id="submitBtn">
+                Gửi đăng ký
+              </button>
+            </div>
+
+            <div
+              class="notice ok"
+              id="submitOk"
+              style="display: none; margin-top: 12px"
+            ></div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
-  </main>
-
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-left">© 2025 Ban Quản lý Chung cư</div>
-      <div class="footer-right">Phiên bản biểu mẫu cư trú dành cho người mới</div>
-    </div>
-  </footer>
-
-  <script src="newresident.js"></script>
-</body>
+  </body>
 </html>
