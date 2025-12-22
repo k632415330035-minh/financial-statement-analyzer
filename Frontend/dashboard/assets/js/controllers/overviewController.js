@@ -294,7 +294,7 @@ async function renderGenderChart() {
     },
     options: {
       animation: { duration: 500 },
-      scales: { y: { beginAtZero: true, max: 1500, ticks: { precision: 0 } } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.parsed.y.toLocaleString('vi-VN')} người` } } }
     }
   });
@@ -313,7 +313,7 @@ async function renderAgeChart() {
     },
     options: {
       animation: { duration: 500 },
-      scales: { y: { beginAtZero: true, max: 1500, ticks: { precision: 0 } } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.parsed.y.toLocaleString('vi-VN')} người` } } }
     }
   });
@@ -335,7 +335,7 @@ async function renderPeriodChart() {
     data: { labels, datasets: [{ label: 'Số lượng', data: values, borderRadius: 8, backgroundColor: palette }] },
     options: {
       animation: { duration: 500 },
-      scales: { y: { beginAtZero: true, max: 1500, ticks: { precision: 0 } } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.parsed.y.toLocaleString('vi-VN')} hồ sơ` } } }
     }
   });
