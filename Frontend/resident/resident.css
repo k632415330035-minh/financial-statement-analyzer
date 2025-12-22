@@ -740,6 +740,13 @@ body {
   display: block;
 }
 
+.sidenav__item.locked {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  filter: grayscale(1);
+  pointer-events: none; /* Ngăn chặn mọi hành động click */
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .kpi-row {
