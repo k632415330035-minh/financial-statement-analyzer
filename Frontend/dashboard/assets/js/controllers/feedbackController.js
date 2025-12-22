@@ -202,38 +202,27 @@ async function openFeedbackDetailModal(feedbackId) {
   const feedback = await allFeedback.find(f => f.id == feedbackId); //lỗi vì dùng === f.id là số, feedbackId là chuỗi
   // console.log("Opening feedback detail modal for ID:", feedbackId, feedback);
   if (!feedback) return;
-
+  document.getElementById('feedback_note').disabled = false;
+  // Render details
   document.getElementById('detailName').textContent = feedback.name;
   document.getElementById('detailAddr').textContent = feedback.addr || '-';
   document.getElementById('detailType').textContent = feedback.type;
   document.getElementById('detailDate').textContent = feedback.date;
   document.getElementById('detailStatus').innerHTML = getStatusBadge(feedback.status);
   document.getElementById('detailContent').textContent = feedback.content;
-
-  document.getElementById('feedback_note').value = feedback.processingNote || '';
-  // Render history
-  const historyDiv = document.getElementById('feedbackHistory');
-  if (historyDiv) {
-    if (!feedback.history || feedback.history.length === 0) {
-      historyDiv.innerHTML = '<p style="color:var(--muted);margin:0;">Chưa có lịch sử xử lý</p>';
-    } else {
-      historyDiv.innerHTML = feedback.history.map(h => `
-        <div style="border-bottom:1px solid #e2e8f0;padding:8px 0;margin-bottom:8px;">
-          <div style="font-weight:600;color:#1e293b;margin-bottom:2px;">${h.timestamp} - ${h.user}</div>
-          <div style="color:#64748b;">${h.note}</div>
-        </div>
-      `).join('');
-    }
+  if (feedback.processingNote.length > 0 && feedback.status === 'Đã xử lý') {
+    document.getElementById('feedback_note').disabled = true;
   }
+  document.getElementById('feedback_note').value = feedback.processingNote || '';
 
   window.currentFeedback = feedback;
-
   const modal = document.getElementById('feedbackDetailModal');
   if (modal) modal.classList.add('is-open');
 }
 
 function closeFeedbackDetailModal() {
   const modal = document.getElementById('feedbackDetailModal');
+  document.getElementById('feedback_note').disabled = false;
   if (modal) modal.classList.remove('is-open');
 }
 
@@ -242,7 +231,7 @@ async function bindFeedbackModal() {
   feedbackDetailBound = true;
   document.getElementById('closeFeedbackDetailModal')?.addEventListener('click', closeFeedbackDetailModal);
   document.getElementById('closeFeedbackFormBtn')?.addEventListener('click', closeFeedbackDetailModal);
-
+  const feedback = await window.currentFeedback;
   document.getElementById('feedbackStatusForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const feedback = await window.currentFeedback;
@@ -255,18 +244,21 @@ async function bindFeedbackModal() {
       return;
     } else {
       // newStatus = await "Đã xử lý";
-      const fb = await updateFeedbackStatus(id, "Đã xử lý", note);
-      // console.log("Update feedback response: ", fb);
+      if (feedback.status !== "Đã xử lý") {
+        const fb = await updateFeedbackStatus(id, "Đã xử lý", note);
+        // console.log("Update feedback response: ", fb);
+        // document.getElementById('feedback_note').disable = true;
+        closeFeedbackDetailModal();
+        alert('Lưu ghi chú xử lý thành công!');
+      }
     }
     allFeedback = await getFeedbackData();
     save('allFeedback', allFeedback);
-    const responsed = allFeedback.find(f => f.id == id).note;
     // Add to history
     updateFeedbackStats();
     renderFeedbackTable();
-    // Re-open modal to show updated history
     closeFeedbackDetailModal();
-    alert('Lưu ghi chú xử lý thành công!');
+    // Re-open modal to show updated history
   });
 
   document.getElementById('feedbackDetailModal')?.addEventListener('click', (e) => {

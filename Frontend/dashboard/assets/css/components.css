@@ -113,6 +113,8 @@
 }
 
 .btn--primary {
+  margin-top: 12px;
+  margin-bottom: 10px;
   background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
   color: #fff;
   border-color: transparent;
