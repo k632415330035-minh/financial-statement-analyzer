@@ -91,6 +91,7 @@ body {
   left: 0;
   z-index: 2;
 }
+
 .container.active .sign-in {
   transform: translateX(100%);
 }
@@ -100,6 +101,7 @@ body {
   opacity: 0;
   z-index: 1;
 }
+
 .container.active .sign-up {
   transform: translateX(100%);
   opacity: 1;
@@ -108,11 +110,13 @@ body {
 }
 
 @keyframes move {
+
   0%,
   49.99% {
     opacity: 0;
     z-index: 1;
   }
+
   50%,
   100% {
     opacity: 1;
@@ -170,6 +174,7 @@ body {
 .toggle-left {
   transform: translateX(-200%);
 }
+
 .container.active .toggle-left {
   transform: translateX(0);
 }
@@ -178,6 +183,7 @@ body {
   right: 0;
   transform: translateX(0);
 }
+
 .container.active .toggle-right {
   transform: translateX(200%);
 }
@@ -197,13 +203,16 @@ body {
 }
 
 @keyframes shake {
+
   0%,
   100% {
     transform: translateX(0);
   }
+
   25% {
     transform: translateX(2px);
   }
+
   75% {
     transform: translateX(-2px);
   }
@@ -213,7 +222,8 @@ body {
   color: #b91c1c;
   font-size: 12px;
   margin-top: 6px;
-  min-height: 18px; /* luôn giữ chỗ để layout không nhảy */
+  min-height: 18px;
+  /* luôn giữ chỗ để layout không nhảy */
   display: block;
 }
 
@@ -221,10 +231,12 @@ body {
 .toggle-panel {
   gap: 14px;
 }
+
 .toggle-panel h1 {
   line-height: 1.2;
   margin: 0;
 }
+
 .toggle-panel p {
   line-height: 1.6;
   margin: 0;

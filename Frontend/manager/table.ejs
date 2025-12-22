@@ -1,0 +1,47 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tài khoản</title>
+    <link rel="stylesheet" href="table.css">
+</head>
+
+<body>
+    <div class="table-container">
+        <h2>Danh sách tài khoản</h2>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Tài khoản</th>
+                    <th>Mật khẩu</th>
+                    <th>Role</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% data.forEach(item=> { %>
+                    <tr>
+                        <td>
+                            <%= item.userID %>
+                        </td>
+                        <td>
+                            <%= item._password %>
+                        </td>
+                        <td>
+                            <span class="role">
+                                <%= item._type %>
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn edit">Sửa</button>
+                            <button class="btn delete">Xóa</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>

@@ -68,11 +68,11 @@
 
   // Bản đồ dịch mã loại phản ánh (Đảm bảo khớp với các option value trong HTML)
   const CATEGORY_MAP = {
-    AN_NINH_TRAT_TU: "An ninh trật tự",
-    VE_SINH_MOI_TRUONG: "Vệ sinh môi trường",
-    CO_SO_HA_TANG_VAT_CHAT: "Cơ sở hạ tầng vật chất",
-    DICH_VU_TIEN_ICH: "Dịch vụ",
-    KHAC: "Khác",
+    "An ninh trật tự": "An ninh trật tự",
+    "Vệ sinh môi trường": "Vệ sinh môi trường",
+    "Cơ sở hạ tầng vật chất": "Cơ sở hạ tầng vật chất",
+    "Dịch vụ": "Dịch vụ",
+    "Khác": "Khác",
   };
 
   /** Hàm lấy tên loại phản ánh thân thiện với người dùng */
@@ -214,13 +214,12 @@
         card.innerHTML = `
                     <button class="ticket__row" type="button" aria-expanded="false">
                         <div>
-                            <div class="ticket__title">${loaiPhanAnhLabel}: ${
-          noiDung.length > 80 ? noiDung.substring(0, 80) + "..." : noiDung
-        }</div>
+                            <div class="ticket__title">${loaiPhanAnhLabel}: ${noiDung.length > 80 ? noiDung.substring(0, 80) + "..." : noiDung
+          }</div>
                             <div class="ticket__meta">
                                 Mã: ${maPhanAnh} • Gửi lúc ${fmtDateTime(
-          thoiGianGui
-        )}
+            thoiGianGui
+          )}
                             </div>
                         </div>
                         <span class="${badgeClass}">${statusLabel}</span>
@@ -228,11 +227,10 @@
                     <div class="ticket__body" hidden>
                         <p><strong>Loại phản ánh:</strong> ${loaiPhanAnhLabel}</p>
                         <p><strong>Nội dung phản ánh:</strong><br>${noiDung}</p>
-                        ${
-                          phanHoi
-                            ? `<p><strong>Phản hồi của Tổ dân phố:</strong><br>${phanHoi}</p>`
-                            : `<p class="muted"><em>Chưa có phản hồi.</em></p>`
-                        }
+                        ${phanHoi
+            ? `<p><strong>Phản hồi của Tổ dân phố:</strong><br>${phanHoi}</p>`
+            : `<p class="muted"><em>Chưa có phản hồi.</em></p>`
+          }
                         <p class="ticket__meta">
                             Trạng thái hiện tại: ${statusLabel}
                         </p>

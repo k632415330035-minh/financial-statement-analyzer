@@ -205,8 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // 5. Lỗi từ Server (4xx, 5xx)
           // Nếu có data.message, dùng nó. Nếu không có (do lỗi JSON parse ở trên), dùng thông báo mặc định.
           alert(
-            `Đăng nhập thất bại: ${
-              data.message || "Sai tài khoản hoặc mật khẩu."
+            `Đăng nhập thất bại: ${data.message || "Sai tài khoản hoặc mật khẩu."
             }`
           );
         }
