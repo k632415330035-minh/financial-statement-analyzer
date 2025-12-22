@@ -111,46 +111,37 @@ async function refreshHistory() {
 }
 
 async function fetchTempExtensionInfo() {
+  const cccd = getCCCDFromToken();
+  if (!cccd) return;
+
   try {
-    const res = await fetch("/api/temp-extension/info", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` },
-    });
-    if (!res.ok) throw new Error("Không thể tải dữ liệu gia hạn");
-    const data = await res.json();
-    if (!data.success) return;
+    const resStatus = await fetch(`/api/status/${cccd}`);
+    if (!resStatus.ok) throw new Error("Không thể tải trạng thái cư trú");
+    const status = await resStatus.json();
 
-    const info = data.data;
-    currentHouseId = info.id_ho_khau;
-    householdMembers = info.members || [];
-    hasPendingExtension = info.hasPendingExtension || false;
+    const resHousehold = await fetch(`/api/household/${cccd}`);
+    if (resHousehold.ok) {
+      const householdData = await resHousehold.json();
+      householdMembers = householdData.members || [];
+    }
 
-    const now = new Date();
-    const endDate = new Date(info.end);
-    const remainingDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
-    expired = remainingDays < 0;
-
-    if (hasPendingExtension) {
+    if (status.daysLeft <= 15 || status.pending || status.daysLeft <= 0) {
       btnExtendStay.hidden = false;
       extendRemainText.hidden = false;
-      extendRemainText.textContent = "Bạn đã gia hạn tạm trú, đang chờ duyệt";
-      extendExpireDate.textContent = new Date(
-        info.pendingEnd
-      ).toLocaleDateString("vi-VN");
-      extendRemainDetail.textContent =
-        "Đơn gia hạn đang chờ duyệt, một số chức năng bị khóa.";
-    } else if (!expired) {
-      btnExtendStay.hidden = false;
-      extendRemainText.hidden = false;
-      extendRemainText.textContent = `Còn ${remainingDays} ngày đến hạn tạm trú`;
-      extendExpireDate.textContent = endDate.toLocaleDateString("vi-VN");
-      extendRemainDetail.textContent = `Bạn có thể gia hạn trước ngày hết hạn 15 ngày.`;
+      extendRemainText.textContent = status.message;
+
+      // Hiển thị ngày hết hạn lên Modal
+      if (extendExpireDate && status.currentExpiry) {
+        const date = new Date(status.currentExpiry);
+        extendExpireDate.textContent = date.toLocaleDateString("vi-VN");
+      }
+
+      if (extendRemainDetail) {
+        extendRemainDetail.textContent = status.message;
+      }
     } else {
-      btnExtendStay.hidden = false;
-      extendRemainText.hidden = false;
-      extendRemainText.textContent = "Hết hạn tạm trú. Vui lòng gia hạn.";
-      extendExpireDate.textContent = endDate.toLocaleDateString("vi-VN");
-      extendRemainDetail.textContent =
-        "Một số chức năng bị khóa do tạm trú hết hạn.";
+      btnExtendStay.hidden = true;
+      extendRemainText.hidden = true;
     }
 
     const lockPages = [
@@ -158,41 +149,63 @@ async function fetchTempExtensionInfo() {
       "tam-tru-tam-vang",
       "phan-anh-cua-toi",
     ];
-    lockPages.forEach((page) => {
-      const btn = document.querySelector(`.sidenav__item[data-page="${page}"]`);
-      if (!btn) return;
-      if (expired || hasPendingExtension) {
-        btn.classList.add("locked");
-        btn.title =
-          "Chức năng bị khóa do tạm trú hết hạn hoặc đơn gia hạn chưa duyệt";
-        btn.style.pointerEvents = "none"; // khóa click hoàn toàn
-      } else {
-        btn.classList.remove("locked");
-        btn.title = "";
-        btn.style.pointerEvents = "auto"; // mở click
-      }
-    });
+    if (status.isLocked) {
+      lockPages.forEach((page) => {
+        const btn = document.querySelector(
+          `.sidenav__item[data-page="${page}"]`
+        );
+        if (btn) btn.classList.add("locked");
+      });
+    } else {
+      lockPages.forEach((page) => {
+        const btn = document.querySelector(
+          `.sidenav__item[data-page="${page}"]`
+        );
+        if (btn) btn.classList.remove("locked");
+      });
+    }
+
+    if (status.pending) {
+      btnExtendStay.style.opacity = "0.5";
+      btnExtendStay.style.pointerEvents = "none";
+      btnExtendStay.title = "Đang chờ duyệt đơn gia hạn";
+    } else {
+      btnExtendStay.style.opacity = "1";
+      btnExtendStay.style.pointerEvents = "auto";
+      btnExtendStay.title = "Gia hạn tạm trú";
+    }
   } catch (err) {
-    console.error(err);
+    console.error("Lỗi cập nhật trạng thái cư trú:", err);
   }
 }
 
 // Hiển thị modal khi nhấn nút gia hạn
 if (btnExtendStay) {
   btnExtendStay.addEventListener("click", () => {
-    if (!householdMembers.length) return;
+    // Kiểm tra nếu chưa có dữ liệu thành viên thì yêu cầu đợi hoặc fetch lại
+    if (!householdMembers || householdMembers.length === 0) {
+      alert("Đang tải dữ liệu thành viên, vui lòng thử lại sau giây lát.");
+      return;
+    }
+
+    // Render danh sách thành viên vào Modal
     extendMemberList.innerHTML = householdMembers
       .map(
         (m) => `
-      <label>
-        <input type="checkbox" class="extend-member" data-id="${m.id_cd}" ${
-          m.remaining_days > 0 ? "" : "checked"
-        } />
-        ${m.ho_ten} (${m.quan_he_voi_chu_ho}) - còn ${m.remaining_days} ngày
-      </label>
+      <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+        <input type="checkbox" class="extend-member" data-id="${m.id_cd}" checked disabled />
+        <span><strong>${m["Họ tên"]}</strong> - ${m["Quan hệ với chủ hộ"]}</span>
+      </div>
     `
       )
       .join("");
+
+    // Hiển thị ngày hết hạn cũ lên modal (nếu có)
+    const expireDateEl = document.getElementById("extendExpireDate");
+    if (expireDateEl && householdMembers[0]) {
+      // Có thể lấy ngày từ phần tử đầu tiên hoặc lưu từ API status
+    }
+
     modalExtend.classList.remove("hide");
   });
 }
@@ -207,49 +220,34 @@ if (btnExtendStay) {
 // Gửi yêu cầu gia hạn
 if (btnExtendSubmit) {
   btnExtendSubmit.addEventListener("click", async () => {
+    const cccd = getCCCDFromToken();
     const newEndDate = document.getElementById("extendToDate").value;
+
     if (!newEndDate) {
       alert("Vui lòng chọn ngày gia hạn.");
       return;
     }
 
-    const selectedPeople = Array.from(
-      document.querySelectorAll(".extend-member:checked")
-    ).map((el) => {
-      const member = householdMembers.find((m) => m.id_cd == el.dataset.id);
-      return {
-        id_cd: member.id_cd,
-        quan_he_voi_chu_ho: member.quan_he_voi_chu_ho,
-        thuong_tru_truoc_day: member.thuong_tru_truoc_day || "",
-      };
-    });
-
-    if (!selectedPeople.length) {
-      alert("Vui lòng chọn ít nhất một thành viên để gia hạn.");
-      return;
-    }
-
     try {
-      const res = await fetch("/api/temp-extension/extend", {
+      const res = await fetch(`/api/request/${cccd}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
         },
-        body: JSON.stringify({ newEndDate, selectedPeople }),
+        body: JSON.stringify({ newEndDate }), // Chỉ gửi newEndDate theo model createExtensionRequest
       });
+
       const result = await res.json();
-      if (result.success) {
+      if (res.ok) {
         modalExtend.classList.add("hide");
-        await fetchTempExtensionInfo();
-        refreshHistory();
-        alert("Đã gửi đơn gia hạn tạm trú, đang chờ duyệt.");
+        alert("Gửi yêu cầu gia hạn thành công, vui lòng chờ duyệt");
+        await fetchTempExtensionInfo(); // Cập nhật lại giao diện để khóa nút/hiện thông báo chờ
       } else {
         alert("Lỗi: " + result.message);
       }
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra khi gửi yêu cầu gia hạn.");
+      alert("Có lỗi xảy ra khi gửi yêu cầu.");
     }
   });
 }
@@ -331,7 +329,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("pageContainer");
 
   async function loadPage(pageKey) {
+    const lockPages = [
+      "dang-ky-thuong-tru",
+      "tam-tru-tam-vang",
+      "phan-anh-cua-toi",
+    ];
+    const isLocked = document
+      .querySelector(`.sidenav__item[data-page="${pageKey}"]`)
+      ?.classList.contains("locked");
+
+    if (lockPages.includes(pageKey) && isLocked) {
+      alert("Chức năng này hiện đang bị khóa.");
+      return;
+    }
     const cfg = pageConfig[pageKey];
+
     if (!cfg || !container) return;
     try {
       const res = await fetch(cfg.html);

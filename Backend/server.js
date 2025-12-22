@@ -33,15 +33,15 @@ app.use("/api", petitionRoute);
 app.use("/api", absentRoute);
 app.use("/api", feedbackRouter);
 app.use("/api", historyRoute);
+app.use("/api", extendRoute);
+app.use("/api/statistics", statisticRoute);
 
 // Tuyến cần authMiddleware
 app.use("/api", authMiddleware, registerRoute);
 app.use("/api", authMiddleware, newresidentRoute);
-// app.use("/api", authMiddleware, extendRoute);
 
 // Serve static files từ thư mục Frontend
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
-
 
 
 // Route bắt tất cả các request khác để phục vụ index.html
