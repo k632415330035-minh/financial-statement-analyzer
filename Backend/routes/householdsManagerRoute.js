@@ -7,4 +7,5 @@ router.get("/get/allHouseholds", householdsManagementController.getAllHouseholds
 router.get("/get/householdMembers/:householdId", householdsManagementController.getHouseholdMembers);
 router.delete("/delete/householdMember/:id_cd", householdsManagementController.deleteHouseholdMember);
 router.put("/createNewHouseholdFromMembers", householdsManagementController.createNewHouseholdFromMembers);
+router.post("/post/createNewHousehold", householdsManagementController.createNewHousehold);
 module.exports = router;
