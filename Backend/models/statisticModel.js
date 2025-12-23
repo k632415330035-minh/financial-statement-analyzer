@@ -12,12 +12,10 @@ const statisticModel = {
 
       // 3. Đếm những người đang trong hạn tạm trú (Đã duyệt và chưa hết hạn)
       const [tt] = await db.query(`
-      SELECT COUNT(ct.id_cd) AS total 
-      FROM chi_tiet_don ct
-      JOIN don_dang_ky dk ON ct.id_dk = dk.id_dk
-      WHERE dk._type = 'Tạm trú' 
-        AND dk.state = 'Đã duyệt' 
-        AND (dk.end >= CURDATE() OR dk.end IS NULL)
+      SELECT COUNT(*) AS total 
+      FROM nhan_khau nk 
+      JOIN ho_khau hk ON nk.id_ho_khau = hk.id_ho_khau 
+      WHERE hk._type = 'Tạm trú'
     `);
 
       // 4. Đếm số lượng nhân khẩu Thường trú (Dựa trên liên kết bảng nhan_khau và ho_khau)

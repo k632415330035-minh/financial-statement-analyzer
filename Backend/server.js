@@ -6,6 +6,7 @@ const path = require("path");
 const authMiddleware = require("./middleware/authMiddleware");
 const roleMiddleware = require("./middleware/roleMiddleware");
 
+
 // Đường dẫn tới các trang liên quan
 const userRoute = require("./routes/userRoute");
 const residentRoute = require("./routes/residentRoute");
@@ -18,7 +19,7 @@ const newresidentRoute = require("./routes/newresidentRoute");
 const extendRoute = require("./routes/extendRoute");
 const statisticRoute = require("./routes/statisticRoute");
 const householdsManagerRoute = require("./routes/householdsManagerRoute");
-
+const manageabsentRoute = require('./routes/manageabsentRoute');
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
 
 app.use(cors());
@@ -36,6 +37,7 @@ app.use("/api", extendRoute);
 app.use("/api/statistics", statisticRoute);
 app.use("/api", householdsManagerRoute);
 
+app.use('/api/manageabsent', manageabsentRoute);
 // Tuyến cần authMiddleware
 app.use("/api", authMiddleware, registerRoute);
 app.use("/api", authMiddleware, newresidentRoute);
