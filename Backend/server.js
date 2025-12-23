@@ -17,6 +17,7 @@ const historyRoute = require("./routes/historyRoute");
 const newresidentRoute = require("./routes/newresidentRoute");
 const extendRoute = require("./routes/extendRoute");
 const statisticRoute = require("./routes/statisticRoute");
+const householdsManagerRoute = require("./routes/householdsManagerRoute");
 
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
 
@@ -33,6 +34,7 @@ app.use("/api", feedbackRouter);
 app.use("/api", historyRoute);
 app.use("/api", extendRoute);
 app.use("/api/statistics", statisticRoute);
+app.use("/api", householdsManagerRoute);
 
 // Tuyến cần authMiddleware
 app.use("/api", authMiddleware, registerRoute);
