@@ -9,7 +9,7 @@ let feedbackPage = 1;
 
 async function updateFeedbackStatus(id, newStatus, note) {
   try {
-    const response = await fetch(`http://localhost:3000/api/update/FeedbackDone/${id}`, {
+    const response = await fetch(`/api/update/FeedbackDone/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "newStatus": newStatus, "note": note })
@@ -218,12 +218,13 @@ async function openFeedbackDetailModal(feedbackId) {
   window.currentFeedback = feedback;
   const modal = document.getElementById('feedbackDetailModal');
   if (modal) modal.classList.add('is-open');
+
 }
 
 function closeFeedbackDetailModal() {
   const modal = document.getElementById('feedbackDetailModal');
   document.getElementById('feedback_note').disabled = false;
-  if (modal) modal.classList.remove('is-open');
+  modal.classList.remove('is-open');
 }
 
 async function bindFeedbackModal() {
@@ -231,6 +232,9 @@ async function bindFeedbackModal() {
   feedbackDetailBound = true;
   document.getElementById('closeFeedbackDetailModal')?.addEventListener('click', closeFeedbackDetailModal);
   document.getElementById('closeFeedbackFormBtn')?.addEventListener('click', closeFeedbackDetailModal);
+  document.getElementById('feedbackDetailModal')?.addEventListener('click', (e) => {
+    if (e.target == document.getElementById('feedbackDetailModal')) closeFeedbackDetailModal();
+  });
   const feedback = await window.currentFeedback;
   document.getElementById('feedbackStatusForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -259,10 +263,6 @@ async function bindFeedbackModal() {
     renderFeedbackTable();
     closeFeedbackDetailModal();
     // Re-open modal to show updated history
-  });
-
-  document.getElementById('feedbackDetailModal')?.addEventListener('click', (e) => {
-    if (e.target === document.getElementById('feedbackDetailModal')) closeFeedbackDetailModal();
   });
 }
 
@@ -297,4 +297,5 @@ export async function initFeedback() {
     feedbackInited = true;
   }
   renderFeedbackTable();
+  feedbackInited = false; // Allow re-initialization on next visit
 }
