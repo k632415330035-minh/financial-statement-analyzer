@@ -89,12 +89,10 @@ const registerToNewHouse = async (req, res) => {
     const { donDangKy, people } = req.body;
 
     if (!donDangKy || !Array.isArray(people) || people.length === 0) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Dữ liệu đăng ký không đầy đủ hoặc không hợp lệ.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Dữ liệu đăng ký không đầy đủ hoặc không hợp lệ.",
+      });
     }
 
     // Kiểm tra và chuẩn hóa dữ liệu
@@ -102,21 +100,17 @@ const registerToNewHouse = async (req, res) => {
     const applicant = sanitizedPeople.find((p) => p.isApplicant === true);
 
     if (!applicant) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Phải xác định một người là người điền đơn (Chủ hộ).",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Phải xác định một người là người điền đơn (Chủ hộ).",
+      });
     }
 
     if (!donDangKy.address || donDangKy.address.trim() === "") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Địa chỉ đăng ký hộ mới không được để trống.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Địa chỉ đăng ký hộ mới không được để trống.",
+      });
     }
 
     const formattedDon = {
@@ -139,20 +133,17 @@ const registerToNewHouse = async (req, res) => {
   } catch (error) {
     console.error("Lỗi Controller registerToNewHouse:", error);
     if (error.code === "ER_DUP_ENTRY") {
-      return res
-        .status(409)
-        .json({
-          success: false,
-          message: "Một trong số các CCCD đã được đăng ký tài khoản trước đó.",
-        });
-    }
-    return res
-      .status(500)
-      .json({
+      return res.status(409).json({
         success: false,
-        message: "Đã xảy ra lỗi hệ thống.",
-        error: error.message,
+        message:
+          "Một trong số các số CCCD này đã tồn tại trong hệ thống hoặc đang có đơn xử lý.",
       });
+    }
+    return res.status(500).json({
+      success: false,
+      message: "Đã xảy ra lỗi hệ thống.",
+      error: error.message,
+    });
   }
 };
 

@@ -29,30 +29,35 @@ exports.createUser = async (req, res) => {
   try {
     const { UserID, Password } = req.body;
 
-    // 1. KIỂM TRA SỰ TỒN TẠI TRƯỚC (Dùng await)
+    // 1. KIỂM TRA TỒN TẠI
     const existingUsers = await User.getByUserID(UserID);
-
     if (existingUsers.length > 0) {
-      return res.status(409).send({ message: "Mã CCCD này đã được đăng ký." });
+      return res
+        .status(409)
+        .send({ message: "Mã CCCD này đã được đăng ký tài khoản." });
     }
 
-    // **LƯU Ý BẢO MẬT: MẬT KHẨU VẪN CHƯA BĂM TRONG CODE NÀY**
-    // 2. TẠO TÀI KHOẢN NẾU CHƯA TỒN TẠI
+    // 2. TẠO TÀI KHOẢN (Model sẽ tự check 'cu dan' hay 'tam thoi')
     await User.create(UserID, Password);
 
-    // 3. THÀNH CÔNG
-    res
-      .status(201)
-      .json({ UserID, _type: "tam thoi", message: "Đăng ký thành công" });
+    // 3. LẤY LẠI THÔNG TIN VỪA TẠO ĐỂ BIẾT TYPE CHÍNH XÁC
+    const newUsers = await User.getByUserID(UserID);
+    const newUser = newUsers[0];
+
+    // 4. PHẢN HỒI THÀNH CÔNG VỚI TYPE THỰC TẾ
+    res.status(201).json({
+      UserID: newUser.userID,
+      _type: newUser._type, // Trả về 'cu dan' hoặc 'tam thoi' tùy kết quả Model check
+      message: "Đăng ký tài khoản thành công.",
+    });
   } catch (err) {
     console.error("Lỗi tạo tài khoản:", err);
-    // Xử lý lỗi trùng lặp khi create (dự phòng)
     if (err.code === "ER_DUP_ENTRY") {
       return res.status(409).send({ message: "Mã CCCD này đã được đăng ký." });
     }
     return res
       .status(500)
-      .send({ message: "Lỗi tạo tài khoản.", error: err.message });
+      .send({ message: "Lỗi hệ thống khi tạo tài khoản.", error: err.message });
   }
 };
 
