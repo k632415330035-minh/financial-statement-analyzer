@@ -301,7 +301,7 @@ async function verifyOwner() {
         resTypeTemporary.disabled = false;
 
         if (house.latest_end) {
-          const endDate = house.latest_end.split("T")[0];
+          const endDate = house.latest_end;
           qs("#tempTo").value = endDate;
           qs("#tempTo").readOnly = true;
           s1.tempTo = endDate;
@@ -999,10 +999,50 @@ function renderSummary() {
   }
 }
 
+function handleLogout(msg) {
+  alert(msg);
+  localStorage.clear();
+  window.location.replace("../Login/Login.html");
+}
+
 // ===== init =====
 document.addEventListener("DOMContentLoaded", () => {
+  // 1. Lấy token và kiểm tra sự tồn tại trước
+  const token = localStorage.getItem("userToken");
+
+  if (!token) {
+    handleLogout("Bạn chưa đăng nhập. Vui lòng đăng nhập lại.");
+    return;
+  }
+
+  // 2. Kiểm tra hết hạn Token
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(window.atob(base64));
+
+    const isExpired = payload.exp * 1000 < Date.now();
+
+    if (isExpired) {
+      handleLogout("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
+      return;
+    }
+
+    console.log(
+      "Token hợp lệ đến:",
+      new Date(payload.exp * 1000).toLocaleString()
+    );
+  } catch (error) {
+    console.error("Token không hợp lệ:", error);
+    handleLogout("Lỗi xác thực (Token sai định dạng), vui lòng đăng nhập lại.");
+    return;
+  }
+
+  // 3. Khởi tạo Logic trang Web (Chỉ chạy khi token đã qua kiểm tra)
   state.step1.ownerLookup = "idle";
   syncStep1UI();
+
+  // --- Giữ nguyên các Event Listeners bên dưới ---
 
   // stepper click
   qsa(".stepBtn").forEach((b) =>
@@ -1021,12 +1061,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   );
 
-  // logout (reset trang)
-  // qs("#logoutBtn").addEventListener("click", () => {
-  //   if (!confirm("Đăng xuất? (reset form về ban đầu)")) return;
-  //   location.reload();
-  // });
-
+  // Nút Logout
   const btnLogout = document.getElementById("logoutBtn");
   if (btnLogout) {
     btnLogout.addEventListener("click", () => {
@@ -1034,8 +1069,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!confirmLogout) return;
       localStorage.removeItem("userToken");
       localStorage.removeItem("userRole");
-      // localStorage.removeItem("currentResidentStatus");
-      window.location.replace("../index.html");
+      window.location.replace("../Login/Login.html"); // Chuyển về login thay vì index nếu muốn ép đăng nhập lại
     });
   }
 
@@ -1298,8 +1332,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (result.success) {
         qs("#submitOk").style.display = "block";
-        qs("#submitOk").textContent = "Gửi đơn thành công!";
+        qs("#submitOk").textContent =
+          "Gửi đơn thành công! Bạn sẽ được chuyển về trang đăng nhập sau 3 giây...";
         qs("#submitBtn").disabled = true;
+
+        // Đợi 3 giây để người dùng đọc thông báo rồi tự động chuyển trang
+        setTimeout(() => {
+          window.location.replace("../Login/login.html");
+        }, 3000);
       } else {
         // Đây chính là nơi thông báo "Không có token" được hiển thị
         alert("Lỗi: " + result.message);

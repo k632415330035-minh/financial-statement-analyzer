@@ -195,6 +195,20 @@ export function getProfile() {
   return load('userProfile', mockData.profile);
 }
 
+
+export async function getAbsentDashboardData() {
+  const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+  // URL mới: /api/manageabsent/dashboard
+  const response = await fetch('http://localhost:3000/api/manageabsent/dashboard', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!response.ok) throw new Error('Không thể lấy dữ liệu tạm vắng');
+  return await response.json();
+}
 // ============ WRITE OPERATIONS ============
 export function saveHouseholds(data) {
   save('households', data);

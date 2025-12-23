@@ -81,9 +81,8 @@ const registerChildEntry = async (parentInfo, childData) => {
     let sqlInsertDon = `
             INSERT INTO don_dang_ky 
             (_type, address, state, date_time, begin, end, id_cd, id_ho_khau, ngay_duyet, ly_do_tu_choi)
-            VALUES (?, ?, ?, NOW(), ${
-              dateBegin === "NOW()" ? "NOW()" : "?"
-            }, ?, ?, ?, NULL, NULL)`;
+            VALUES (?, ?, ?, NOW(), ${dateBegin === "NOW()" ? "NOW()" : "?"
+      }, ?, ?, ?, NULL, NULL)`;
 
     const params = [
       childData.loai_dang_ky || "Thường trú",

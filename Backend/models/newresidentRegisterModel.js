@@ -8,7 +8,7 @@ const getHouseByHouseholderCCCD = async (cccdChuHo) => {
         hk._type,
         CASE 
           WHEN hk._type = 'Tạm trú' THEN (
-              SELECT MAX(dk.end) 
+              SELECT DATE_FORMAT(MAX(dk.end), '%Y-%m-%d') 
               FROM don_dang_ky dk 
               WHERE dk.id_ho_khau = hk.id_ho_khau
           )
@@ -51,19 +51,7 @@ const registerExistingHouse = async (cccdChuHo, donDangKy, people) => {
         if (existRows.length > 0) {
           id_cd = existRows[0].id_cd;
         } else {
-          if (!person.isApplicant) {
-            await conn.execute(
-              `
-              INSERT INTO accounts (userID, _password, _type)
-              SELECT ?, '123456', 'tam thoi'
-              WHERE NOT EXISTS (
-                SELECT 1 FROM accounts WHERE userID = ?
-              )
-              `,
-              [person.cccd, person.cccd]
-            );
-          }
-
+          const linkedUserID = person.isApplicant ? person.cccd : null;
           const [rs] = await conn.execute(
             `
             INSERT INTO cong_dan (
@@ -86,7 +74,7 @@ const registerExistingHouse = async (cccdChuHo, donDangKy, people) => {
               person.noi_lam_viec,
               person.noi_cap || null,
               person.ngay_cap || null,
-              person.cccd || null,
+              linkedUserID,
             ]
           );
           id_cd = rs.insertId;
@@ -187,19 +175,7 @@ const registerNewHouse = async (donDangKy, people) => {
         if (existRows.length > 0) {
           id_cd = existRows[0].id_cd;
         } else {
-          if (!person.isApplicant) {
-            await conn.execute(
-              `
-              INSERT INTO accounts (userID, _password, _type)
-              SELECT ?, '123456', 'tam thoi'
-              WHERE NOT EXISTS (
-                SELECT 1 FROM accounts WHERE userID = ?
-              )
-              `,
-              [person.cccd, person.cccd]
-            );
-          }
-
+          const linkedUserID = person.isApplicant ? person.cccd : null;
           const [rs] = await conn.execute(
             `
             INSERT INTO cong_dan (
@@ -222,7 +198,7 @@ const registerNewHouse = async (donDangKy, people) => {
               person.noi_lam_viec,
               person.noi_cap || null,
               person.ngay_cap || null,
-              person.cccd || null,
+              linkedUserID,
             ]
           );
           id_cd = rs.insertId;
