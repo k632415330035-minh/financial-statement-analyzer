@@ -8,13 +8,13 @@ const PAGE_SIZE = 10;
 
 // 1. Hàm cập nhật các ô số liệu KPI lên giao diện
 function updateAbsentStatsDisplay() {
-  const total = document.getElementById('totalAbsentCount');
+  //const total = document.getElementById('totalAbsentCount');
   const active = document.getElementById('activeAbsentCount');
-  const expired = document.getElementById('expiredAbsentCount');
+  //const expired = document.getElementById('expiredAbsentCount');
 
-  if (total) total.textContent = stats.total;
+  // if (total) total.textContent = stats.total;
   if (active) active.textContent = stats.active;
-  if (expired) expired.textContent = stats.expired;
+  // if (expired) expired.textContent = stats.expired;
 }
 
 // 2. Hàm render bảng danh sách
