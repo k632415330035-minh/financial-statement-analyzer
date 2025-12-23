@@ -1,9 +1,17 @@
 <!-- KPI THỐNG KÊ -->
 <section class="kpis">
-  <article class="kpi kpi--blue"><div class="kpi__title">Đơn chờ duyệt</div><div class="kpi__value" id="pendingAbsentCount">0</div></article>
-  <article class="kpi kpi--green"><div class="kpi__title">Đã phê duyệt</div><div class="kpi__value" id="approvedAbsentCount">0</div></article>
-  <article class="kpi kpi--red"><div class="kpi__title">Bị từ chối</div><div class="kpi__value" id="rejectedAbsentCount">0</div></article>
-  <article class="kpi kpi--orange"><div class="kpi__title">Tổng đơn</div><div class="kpi__value" id="totalAbsentCount">0</div></article>
+  <article class="kpi kpi--green">
+    <div class="kpi__title">Đang tạm vắng</div>
+    <div class="kpi__value" id="activeAbsentCount">0</div>
+  </article>
+  <!-- <article class="kpi kpi--red">
+    <div class="kpi__title">Hết Hạn</div>
+    <div class="kpi__value" id="expiredAbsentCount">0</div>
+  </article>
+  <article class="kpi kpi--orange">
+    <div class="kpi__title">Tổng đơn</div>
+    <div class="kpi__value" id="totalAbsentCount">0</div>
+  </article> -->
 </section>
 
 <!-- DANH SÁCH NGƯỜI ĐANG TẠM VẮNG -->
@@ -11,7 +19,8 @@
   <div class="card__header card__header--wrap">
     <h2>📍 Danh sách người đang tạm vắng</h2>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <input type="text" id="absentActiveSearch" class="input" placeholder="Tìm theo tên..." style="flex:1;max-width:300px;">
+      <input type="text" id="absentActiveSearch" class="input" placeholder="Tìm theo tên..."
+        style="flex:1;max-width:300px;">
     </div>
   </div>
   <div class="table-wrap">
