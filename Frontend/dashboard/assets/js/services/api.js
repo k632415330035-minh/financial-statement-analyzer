@@ -11,14 +11,16 @@ export function getMonthlyData(year) {
   return mockData.monthlyChangesByYear[year];
 }
 
-export function getHouseholds() {
-  const stored = load('households', null);
-  if (stored) return stored;
-  const data = mockData.households;
-  data.forEach(h => {
-    if (!h.history) h.history = [];
-  });
-  return data;
+export async function getHouseholds() {
+  try {
+    const response = await fetch("http://localhost:3000/api/get/allHouseholds");
+    const data = await response.json();
+    return data;
+  }
+  catch (error) {
+    console.error("Error fetching feedback stats: ", error);
+    return null;
+  }
 }
 
 export async function getResidenceShare() {
