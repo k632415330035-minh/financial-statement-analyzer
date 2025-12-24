@@ -1,7 +1,9 @@
-// resident.js (Bản đầy đủ đã sửa)
+// resident.js
+
 // ==========================================================
-// HÀM TIỆN ÍCH CẦN THIẾT
+// 1. HÀM TIỆN ÍCH & BẢO MẬT
 // ==========================================================
+
 function decodeToken(token) {
   if (!token) return null;
   try {
@@ -24,16 +26,40 @@ function decodeToken(token) {
   }
 }
 
+/**
+ * Hàm Logout dùng chung: Xóa dữ liệu và đẩy về trang đăng nhập
+ */
+function handleLogout(msg) {
+  if (msg) alert(msg);
+  localStorage.removeItem("userToken");
+  localStorage.removeItem("userRole");
+  localStorage.removeItem("currentResidentStatus");
+  window.location.replace("../Login/Login.html");
+}
+
+/**
+ * Lấy CCCD từ Token, đồng thời kiểm tra token còn hạn hay không
+ */
 function getCCCDFromToken() {
   const token = localStorage.getItem("userToken");
   if (!token) return null;
+
   const payload = decodeToken(token);
-  return payload ? payload.userID : null;
+  if (!payload) return null;
+
+  // Kiểm tra hết hạn (exp tính bằng giây, Date.now tính bằng mili giây)
+  if (payload.exp * 1000 < Date.now()) {
+    handleLogout("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
+    return null;
+  }
+
+  return payload.userID; // Trả về CCCD
 }
 
 // ==========================================================
-// LOGIC FETCH DỮ LIỆU CHO KPI
+// 2. LOGIC FETCH DỮ LIỆU (KPI & TRẠNG THÁI)
 // ==========================================================
+
 function updateStatusChip(statusString) {
   const statusEl = document.getElementById("kpiStatus");
   if (!statusEl) return;
@@ -49,10 +75,19 @@ function updateStatusChip(statusString) {
 
 async function fetchKPIData() {
   const cccd = getCCCDFromToken();
-  if (!cccd) return;
+  const token = localStorage.getItem("userToken");
+  if (!cccd || !token) return;
 
   try {
-    const res = await fetch(`/api/household/${cccd}`);
+    const res = await fetch(`/api/household/${cccd}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.status === 401) {
+      handleLogout("Phiên làm việc hết hạn.");
+      return;
+    }
+
     if (!res.ok) throw new Error(`Lỗi tải KPI: ${res.status}`);
     const data = await res.json();
 
@@ -65,6 +100,7 @@ async function fetchKPIData() {
             "Trạng thái cư trú"
           ]
         : "—";
+
     localStorage.setItem("currentResidentStatus", userStatus);
 
     const hkEl = document.getElementById("kpiHK");
@@ -73,19 +109,18 @@ async function fetchKPIData() {
 
     if (hkEl) hkEl.textContent = hoKhauNumber ? `HK${hoKhauNumber}` : "—";
     if (memEl) memEl.textContent = totalMembers || "—";
-    if (headEl)
-      headEl.textContent = `Chủ hộ: ${householderName}` || "Chủ hộ: —";
+    if (headEl) headEl.textContent = `Chủ hộ: ${householderName || "—"}`;
 
     updateStatusChip(userStatus);
   } catch (error) {
     console.error("Lỗi khi fetch KPI:", error);
-    document.getElementById("kpiHK").textContent = "Lỗi tải";
   }
 }
 
 // ==========================================================
-// LOGIC GIA HẠN TẠM TRÚ + ĐỒNG HỒ
+// 3. LOGIC GIA HẠN TẠM TRÚ
 // ==========================================================
+
 const btnExtendStay = document.getElementById("btnExtendStay");
 const extendRemainText = document.getElementById("extendRemainText");
 const modalExtend = document.getElementById("modalExtendStay");
@@ -97,130 +132,106 @@ const extendRemainDetail = document.getElementById("extendRemainDetail");
 const extendMemberList = document.getElementById("extendMemberList");
 
 let householdMembers = [];
-let currentHouseId = null;
-let hasPendingExtension = false;
-let expired = false;
-
-async function refreshHistory() {
-  if (window.initHistoryPage) {
-    await window.initHistoryPage();
-  } else {
-    const event = new CustomEvent("refreshHistory");
-    document.dispatchEvent(event);
-  }
-}
 
 async function fetchTempExtensionInfo() {
   const cccd = getCCCDFromToken();
-  if (!cccd) return;
+  const token = localStorage.getItem("userToken");
+  if (!cccd || !token) return;
 
   try {
-    const resStatus = await fetch(`/api/status/${cccd}`);
-    if (!resStatus.ok) throw new Error("Không thể tải trạng thái cư trú");
+    const resStatus = await fetch(`/api/status/${cccd}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (resStatus.status === 401) {
+      handleLogout("Phiên làm việc hết hạn.");
+      return;
+    }
+
     const status = await resStatus.json();
 
-    const resHousehold = await fetch(`/api/household/${cccd}`);
+    const resHousehold = await fetch(`/api/household/${cccd}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
     if (resHousehold.ok) {
       const householdData = await resHousehold.json();
       householdMembers = householdData.members || [];
     }
 
     if (status.daysLeft <= 15 || status.pending || status.daysLeft <= 0) {
-      btnExtendStay.hidden = false;
-      extendRemainText.hidden = false;
-      extendRemainText.textContent = status.message;
+      if (btnExtendStay) btnExtendStay.hidden = false;
+      if (extendRemainText) {
+        extendRemainText.hidden = false;
+        extendRemainText.textContent = status.message;
+      }
 
-      // Hiển thị ngày hết hạn lên Modal
       if (extendExpireDate && status.currentExpiry) {
         const date = new Date(status.currentExpiry);
         extendExpireDate.textContent = date.toLocaleDateString("vi-VN");
       }
 
-      if (extendRemainDetail) {
-        extendRemainDetail.textContent = status.message;
-      }
+      if (extendRemainDetail) extendRemainDetail.textContent = status.message;
     } else {
-      btnExtendStay.hidden = true;
-      extendRemainText.hidden = true;
+      if (btnExtendStay) btnExtendStay.hidden = true;
+      if (extendRemainText) extendRemainText.hidden = true;
     }
 
+    // Quản lý trạng thái khóa menu
     const lockPages = [
       "dang-ky-thuong-tru",
       "tam-tru-tam-vang",
       "phan-anh-cua-toi",
     ];
-    if (status.isLocked) {
-      lockPages.forEach((page) => {
-        const btn = document.querySelector(
-          `.sidenav__item[data-page="${page}"]`
-        );
-        if (btn) btn.classList.add("locked");
-      });
-    } else {
-      lockPages.forEach((page) => {
-        const btn = document.querySelector(
-          `.sidenav__item[data-page="${page}"]`
-        );
-        if (btn) btn.classList.remove("locked");
-      });
-    }
+    lockPages.forEach((page) => {
+      const btn = document.querySelector(`.sidenav__item[data-page="${page}"]`);
+      if (btn) {
+        if (status.isLocked) btn.classList.add("locked");
+        else btn.classList.remove("locked");
+      }
+    });
 
-    if (status.pending) {
+    // Vô hiệu hóa nút nếu đang chờ duyệt
+    if (status.pending && btnExtendStay) {
       btnExtendStay.style.opacity = "0.5";
       btnExtendStay.style.pointerEvents = "none";
       btnExtendStay.title = "Đang chờ duyệt đơn gia hạn";
-    } else {
-      btnExtendStay.style.opacity = "1";
-      btnExtendStay.style.pointerEvents = "auto";
-      btnExtendStay.title = "Gia hạn tạm trú";
     }
   } catch (err) {
     console.error("Lỗi cập nhật trạng thái cư trú:", err);
   }
 }
 
-// Hiển thị modal khi nhấn nút gia hạn
+// Event Listeners cho Modal Gia Hạn
 if (btnExtendStay) {
   btnExtendStay.addEventListener("click", () => {
-    // Kiểm tra nếu chưa có dữ liệu thành viên thì yêu cầu đợi hoặc fetch lại
     if (!householdMembers || householdMembers.length === 0) {
-      alert("Đang tải dữ liệu thành viên, vui lòng thử lại sau giây lát.");
+      alert("Đang tải dữ liệu, vui lòng thử lại sau.");
       return;
     }
-
-    // Render danh sách thành viên vào Modal
     extendMemberList.innerHTML = householdMembers
       .map(
         (m) => `
-      <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
-        <input type="checkbox" class="extend-member" data-id="${m.id_cd}" checked disabled />
-        <span><strong>${m["Họ tên"]}</strong> - ${m["Quan hệ với chủ hộ"]}</span>
-      </div>
-    `
+                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" checked disabled />
+                    <span><strong>${m["Họ tên"]}</strong> - ${m["Quan hệ với chủ hộ"]}</span>
+                </div>
+            `
       )
       .join("");
-
-    // Hiển thị ngày hết hạn cũ lên modal (nếu có)
-    const expireDateEl = document.getElementById("extendExpireDate");
-    if (expireDateEl && householdMembers[0]) {
-      // Có thể lấy ngày từ phần tử đầu tiên hoặc lưu từ API status
-    }
-
     modalExtend.classList.remove("hide");
   });
 }
 
-// Đóng modal
 [btnExtendClose, btnExtendCancel].forEach((btn) => {
-  btn.addEventListener("click", () => {
-    modalExtend.classList.add("hide");
-  });
+  if (btn)
+    btn.addEventListener("click", () => modalExtend.classList.add("hide"));
 });
 
-// Gửi yêu cầu gia hạn
 if (btnExtendSubmit) {
   btnExtendSubmit.addEventListener("click", async () => {
     const cccd = getCCCDFromToken();
+    const token = localStorage.getItem("userToken");
     const newEndDate = document.getElementById("extendToDate").value;
 
     if (!newEndDate) {
@@ -233,37 +244,53 @@ if (btnExtendSubmit) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ newEndDate }), // Chỉ gửi newEndDate theo model createExtensionRequest
+        body: JSON.stringify({ newEndDate }),
       });
+
+      if (res.status === 401) {
+        handleLogout("Phiên làm việc hết hạn.");
+        return;
+      }
 
       const result = await res.json();
       if (res.ok) {
         modalExtend.classList.add("hide");
-        alert("Gửi yêu cầu gia hạn thành công, vui lòng chờ duyệt");
-        await fetchTempExtensionInfo(); // Cập nhật lại giao diện để khóa nút/hiện thông báo chờ
+        alert("Gửi yêu cầu gia hạn thành công!");
+        await fetchTempExtensionInfo();
       } else {
         alert("Lỗi: " + result.message);
       }
     } catch (err) {
-      console.error(err);
       alert("Có lỗi xảy ra khi gửi yêu cầu.");
     }
   });
 }
 
-// Đóng modal khi click backdrop
-document.querySelectorAll("[data-close-extend]").forEach((el) => {
-  el.addEventListener("click", () => modalExtend.classList.add("hide"));
-});
+// ==========================================================
+// 4. LOGIC KHỞI TẠO CHÍNH (DOMContentLoaded)
+// ==========================================================
 
-// ==========================================================
-// LOGIC KHỞI TẠO CHÍNH
-// ==========================================================
 document.addEventListener("DOMContentLoaded", () => {
+  // A. KIỂM TRA BẢO MẬT NGAY LẬP TỨC
+  const token = localStorage.getItem("userToken");
+  if (!token) {
+    handleLogout("Bạn chưa đăng nhập!");
+    return;
+  }
+
+  const payload = decodeToken(token);
+  if (!payload || payload.exp * 1000 < Date.now()) {
+    handleLogout("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
+    return;
+  }
+
+  // B. KHỞI TẠO DỮ LIỆU
   fetchTempExtensionInfo();
   fetchKPIData();
 
+  // C. HIỂN THỊ THỜI GIAN & CHÀO HỎI
   const now = new Date();
   const h = now.getHours();
   let hello = "Chào buổi sáng";
@@ -275,19 +302,27 @@ document.addEventListener("DOMContentLoaded", () => {
     " • " +
     now.toLocaleDateString("vi-VN");
 
-  document.getElementById("sbHello").textContent = hello;
-  document.getElementById("sbDate").textContent = timeStr;
+  const sbHello = document.getElementById("sbHello");
+  const sbDate = document.getElementById("sbDate");
+  if (sbHello) sbHello.textContent = hello;
+  if (sbDate) sbDate.textContent = timeStr;
 
+  // D. COPY SỐ HỘ KHẨU
   const btnCopyHK = document.getElementById("btnCopyHK");
   if (btnCopyHK) {
     btnCopyHK.addEventListener("click", () => {
       const hkEl = document.getElementById("kpiHK");
       if (!hkEl || hkEl.textContent.includes("—")) return;
       navigator.clipboard?.writeText(hkEl.textContent.trim());
-      alert("Đã sao chép số hộ khẩu: " + hkEl.textContent.trim());
+      alert("Đã sao chép số hộ khẩu!");
     });
   }
 
+  // E. SPA - LOAD PAGE LOGIC
+  const container = document.getElementById("pageContainer");
+  const loadedCss = new Set();
+
+  // Config các trang con (Dựa trên cấu trúc dự án của bạn)
   const pageConfig = {
     "thong-tin-ca-nhan": {
       html: "thong-tin-ca-nhan/thong-tin-ca-nhan.html",
@@ -325,102 +360,70 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
 
-  const loadedCss = new Set();
-  const container = document.getElementById("pageContainer");
-
   async function loadPage(pageKey) {
-    const lockPages = [
-      "dang-ky-thuong-tru",
-      "tam-tru-tam-vang",
-      "phan-anh-cua-toi",
-    ];
     const isLocked = document
       .querySelector(`.sidenav__item[data-page="${pageKey}"]`)
       ?.classList.contains("locked");
-
-    if (lockPages.includes(pageKey) && isLocked) {
+    if (isLocked) {
       alert("Chức năng này hiện đang bị khóa.");
       return;
     }
-    const cfg = pageConfig[pageKey];
 
+    const cfg = pageConfig[pageKey];
     if (!cfg || !container) return;
+
     try {
       const res = await fetch(cfg.html);
-      if (!res.ok) throw new Error("Không tải được " + cfg.html);
-      const html = await res.text();
-      container.innerHTML = html;
-    } catch (err) {
-      console.error(err);
-      container.innerHTML =
-        `<section class="card"><div class="card__header"><h2>Lỗi tải trang</h2></div>` +
-        `<p class="muted">Không tải được nội dung: ${cfg.html}</p></section>`;
-      return;
-    }
-    if (cfg.css && !loadedCss.has(cfg.css)) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = cfg.css;
-      link.dataset.pageCss = pageKey;
-      document.head.appendChild(link);
-      loadedCss.add(cfg.css);
-    }
-    document
-      .querySelectorAll("script[data-page-js]")
-      .forEach((s) => s.remove());
-    if (cfg.js) {
-      await new Promise((resolve) => {
+      container.innerHTML = await res.text();
+
+      if (cfg.css && !loadedCss.has(cfg.css)) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = cfg.css;
+        document.head.appendChild(link);
+        loadedCss.add(cfg.css);
+      }
+
+      document
+        .querySelectorAll("script[data-page-js]")
+        .forEach((s) => s.remove());
+      if (cfg.js) {
         const script = document.createElement("script");
         script.src = cfg.js;
         script.dataset.pageJs = pageKey;
-        script.onload = resolve;
-        script.onerror = () => {
-          console.error(`Lỗi tải script: ${cfg.js}`);
-          resolve();
+        script.onload = () => {
+          if (cfg.initFunc && window[cfg.initFunc]) window[cfg.initFunc]();
         };
         document.body.appendChild(script);
+      }
+    } catch (err) {
+      console.error("Lỗi tải trang:", err);
+    }
+  }
+
+  document
+    .querySelectorAll(".sidenav__item, .action[data-page]")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pk = btn.dataset.page;
+        document
+          .querySelectorAll(".sidenav__item")
+          .forEach((b) => b.classList.remove("is-active"));
+        document
+          .querySelector(`.sidenav__item[data-page="${pk}"]`)
+          ?.classList.add("is-active");
+        loadPage(pk);
       });
-    }
-    if (cfg.initFunc && window[cfg.initFunc]) {
-      console.log(`Đang gọi hàm khởi tạo: ${cfg.initFunc}`);
-      window[cfg.initFunc]();
-      delete window[cfg.initFunc];
-    }
-  }
-
-  const menuButtons = document.querySelectorAll(
-    ".sidenav__item, .action[data-page]"
-  );
-
-  function setActive(pageKey) {
-    document
-      .querySelectorAll(".sidenav__item")
-      .forEach((b) => b.classList.remove("is-active"));
-    document
-      .querySelector(`.sidenav__item[data-page="${pageKey}"]`)
-      ?.classList.add("is-active");
-  }
-
-  menuButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const pageKey = btn.dataset.page;
-      if (!pageKey) return;
-      setActive(pageKey);
-      loadPage(pageKey);
     });
-  });
 
+  // Trang mặc định
   loadPage("thong-tin-ca-nhan");
 
+  // LOGOUT
   const btnLogout = document.getElementById("btnLogout");
   if (btnLogout) {
     btnLogout.addEventListener("click", () => {
-      const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
-      if (!confirmLogout) return;
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("currentResidentStatus");
-      window.location.replace("../index.html");
+      if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) handleLogout();
     });
   }
 });
