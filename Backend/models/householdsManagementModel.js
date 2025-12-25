@@ -92,18 +92,18 @@ const insertPersonalInformation = async (nhan_khau_info, connection) => {
         }
         const [result, fields] = await db.execute(sql, [
             nhan_khau_info.ho_ten,
-            nhan_khau_info.bi_danh || null,
+            nhan_khau_info.bi_danh || '',
             nhan_khau_info.gioi_tinh,
             nhan_khau_info.ngay_sinh,
             nhan_khau_info.noi_sinh,
-            nhan_khau_info.que_quan,
-            nhan_khau_info.dan_toc,
+            nhan_khau_info.que_quan || null,
+            nhan_khau_info.dan_toc || null,
             nhan_khau_info.nghe_nghiep || null,
             nhan_khau_info.noi_lam_viec || null,
-            nhan_khau_info.cccd,
+            nhan_khau_info.cccd || null,
             nhan_khau_info.ngay_cap || null,
             nhan_khau_info.noi_cap || null,
-            nhan_khau_info.userID,
+            nhan_khau_info.userID || null,
         ]);
         return result;
     } catch (error) {
@@ -140,7 +140,7 @@ const insertResidentToHousehold = async (nhan_khau_info, ho_khau_info) => {
                 householdId,
                 residentIdCd,
                 resident.quan_he_voi_chu_ho,
-                resident.ngay_dang_ki_thuong_tru || null,
+                resident.ngay_dang_ki_thuong_tru || await new Date(),
                 resident.thuong_tru_truoc_day || null,
             ]);
             const check_Acc = await check_haveAccountInformation(resident.cccd, connection);
@@ -238,6 +238,55 @@ const createNewHouseholdFromMembers = async (ids, address, type) => {
     }
 }
 
+const addNewMember = async (resident) => {
+    // nhan_khau_info: {ho_ten, bi_danh, gioi_tinh, ngay_sinh, noi_sinh, que_quan, dan_toc, nghe_nghiep, noi_lam_viec, quan_he_voi_chu_ho}
+    const connection = await db.getConnection();
+    try {
+        console.log("resident =======", resident)
+        await connection.beginTransaction();
+        let check = null;
+        if (resident.cccd == '')
+            check = await check_haveInvidualInformation(resident.cccd, connection);
+        let residentIdCd;
+        if (check.length == 0) {
+            const insertPersonalInfo = await insertPersonalInformation(resident, connection);
+            residentIdCd = await insertPersonalInfo.insertId;
+        } else {
+            if (check) {
+                residentIdCd = check[0].id_cd;
+                if (await check_isResident(residentIdCd, connection)) {
+                    throw new Error(`Công dân với cccd ${resident.cccd} đã là thành viên hộ khẩu khác`);
+                }
+            }
+        }
+        // const insertPersonalInfo = await insertPersonalInformation(resident);
+        // const residentIdCd = await insertPersonalInfo.insertId;
+        const insertResidentToHouseholdSql = `INSERT INTO nhan_khau (id_ho_khau, id_cd, quan_he_voi_chu_ho, ngay_dang_ki_thuong_tru, thuong_tru_truoc_day) VALUES (?, ?, ?, ?, ?)`;
+        await connection.execute(insertResidentToHouseholdSql, [
+            resident.id_ho_khau,
+            residentIdCd,
+            resident.quan_he_voi_chu_ho,
+            resident.ngay_dang_ki_thuong_tru || await new Date(),
+            resident.thuong_tru_truoc_day || null,
+        ]);
+        const check_Acc = await check_haveAccountInformation(resident.cccd, connection);
+        if (check_Acc == 'tam thoi') {
+            const sqlUpdateAccountType = `UPDATE accounts SET _type = 'cu dan' WHERE userID = ?`;
+            await connection.execute(sqlUpdateAccountType, [resident.cccd]);
+        }
+        await connection.commit();
+        return resident.id_ho_khau;
+    }
+    catch (error) {
+        await connection.rollback();
+        console.log("Error executing query addNewMember:", error);
+        throw error;
+    }
+    finally {
+        connection.release();
+    }
+};
+
 module.exports = {
     getAllHouseholds,
     getHouseholdMembers,
@@ -248,5 +297,6 @@ module.exports = {
     insertResidentToHousehold,
     check_haveInvidualInformation,
     insertPersonalInformation,
-    check_haveAccountInformation
+    check_haveAccountInformation,
+    addNewMember
 };
