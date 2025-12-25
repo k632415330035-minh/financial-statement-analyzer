@@ -23,7 +23,6 @@ function renderAbsentTable() {
   const emptyState = document.getElementById('emptyStateAbsentActive');
   if (!tbody) return;
 
-  // Xử lý trạng thái trống
   if (allAbsent.length === 0) {
     tbody.innerHTML = '';
     if (emptyState) emptyState.style.display = 'block';
@@ -34,34 +33,53 @@ function renderAbsentTable() {
 
   const totalPages = Math.max(1, Math.ceil(allAbsent.length / PAGE_SIZE));
   absentPage = Math.min(absentPage, totalPages);
-
   const slice = allAbsent.slice((absentPage - 1) * PAGE_SIZE, absentPage * PAGE_SIZE);
 
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
   tbody.innerHTML = slice.map((a, i) => {
+    const beginDate = new Date(a.thoi_gian_tam_vang_begin);
+    const endDate = new Date(a.thoi_gian_tam_vang_end);
+    beginDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    let statusText = "";
+    let statusColor = "";
     const daysLeft = a.daysLeft || 0;
-    // Kiểm tra hết hạn dựa trên dữ liệu daysLeft từ Backend
-    const isExpired = daysLeft === 0;
-    const daysColor = daysLeft <= 3 ? '#ef4444' : daysLeft <= 7 ? '#f59e0b' : '#22c55e';
+
+
+    if (now < beginDate) {
+      // 1. Chưa đến ngày đi
+      statusText = "Chưa đến lịch";
+      statusColor = "#3b82f6";
+    } else if (now >= beginDate && now <= endDate) {
+      // 2. Đang trong thời gian tạm vắng
+      statusText = daysLeft + " ngày";
+      statusColor = daysLeft <= 3 ? '#ef4444' : daysLeft <= 7 ? '#f59e0b' : '#22c55e';
+    } else {
+      // 3. Đã quá hạn
+      statusText = "Đã hết hạn";
+      statusColor = "#9ca3af"; // Màu xám
+    }
 
     return `
-      <tr style="${isExpired ? 'background-color: #f9fafb; color: #9ca3af;' : ''}">
+      <tr style="${now > endDate ? 'background-color: #f9fafb; color: #9ca3af;' : ''}">
         <td>${(absentPage - 1) * PAGE_SIZE + i + 1}</td>
         <td><strong>${a.name}</strong></td>
-        <td>${new Date(a.thoi_gian_tam_vang_begin).toLocaleDateString('vi-VN')}</td>
-        <td>${new Date(a.thoi_gian_tam_vang_end).toLocaleDateString('vi-VN')}</td>
+        <td>${beginDate.toLocaleDateString('vi-VN')}</td>
+        <td>${endDate.toLocaleDateString('vi-VN')}</td>
         <td>${a.li_do || '-'}</td>
         <td>
-          <span style="color:${isExpired ? '#9ca3af' : daysColor}; font-weight:600;">
-            ${isExpired ? 'Đã hết hạn' : daysLeft + ' ngày'}
+          <span style="color:${statusColor}; font-weight:600;">
+            ${statusText}
           </span>
         </td>
       </tr>`;
   }).join('');
 
-  // Cập nhật thông tin phân trang
   const pi = document.getElementById('pageInfoAbsentActive');
   if (pi) pi.textContent = `Trang ${absentPage}/${totalPages} (${allAbsent.length} bản ghi)`;
-
   updatePaginationButtons(totalPages);
 }
 
@@ -89,9 +107,9 @@ export async function initAbsent() {
     if (result.success) {
       allAbsent = result.data.records || [];
       stats = {
-        total: result.data.total || 0,
+        // total: result.data.total || 0,
         active: result.data.active || 0,
-        expired: result.data.expired || 0
+        // expired: result.data.expired || 0
       };
 
       updateAbsentStatsDisplay();
