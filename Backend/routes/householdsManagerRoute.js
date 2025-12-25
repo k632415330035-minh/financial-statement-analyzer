@@ -9,4 +9,6 @@ router.delete("/delete/householdMember/:id_cd", householdsManagementController.d
 router.put("/createNewHouseholdFromMembers", householdsManagementController.createNewHouseholdFromMembers);
 router.post("/post/createNewHousehold", householdsManagementController.createNewHousehold);
 router.post("/post/household/addNewMember", householdsManagementController.addNewMember);
+router.put("/put/updateNewAddress/:id_ho_khau", householdsManagementController.updateAddressHousehold);
+
 module.exports = router;

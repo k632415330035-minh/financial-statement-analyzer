@@ -287,6 +287,18 @@ const addNewMember = async (resident) => {
     }
 };
 
+const updateAddressHousehold = async (id_ho_khau, newAddress) => {
+    // write a SQL query sentences to update address of ho_khau
+    const sql = `UPDATE ho_khau SET address = ? WHERE id_ho_khau = ?`;
+    try {
+        const [results] = await db.execute(sql, [newAddress, id_ho_khau]);
+        return results.affectedRows > 0;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
 module.exports = {
     getAllHouseholds,
     getHouseholdMembers,
@@ -298,5 +310,6 @@ module.exports = {
     check_haveInvidualInformation,
     insertPersonalInformation,
     check_haveAccountInformation,
-    addNewMember
+    addNewMember,
+    updateAddressHousehold
 };

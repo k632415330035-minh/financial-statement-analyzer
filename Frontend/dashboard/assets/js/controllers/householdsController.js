@@ -259,7 +259,7 @@ function openEditHouseholdModal() {
 function bindEditHouseholdModal() {
   if (householdsEditModalBound) return;
   householdsEditModalBound = true;
-
+  const old_value = document.getElementById('edit_diaChi').value;
   const modal = document.getElementById('editHouseholdModal');
   const closeBtn = document.getElementById('closeEditModal');
   const cancelBtn = document.getElementById('cancelEditBtn');
@@ -277,12 +277,12 @@ function bindEditHouseholdModal() {
     if (e.target === modal) modal.classList.remove('is-open');
   });
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const household = window.currentEditingHousehold;
     if (!household) return;
-
+    console.log(household);
     const chuHo = document.getElementById('edit_chuHo').value.trim();
     const diaChi = document.getElementById('edit_diaChi').value.trim();
 
@@ -290,28 +290,46 @@ function bindEditHouseholdModal() {
       alert('Vui lòng điền đầy đủ thông tin');
       return;
     }
-    ///////// UPDATE thong tin Ten Chu ho + dia chi o day
-    const householdRecord = originalRows.find(h => h.id_ho_khau === household.id_ho_khau);
-    if (householdRecord) {
-      householdRecord.chuHo = chuHo;
-      householdRecord.diaChi = diaChi;
-      if (!householdRecord.history) householdRecord.history = [];
-      householdRecord.history.push({
-        action: `Chỉnh sửa: Chủ hộ -> ${chuHo}, Địa chỉ -> ${diaChi}`,
-        date: new Date().toLocaleString('vi-VN')
-      });
+    try {
+      ///////// UPDATE thong tin Ten Chu ho + dia chi o day
+      // const householdRecord = originalRows.find(h => h.id_ho_khau === household.id_ho_khau);
+      // if (householdRecord) {
+      //   householdRecord.chuHo = chuHo;
+      //   householdRecord.diaChi = diaChi;
+      //   if (!householdRecord.history) householdRecord.history = [];
+      //   householdRecord.history.push({
+      //     action: `Chỉnh sửa: Chủ hộ -> ${chuHo}, Địa chỉ -> ${diaChi}`,
+      //     date: new Date().toLocaleString('vi-VN')
+      //   });
 
-      dataService.saveHouseholds(originalRows);
-
+      // dataService.saveHouseholds(originalRows);
+      if (diaChi !== old_value) {
+        console.log(old_value, "><><><><><><><><><><", diaChi);
+        await fetch(`http://localhost:3000/api/put/updateNewAddress/${household.id_ho_khau}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            // chuHo: chuHo,
+            dia_chi: diaChi
+          })
+        });
+        originalRows = await dataService.getHouseholds();
+      }
+      openHouseholdModal(household.id_ho_khau);
       modal.classList.remove('is-open');
       renderTable();
 
       // Update detail modal if open
-      document.getElementById('modalChuHo').textContent = chuHo;
-      document.getElementById('modalDiaChi').textContent = diaChi;
-      renderChangeHistory(household);
+      // document.getElementById('modalChuHo').textContent = chuHo;
+      // document.getElementById('modalDiaChi').textContent = diaChi;
+      // renderChangeHistory(household);
 
       alert('Cập nhật hộ khẩu thành công');
+    }
+    catch (err) {
+      console.log(err);
     }
   });
 }
