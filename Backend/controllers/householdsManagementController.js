@@ -75,7 +75,7 @@ const createNewHouseholdFromMembers = async (req, res) => {
 const createNewHousehold = async (req, res) => {
     // nhan_khau_info: array of resident objects
     // ho_khau_info: object with address and type
-    const { nhan_khau_info, ho_khau_info } = req.body;
+    const { nhan_khau, ho_khau } = req.body;
     /*
     {
     "nhan_khau_info":[
@@ -123,11 +123,76 @@ const createNewHousehold = async (req, res) => {
 }
     */
     try {
-        const result = await householdsManagementModel.insertResidentToHousehold(nhan_khau_info, ho_khau_info);
+        const result = await householdsManagementModel.insertResidentToHousehold(nhan_khau, ho_khau);
         if (result) {
             res.status(201).json({ message: "Tạo hộ khẩu mới thành công", householdId: result });
         } else {
             res.status(400).json({ message: "Không thể tạo hộ khẩu mới" });
+        }
+    }
+    catch (error) {
+        console.log("Error: ", error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+        throw error
+    }
+};
+
+const addNewMember = async (req, res) => {
+    // nhan_khau_info: array of resident objects
+    // ho_khau_info: object with address and type
+    /*
+    {
+    "nhan_khau_info":[
+        {
+            "ho_ten": "Nguyễn Bình Định",
+            "bi_danh": "Không có",
+            "gioi_tinh":"Nam",
+            "ngay_sinh": "1956-05-04",
+            "noi_sinh": "Hà Tây",
+            "que_quan": "Hà Tây",
+            "dan_toc": "Kinh",
+            "nghe_nghiep": "Bộ đội",
+            "noi_lam_viec": "Sư đoàn 372",
+            "cccd": "001234567890",
+            "ngay_cap": "2021-02-14",
+            "noi_cap": "Hà Nội",
+            "quan_he_voi_chu_ho": "Chủ hộ",
+            "ngay_dang_ki_thuong_tru" :"2023-10-20",
+            "thuong_tru_truoc_day": null,
+            "userID" :null
+        },
+        {
+            "ho_ten": "Nguyễn Bình Dương",
+            "bi_danh": "Không có",
+            "gioi_tinh":"Nam",
+            "ngay_sinh": "1956-05-04",
+            "noi_sinh": "Hà Tây",
+            "que_quan": "Hà Tây",
+            "dan_toc": "Kinh",
+            "nghe_nghiep": "Bộ đội",
+            "noi_lam_viec": "Sư đoàn 372",
+            "cccd": "001234567891",
+            "ngay_cap": "2021-02-14",
+            "noi_cap": "Hà Nội",
+            "quan_he_voi_chu_ho": "Em",
+            "ngay_dang_ki_thuong_tru" :"2023-10-20",
+            "thuong_tru_truoc_day": null,
+            "userID" :null
+        }
+    ],
+    "ho_khau_info":{
+        "address": "Số 11 ngõ 147 Vĩnh Tuy",
+        "type": "Thường trú"
+    }
+}
+    */
+    const resident = await req.body;
+    try {
+        const result = await householdsManagementModel.addNewMember(resident);
+        if (result) {
+            res.status(201).json({ message: "Thêm thành viên mới thành công", householdId: result });
+        } else {
+            res.status(400).json({ message: "Không thể thêm thành viên mới" });
         }
     }
     catch (error) {
@@ -140,5 +205,6 @@ module.exports = {
     getHouseholdMembers,
     deleteHouseholdMember,
     createNewHouseholdFromMembers,
-    createNewHousehold
+    createNewHousehold,
+    addNewMember
 };
