@@ -51,7 +51,8 @@ export async function init() {
 }
 
 // ======== TABLE RENDERING =========
-function filterRows(search) {
+async function filterRows(search) {
+  originalRows = await dataService.getHouseholds();
   if (!search) return originalRows;
   const q = search.toLowerCase();
   console.log(originalRows[0].id_ho_khau);
@@ -72,16 +73,16 @@ function sortRows(rows) {
   });
 }
 
-function renderTable() {
+async function renderTable() {
   const tbody = document.querySelector('#householdTable tbody');
   if (!tbody) return;
 
   const empty = document.getElementById('emptyState');
   const search = document.getElementById('tableSearch')?.value || '';
-  const rows = sortRows(filterRows(search));
+  const rows = await sortRows(filterRows(search));
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   page = Math.min(page, totalPages);
-  const slice = rows.slice((page - 1) * PAGE_SIZE, (page - 1) * PAGE_SIZE + PAGE_SIZE);
+  const slice = await rows.slice((page - 1) * PAGE_SIZE, (page - 1) * PAGE_SIZE + PAGE_SIZE);
 
   tbody.innerHTML = slice.map(r => `<tr>
     <td>${r.id_ho_khau}</td>
@@ -214,7 +215,10 @@ function renderChangeHistory(household) {
 
 function closeHouseholdModal() {
   const modal = document.getElementById('householdModal');
-  if (modal) modal.classList.remove('is-open');
+  if (modal) {
+    modal.classList.remove('is-open');
+    renderTable();
+  }
 }
 
 function bindModal() {
@@ -691,12 +695,13 @@ function bindRemoveMemberReasonModal() {
     console.log("indicesToRemove", indicesToRemove);
     const removedMembers = await indicesToRemove.map(idx => household.members[idx].id_cd);
     console.log("removeMembers:", removedMembers);
+    console.log(JSON.stringify({ old_id_ho_khau: household.id_ho_khau, chuyen_den: 'Không rõ', ghi_chu: reason }))
     for (const id of removedMembers) {
       try {
         await fetch(`http://localhost:3000/api/delete/householdMember/${id}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: null
+          body: JSON.stringify({ old_id_ho_khau: household.id_ho_khau, chuyen_den: 'Không rõ', ghi_chu: reason })
         });
       }
       catch (error) {

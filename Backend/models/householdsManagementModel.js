@@ -185,11 +185,11 @@ const deleteHouseholdMember = async (id_cd, connection) => {
 }
 
 const deleteMemberFromHousehold = async (bodyData, id_cd) => {
-    const sql = `INSERT INTO chuyen_di VALUES (NULL, ?, ?, CURDATE(), ?, ?)`;
+    const sql = `INSERT INTO chuyen_di VALUES (default, ?, ?, CURDATE(), ?, ?)`;
     /*bodyData: {old_id_hk, chuyen_den, ghi_chu} */
-    let con = db.getConnection();
+    const con = await db.getConnection();
     try {
-        const [result, fields] = await con.execute(sql, [id_cd, bodyData.old_id_hk, bodyData.chuyen_den, bodyData.ghi_chu]);
+        const [result, fields] = await con.execute(sql, [id_cd, bodyData.old_id_ho_khau, bodyData.chuyen_den, bodyData.ghi_chu]);
         await deleteHouseholdMember(id_cd, con);
         const sqlGetCCCD = 'SELECT cccd FROM cong_dan WHERE id_cd = ?';
         const [cccd] = await con.execute(sqlGetCCCD, [id_cd]);
@@ -205,6 +205,9 @@ const deleteMemberFromHousehold = async (bodyData, id_cd) => {
         await con.rollback();
         console.log("Error executing query deleteMemberFromHousehold");
         throw error;
+    }
+    finally {
+        con.release();
     }
 }
 
@@ -341,5 +344,6 @@ module.exports = {
     insertPersonalInformation,
     check_haveAccountInformation,
     addNewMember,
-    updateAddressHousehold
+    updateAddressHousehold,
+    deleteMemberFromHousehold
 };

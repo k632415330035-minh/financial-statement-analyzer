@@ -35,8 +35,11 @@ const getHouseholdMembers = async (req, res) => {
 };
 const deleteHouseholdMember = async (req, res) => {
     try {
+        /*bodyData: {old_id_hk, chuyen_den, ghi_chu} */
         const { id_cd } = req.params;
-        const result = await householdsManagementModel.deleteHouseholdMember(id_cd);
+        const dataBody = req.body;
+        console.log(dataBody);
+        const result = await householdsManagementModel.deleteMemberFromHousehold(dataBody, id_cd);
         if (result) {
             res.status(200).json({ message: "Xóa thành viên hộ khẩu thành công" });
         } else {
