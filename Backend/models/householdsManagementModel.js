@@ -163,21 +163,51 @@ const insertResidentToHousehold = async (nhan_khau_info, ho_khau_info) => {
 };
 
 
-const deleteHouseholdMember = async (id_cd) => {
+const deleteHouseholdMember = async (id_cd, connection) => {
     const sql = `DELETE FROM nhan_khau WHERE id_cd = ? AND quan_he_voi_chu_ho <> 'Chủ hộ'`;
+    let con = db;
+    if (connection) {
+        con = connection;
+    }
     try {
-        const [result, fields] = await db.execute(sql, [id_cd]);
+        const [result, fields] = await con.execute(sql, [id_cd]);
         if (result.affectedRows === 0) {
             throw new Error("Cannot delete household head or member not found");
         }
         return result.affectedRows > 0;
         // return result;
+
     }
     catch (error) {
         console.log("Error executing query deleteHouseholdMember");
         throw error;
     }
 }
+
+const deleteMemberFromHousehold = async (bodyData, id_cd) => {
+    const sql = `INSERT INTO chuyen_di VALUES (NULL, ?, ?, CURDATE(), ?, ?)`;
+    /*bodyData: {old_id_hk, chuyen_den, ghi_chu} */
+    let con = db.getConnection();
+    try {
+        const [result, fields] = await con.execute(sql, [id_cd, bodyData.old_id_hk, bodyData.chuyen_den, bodyData.ghi_chu]);
+        await deleteHouseholdMember(id_cd, con);
+        const sqlGetCCCD = 'SELECT cccd FROM cong_dan WHERE id_cd = ?';
+        const [cccd] = await con.execute(sqlGetCCCD, [id_cd]);
+        const check_Acc = await check_haveAccountInformation(cccd[0].cccd, con);
+        if (check_Acc != null) {
+            const deleteAccount = `DELETE FROM accounts WHERE userID = ?`;
+            await con.execute(sqlUpdateAccountType, [cccd[0].cccd]);
+        }
+        await con.commit();
+        return result.affectedRows > 0;
+    }
+    catch (error) {
+        await con.rollback();
+        console.log("Error executing query deleteMemberFromHousehold");
+        throw error;
+    }
+}
+
 const check_hoseholdHead = async (id_cd) => {
     const sql = `SELECT id_cd FROM nhan_khau WHERE id_cd = ? AND quan_he_voi_chu_ho = 'Chủ hộ'`;
     try {
