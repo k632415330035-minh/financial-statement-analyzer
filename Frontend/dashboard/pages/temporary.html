@@ -1,8 +1,76 @@
+<div id="tempDetail" class="modal">
+  <div class="modal__overlay"></div>
+  <div class="modal__content" style="max-width:900px;">
+    <div class="modal__header">
+      <h2 id="modalTitle">Chi tiết đơn đăng ký</h2>
+      <button id="closeModal" class="modal__close" aria-label="Đóng">×</button>
+    </div>
+    <div class="modal__body">
+      <div class="household-info">
+        <div class="info-row">
+          <span class="label">Mã đơn:</span>
+          <span class="value" id="id_dk"></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Người làm đơn:</span>
+          <span class="value" id="nguoiLamDon"></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Loại đơn:</span>
+          <span class="value" id="loaiDon"></span>
+        </div>
+      </div>
+      <div class="modal__body" style="padding:0px 0px 10px 0px;">
+        <span class='label' id='Tempstatus'>Trạng thái:</span>
+      </div>
+      <h3>Danh sách nhân khẩu</h3>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <!-- <button id="addMemberBtn" class="btn btn--primary" style="font-size:13px;">➕ Thêm thành viên</button>
+        <button id="removeMemberBtn" class="btn" style="font-size:13px;">🗑 Xóa thành viên được chọn</button>
+        <button id="createHouseholdFromMembersBtn" class="btn"
+          style="font-size:13px;background:#f59e0b;color:#fff;border-color:transparent;">🔀 Tạo hộ khẩu từ thành viên
+          chọn</button> -->
+      </div>
+      <table class="table table--compact">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Họ tên</th>
+            <th>Năm sinh</th>
+            <th>Giới tính</th>
+            <th>Quan hệ với chủ hộ</th>
+            <th>CCCD</th>
+          </tr>
+        </thead>
+        <tbody id="tempTableBody"></tbody>
+      </table>
+      <div style="margin-top: 20px;">
+        <button id="acceptBtn" class="btn btn--success"
+          style="margin-right:8px;padding: 10px 24px;border-radius: 6px;background: #34c759;color: #fff;border-color: transparent;">
+          <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+          <span style="vertical-align: middle;">✓ Duyệt</span>
+        </button>
+        <button id="rejectBtn" class="btn btn--danger"
+          style="padding: 10px 24px;border-radius: 6px;background: #dc3545;color: #fff;border-color: transparent;">
+          <i class="fas fa-times-circle" style="margin-right: 8px;"></i>
+          <span style="vertical-align: middle;">✕ Từ chối</span>
+        </button>
+      </div>
+      <!-- <h3 style="margin-top:24px;">📋 Lịch sử thay đổi</h3>
+      <div id="changeHistory"
+        style="background:#f8fafc;border-radius:12px;padding:12px;max-height:200px;overflow-y:auto;font-size:13px;">
+        <p style="color:var(--muted);margin:0;">Chưa có thay đổi</p>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+
 <!-- KPI THỐNG KÊ -->
 <section class="kpis">
   <article class="kpi kpi--blue">
-    <div class="kpi__title">Đơn chờ duyệt</div>
-    <div class="kpi__value" id="pendingTempCount">0</div>
+    <div class="kpi__title">Tổng đơn</div>
+    <div class="kpi__value" id="totalTempCount">0</div>
   </article>
   <article class="kpi kpi--green">
     <div class="kpi__title">Đã phê duyệt</div>
@@ -13,10 +81,12 @@
     <div class="kpi__value" id="rejectedTempCount">0</div>
   </article>
   <article class="kpi kpi--orange">
-    <div class="kpi__title">Tổng đơn</div>
-    <div class="kpi__value" id="totalTempCount">0</div>
+    <div class="kpi__title">Đơn chờ duyệt</div>
+    <div class="kpi__value" id="pendingTempCount">0</div>
+
   </article>
 </section>
+
 
 <!-- DANH SÁCH QUẢN LÝ -->
 <div class="card">
@@ -25,9 +95,9 @@
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <select id="tempStatusFilter" class="input" style="width:150px;">
         <option value="" selected>Tất cả trạng thái</option>
-        <option value="approved">Đã duyệt</option>
-        <option value="pending">Chờ duyệt</option>
-        <option value="rejected">Bị từ chối</option>
+        <option value="Đã duyệt">Đã duyệt</option>
+        <option value="Chờ duyệt">Chờ duyệt</option>
+        <option value="Bị từ chối">Bị từ chối</option>
       </select>
       <select id="tempTypeFilter" class="input" style="width:150px;">
         <option value="">Tất cả loại</option>
@@ -41,10 +111,11 @@
       <thead>
         <tr>
           <th style="width:50px;">STT</th>
-          <th>Họ tên</th>
+          <th>Người làm đơn</th>
           <th>Loại</th>
           <th>Từ ngày</th>
           <th>Đến ngày</th>
+          <th style="text-align:center;">Chi tiết</th>
           <th>Trạng thái</th>
           <th style="width:120px;">Hành động</th>
         </tr>
@@ -67,8 +138,8 @@
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <select id="activeTypeFilter" class="input" style="width:150px;">
         <option value="">Tất cả loại</option>
-        <option value="thuong_tru">Thường trú</option>
-        <option value="tam_tru">Tạm trú</option>
+        <option value="Thường trú">Thường trú</option>
+        <option value="Tạm trú">Tạm trú</option>
       </select>
       <input type="text" id="activeSearch" class="input" placeholder="Tìm theo tên hoặc SĐT..."
         style="flex:1;max-width:300px;">

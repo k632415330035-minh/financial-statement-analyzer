@@ -21,6 +21,7 @@ const statisticRoute = require("./routes/statisticRoute");
 const householdsManagerRoute = require("./routes/householdsManagerRoute");
 const manageabsentRoute = require('./routes/manageabsentRoute');
 const residentManageRoute = require('./routes/residentManageRoute');
+const temporaryRoute = require("./routes/temporaryRoute");
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
 
 app.use(cors());

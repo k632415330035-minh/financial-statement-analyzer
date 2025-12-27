@@ -1,3 +1,4 @@
+const { insertNewAbsent } = require("../models/absentModel");
 const householdsManagementModel = require("../models/householdsManagementModel");
 
 const getAllHouseholds = async (req, res) => {
@@ -34,8 +35,11 @@ const getHouseholdMembers = async (req, res) => {
 };
 const deleteHouseholdMember = async (req, res) => {
     try {
+        /*bodyData: {old_id_hk, chuyen_den, ghi_chu} */
         const { id_cd } = req.params;
-        const result = await householdsManagementModel.deleteHouseholdMember(id_cd);
+        const dataBody = req.body;
+        console.log(dataBody);
+        const result = await householdsManagementModel.deleteMemberFromHousehold(dataBody, id_cd);
         if (result) {
             res.status(200).json({ message: "Xóa thành viên hộ khẩu thành công" });
         } else {
@@ -200,11 +204,31 @@ const addNewMember = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+
+const updateAddressHousehold = async (req, res) => {
+    const { id_ho_khau } = await req.params;
+    const { dia_chi } = await req.body;
+    // console.log("id_ho_khau", id_ho_khau, "        newAddress:", dia_chi);
+    try {
+        const result = await householdsManagementModel.updateAddressHousehold(id_ho_khau, dia_chi);
+        if (result) {
+            res.status(201).json({ message: 'Cập nhật thành công địa chỉ mới' })
+        }
+        else {
+            res.status(400).json({ message: 'Không thể cập nhật địa chỉ mới cho hộ' })
+        }
+    } catch (error) {
+        console.error(error);
+        throw error
+    }
+}
 module.exports = {
     getAllHouseholds,
     getHouseholdMembers,
     deleteHouseholdMember,
     createNewHouseholdFromMembers,
     createNewHousehold,
-    addNewMember
+    addNewMember,
+    updateAddressHousehold
 };
