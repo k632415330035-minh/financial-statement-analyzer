@@ -1,8 +1,66 @@
+<div id="tempDetail" class="modal">
+  <div class="modal__overlay"></div>
+  <div class="modal__content" style="max-width:900px;">
+    <div class="modal__header">
+      <h2 id="modalTitle">Chi tiết đơn đăng ký</h2>
+      <button id="closeModal" class="modal__close" aria-label="Đóng">×</button>
+    </div>
+    <div class="modal__body">
+      <div class="household-info">
+        <div class="info-row">
+          <span class="label">Mã đơn:</span>
+          <span class="value" id="id_dk"></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Người làm đơn:</span>
+          <span class="value" id="nguoiLamDon"></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Loại đơn:</span>
+          <span class="value" id="loaiDon"></span>
+        </div>
+      </div>
+      <div class="modal__body" style="padding:0px 0px 10px 0px;">
+        <span class='label' id='Tempstatus'>Trạng thái:</span>
+      </div>
+      <h3>Danh sách nhân khẩu</h3>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button id="addMemberBtn" class="btn btn--primary" style="font-size:13px;">➕ Thêm thành viên</button>
+        <button id="removeMemberBtn" class="btn" style="font-size:13px;">🗑 Xóa thành viên được chọn</button>
+        <button id="createHouseholdFromMembersBtn" class="btn"
+          style="font-size:13px;background:#f59e0b;color:#fff;border-color:transparent;">🔀 Tạo hộ khẩu từ thành viên
+          chọn</button>
+      </div>
+      <table class="table table--compact">
+        <thead>
+          <tr>
+            <th style="width:40px;"><input type="checkbox" id="selectAllMembers" /></th>
+            <th>STT</th>
+            <th>Họ tên</th>
+            <th>Năm sinh</th>
+            <th>Giới tính</th>
+            <th>Quan hệ với chủ hộ</th>
+            <th>CCCD</th>
+          </tr>
+        </thead>
+        <tbody id="modalTableBody"></tbody>
+      </table>
+
+      <h3 style="margin-top:24px;">📋 Lịch sử thay đổi</h3>
+      <div id="changeHistory"
+        style="background:#f8fafc;border-radius:12px;padding:12px;max-height:200px;overflow-y:auto;font-size:13px;">
+        <p style="color:var(--muted);margin:0;">Chưa có thay đổi</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- KPI THỐNG KÊ -->
 <section class="kpis">
   <article class="kpi kpi--blue">
-    <div class="kpi__title">Đơn chờ duyệt</div>
-    <div class="kpi__value" id="pendingTempCount">0</div>
+    <div class="kpi__title">Tổng đơn</div>
+    <div class="kpi__value" id="totalTempCount">0</div>
   </article>
   <article class="kpi kpi--green">
     <div class="kpi__title">Đã phê duyệt</div>
@@ -13,10 +71,12 @@
     <div class="kpi__value" id="rejectedTempCount">0</div>
   </article>
   <article class="kpi kpi--orange">
-    <div class="kpi__title">Tổng đơn</div>
-    <div class="kpi__value" id="totalTempCount">0</div>
+    <div class="kpi__title">Đơn chờ duyệt</div>
+    <div class="kpi__value" id="pendingTempCount">0</div>
+
   </article>
 </section>
+
 
 <!-- DANH SÁCH QUẢN LÝ -->
 <div class="card">

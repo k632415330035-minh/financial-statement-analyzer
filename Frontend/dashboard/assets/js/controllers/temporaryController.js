@@ -8,23 +8,16 @@ let allTemp = [];
 let tempPage = 1;
 let activePage = 1;
 
-// function formatDateVN(isoString) {
-//   if (!isoString) return "";
-
-//   const date = new Date(isoString);
-
-//   return new Intl.DateTimeFormat('vi-VN', {
-//     timeZone: 'UTC',
-//     day: '2-digit',
-//     month: '2-digit',
-//     year: 'numeric'
-//   }).format(date);
-// }
+function formatDateVN(isoString) {
+  if (!isoString) return "—";
+  const date = new Date(isoString);
+  return `${date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()}/${(date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : `0${date.getMonth() + 1}`}/${date.getFullYear()}`;
+}
 
 function getTempStats() {
-  const pending = allTemp.filter(t => t.status === 'pending').length;
-  const approved = allTemp.filter(t => t.status === 'approved').length;
-  const rejected = allTemp.filter(t => t.status === 'rejected').length;
+  const pending = allTemp.filter(t => t.state === 'Chưa duyệt').length;
+  const approved = allTemp.filter(t => t.state === 'Đã duyệt').length;
+  const rejected = allTemp.filter(t => t.state === 'Bị từ chối').length;
   const total = allTemp.length;
   return { pending, approved, rejected, total };
 }
@@ -68,9 +61,9 @@ function renderTempTable() {
     const slice = filtered.slice((tempPage - 1) * PAGE_SIZE, (tempPage - 1) * PAGE_SIZE + PAGE_SIZE);
     tbody.innerHTML = slice.map((t, i) => {
       const typeText = t._type === 'Tạm trú' ? 'Tạm trú' : 'Thường trú';
-      const statusColor = t.state === 'Chờ duyệt' ? '#f59e0b' : t.state === 'Đã duyệt' ? '#22c55e' : '#ef4444';
-      const statusText = t.state === 'Chờ duyệt' ? 'Chờ duyệt' : t.state === 'Đã duyệt' ? 'Đã duyệt' : 'Bị từ chối';
-      const actionBtns = t.state === 'Chờ duyệt'
+      const statusColor = t.state === 'Chưa duyệt' ? '#f59e0b' : t.state === 'Đã duyệt' ? '#22c55e' : '#ef4444';
+      const statusText = t.state === 'Chưa duyệt' ? 'Chưa duyệt' : t.state === 'Đã duyệt' ? 'Đã duyệt' : 'Bị từ chối';
+      const actionBtns = t.state === 'Chưa duyệt'
         ? `<button class="btn" onclick="window.approveTempRecord('${t.id_dk}')" style="font-size:12px;padding:6px 12px;margin-right:4px;">✓ Duyệt</button>
            <button class="btn" onclick="window.rejectTempRecord('${t.id_dk}')" style="font-size:12px;padding:6px 12px;color:#ef4444;border-color:#ef4444;">✕ Từ chối</button>`
         : '';
@@ -78,9 +71,9 @@ function renderTempTable() {
         <td>${(tempPage - 1) * PAGE_SIZE + i + 1}</td>
         <td><strong>${t.ho_ten}</strong></td>
         <td>${typeText}</td>
-        <td>${new Date(t.begin)}</td>
-        <td>${new Date(t.end)}</td>
-        <td style="text-align:center;"><button class="btn-view" data-sohk="${t.id_dk}" style="background:white; color:black; border:1px solid #ccc;">👁</button></td>
+        <td>${formatDateVN(t.begin)}</td>
+        <td>${formatDateVN(t.end)}</td>
+        <td style="text-align:center;"><button class="btn-view" data-sohk="${t.id_dk}" style="background:white; color:black; border:1px solid #ccc;">&#8505</button></td>
         <td><span style="background:${statusColor}20;color:${statusColor};padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;">${statusText}</span></td>
         <td style="text-align:center;">${actionBtns}</td>
       </tr>`;
@@ -88,7 +81,8 @@ function renderTempTable() {
     document.querySelectorAll('.btn-view').forEach(btn => {
       btn.addEventListener('click', () => {
         // openHouseholdModal(btn.dataset.sohk);
-        console.log(btn.dataset.sohk);
+        openTempDetail(btn.dataset.sohk);
+        // console.log(btn.dataset.sohk);
       });
     });
   }
@@ -108,6 +102,120 @@ function renderTempTable() {
     next.disabled = tempPage >= totalPages;
     next.onclick = () => { if (tempPage < totalPages) { tempPage++; renderTempTable(); } };
   }
+}
+
+async function openTempDetail(soHK) {
+  const curTemp = allTemp.find(h => h.id_dk == soHK);
+  // console.log(">>", household);
+  if (!curTemp) return;
+
+  document.getElementById('id_dk').textContent = curTemp.id_dk;
+  document.getElementById('nguoiLamDon').textContent = curTemp.ho_ten;
+  document.getElementById('loaiDon').textContent = curTemp._type;
+  let colora, colorb, colorc;
+  if (curTemp.state === 'Chưa duyệt') {
+    colora = '#f59e0b20';
+    colorb = '#f59e0b';
+    colorc = '#9d6910ff';
+  }
+  else if (curTemp.state === 'Đã duyệt') {
+    colora = '#22c55e20';
+    colorb = '#22c55e';
+    colorc = '#1e6f3fff';
+  }
+  else {
+    colora = '#ef444420';
+    colorb = '#ef4444';
+    colorc = '#7f1d1d';
+  }
+  const tempStatusEl = document.getElementById('Tempstatus');
+  if (tempStatusEl) {
+    tempStatusEl.textContent = curTemp.state;
+    tempStatusEl.style.cssText = `
+  display: inline-block;
+  background: ${colora};
+  color: ${colorb};
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+
+  border: 2px solid ${colorc};   /* viền đen */
+  margin: 0px 0;             /* khoảng cách với component khác */
+`;
+
+  }
+  // try {
+  //   const response = await fetch(`http://localhost:3000/api/get/householdMembers/${household.id_ho_khau}`);
+  //   const data = await response.json();
+  //   household.members = data;
+  // }
+  // catch (error) {
+  //   console.error("Error fetching feedback stats: ", error);
+  //   // household.members = null;
+  // }
+  const tbody = document.getElementById('modalTableBody');
+  // if (tbody && household.members) {
+  //   tbody.innerHTML = household.members.map((m, i) => `<tr>
+  //     <td><input type="checkbox" class="member-checkbox" value="${i}" /></td>
+  //     <td>${i + 1}</td>
+  //     <td>${m.ho_ten}</td>
+  //     <td>${m.nam_sinh}</td>
+  //     <td>${m.gioi_tinh}</td>
+  //     <td>${m.quan_he_voi_chu_ho}</td>
+  //     <td>${m.cccd || '-'}</td>
+  //   </tr>`).join('');
+  // }
+
+  // Bind select all checkbox
+  // const selectAllCheckbox = document.getElementById('selectAllMembers');
+  // const memberCheckboxes = document.querySelectorAll('.member-checkbox');
+  // selectAllCheckbox?.addEventListener('change', (e) => {
+  //   memberCheckboxes.forEach(cb => cb.checked = e.target.checked);
+  // });
+
+  // Hiển thị lịch sử thay đổi
+  // renderChangeHistory(household);
+
+  // Lưu soHK hiện tại để sử dụng ở modal chỉnh sửa
+  window.curTempID = soHK;
+  window.curTempType = curTemp._type;
+  window.curTempState = curTemp._state;
+  const modal = document.getElementById('tempDetail');
+  if (modal) modal.classList.add('is-open');
+}
+
+function closeTempDetail() {
+  const modal = document.getElementById('tempDetail');
+  if (modal) {
+    modal.classList.remove('is-open');
+    // renderTable();
+  }
+}
+
+
+function bindTempDetailModel() {
+  document.getElementById('closeModal')?.addEventListener('click', closeTempDetail);
+  document.querySelector('#tempDetail .modal__overlay')?.addEventListener('click', closeTempDetail);
+
+  // Bind edit household button
+  // document.getElementById('editHouseholdBtn')?.addEventListener('click', openEditHouseholdModal);
+
+  // Bind split household button
+  // document.getElementById('splitHouseholdBtn')?.addEventListener('click', openSplitHouseholdModal);
+
+  // Bind add member button
+  // document.getElementById('addMemberBtn')?.addEventListener('click', openAddMemberModal);
+
+  // Bind remove member button
+  // document.getElementById('removeMemberBtn')?.addEventListener('click', removeSelectedMembers);
+
+  // Bind create household from members button
+  // document.getElementById('createHouseholdFromMembersBtn')?.addEventListener('click', createHouseholdFromMembers);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeTempDetail();
+  });
 }
 
 function approveTempRecord(id) {
@@ -179,7 +287,7 @@ function renderActiveTable() {
   if (tbody) {
     const slice = filtered.slice((activePage - 1) * PAGE_SIZE, (activePage - 1) * PAGE_SIZE + PAGE_SIZE);
     tbody.innerHTML = slice.map((t, i) => {
-      const typeText = t.type === 'tam_tru' ? '🏠 Tạm trú' : '✈️ Tạm vắng';
+      const typeText = t._type === 'tam_tru' ? '🏠 Tạm trú' : '✈️ Tạm vắng';
       const daysLeft = getActiveDays(t.fromDate, t.toDate);
       const daysColor = daysLeft <= 3 ? '#ef4444' : daysLeft <= 7 ? '#f59e0b' : '#22c55e';
       return `<tr>
@@ -270,6 +378,7 @@ export async function initTemporary() {
 
   updateTempStats();
   if (!temporaryInited) {
+    bindTempDetailModel();
     bindTempFilters();
     bindActiveFilters();
     temporaryInited = true;
@@ -277,7 +386,7 @@ export async function initTemporary() {
   renderTempTable();
   renderActiveTable();
 }
-
+temporaryInited = false;
 // Make functions globally available for onclick handlers
 window.approveTempRecord = approveTempRecord;
 window.rejectTempRecord = rejectTempRecord;
