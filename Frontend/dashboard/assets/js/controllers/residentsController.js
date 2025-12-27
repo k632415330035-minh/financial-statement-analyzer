@@ -1,7 +1,6 @@
 // Residents Controller - Resident management logic
 import * as dataService from '../services/api.js';
 
-let residentsInited = false;
 let residentsFiltersBound = false;
 let residentsDetailModalBound = false;
 let residentsEditModalBound = false;
@@ -9,30 +8,6 @@ let allMembers = [];
 let residentPage = 1;
 let residentSortState = { key: null, dir: 1 };
 
-async function aggregateAllMembers() {
-  allMembers = [];
-  const households = await dataService.getHouseholds();
-  households.forEach(household => {
-    if (household.members && household.members.length > 0) {
-      household.members.forEach(member => {
-        allMembers.push({
-          ...member,
-          soHK: household.soHK,
-          chuHo: household.chuHo
-        });
-      });
-    }
-  });
-  return allMembers;
-}
-
-function getResidentStats() {
-  const total = allMembers.length;
-  const male = allMembers.filter(m => m.gioiTinh === 'Nam').length;
-  const female = allMembers.filter(m => m.gioiTinh === 'Nữ').length;
-  const avgAge = total > 0 ? Math.round(allMembers.reduce((sum, m) => sum + (new Date().getFullYear() - m.namSinh), 0) / total) : 0;
-  return { total, male, female, avgAge };
-}
 
 function filterResidents(q, genderFilter = '', householdFilter = '') {
   q = q.trim().toLowerCase();
@@ -109,14 +84,12 @@ function renderResidentTable() {
   });
 }
 
-function openResidentDetailModal(resident) {
+async function openResidentDetailModal(resident) {
   if (!resident) return;
 
-  // Lưu resident hiện tại để sử dụng khi chỉnh sửa
   window.currentEditingResident = resident;
-
-  const households = dataService.getHouseholds();
-  const household = households.find(h => h.soHK === resident.soHK);
+  const households = await dataService.getHouseholds();
+  const household = households ? households.find(h => h.id_ho_khau == resident.soHK) : null;
 
   document.getElementById('residentName').textContent = resident.hoTen || '-';
   document.getElementById('residentNickname').textContent = resident.biDanh || '-';
@@ -124,12 +97,11 @@ function openResidentDetailModal(resident) {
   document.getElementById('residentBirthDate').textContent = resident.ngaySinh || '-';
   document.getElementById('residentGender').textContent = resident.gioiTinh || '-';
   document.getElementById('residentBirthPlace').textContent = resident.noiSinh || '-';
-  document.getElementById('residentOrigin').textContent = resident.nguonQuan || '-';
+  document.getElementById('residentOrigin').textContent = resident.nguyenQuan || '-';
   document.getElementById('residentEthnicity').textContent = resident.danToc || '-';
 
   document.getElementById('residentRegDate').textContent = resident.ngayDangKy || '-';
   document.getElementById('residentPreviousAddr').textContent = resident.diaChiTruocDo || '-';
-  document.getElementById('residentCurrentAddr').textContent = resident.diaChiHienTai || '-';
   document.getElementById('residentStatus').textContent = resident.trangThaiCuTru || '-';
 
   document.getElementById('residentCCCDPlace').textContent = resident.noiCapCCCD || '-';
@@ -139,7 +111,7 @@ function openResidentDetailModal(resident) {
   document.getElementById('residentWorkplace').textContent = resident.noiLamViec || '-';
 
   document.getElementById('residentHousehold').textContent = resident.soHK || '-';
-  document.getElementById('residentHeadOfHouse').textContent = household ? household.chuHo : '-';
+  document.getElementById('residentHeadOfHouse').textContent = resident.chuHo || '-';
   document.getElementById('residentRelation').textContent = resident.quanHe || '-';
 
   const modal = document.getElementById('residentDetailModal');
@@ -204,46 +176,52 @@ function populateHouseholdFilter() {
   filter.value = currentVal;
 }
 
-export function initResidents() {
-  // Always refresh data to prevent loss on page navigation
-  aggregateAllMembers();
-  populateHouseholdFilter();
+export async function initResidents() {
+  try {
+    const result = await dataService.getResidentDashboardData();
 
-  const stats = getResidentStats();
-  document.getElementById('totalResidents').textContent = stats.total;
-  document.getElementById('maleResidents').textContent = stats.male;
-  document.getElementById('femaleResidents').textContent = stats.female;
-  document.getElementById('avgAge').textContent = stats.avgAge;
+    if (result.success) {
+      allMembers = result.data.residents;
 
-  // Bind event listeners (reset flags each time to rebind)
-  residentsFiltersBound = false;
-  residentsDetailModalBound = false;
-  residentsEditModalBound = false;
+      const { stats } = result.data;
+      document.getElementById('totalResidents').textContent = stats.total || 0;
+      document.getElementById('maleResidents').textContent = stats.male || 0;
+      document.getElementById('femaleResidents').textContent = stats.female || 0;
+      document.getElementById('avgAge').textContent = stats.avgAge || 0;
 
-  bindResidentFilters();
-  bindResidentDetailModal();
-  bindEditResidentModal();
+      populateHouseholdFilter();
+      bindResidentFilters();
+      bindResidentDetailModal();
+      bindEditResidentModal();
 
-  renderResidentTable();
-}
-
-function updateCCCDFieldsVisibility(tuoi) {
-  const cccdFieldsRow = document.getElementById('cccdFieldsRow');
-  const cccdSectionTitle = document.getElementById('cccdSectionTitle');
-
-  if (tuoi < 14) {
-    if (cccdFieldsRow) cccdFieldsRow.style.display = 'none';
-    if (cccdSectionTitle) cccdSectionTitle.style.display = 'none';
-  } else {
-    if (cccdFieldsRow) cccdFieldsRow.style.display = '';
-    if (cccdSectionTitle) cccdSectionTitle.style.display = '';
+      renderResidentTable();
+    }
+  } catch (error) {
+    console.error("Lỗi khi khởi tạo trang nhân khẩu:", error);
   }
 }
 
+// residentsController.js
+
+function updateCCCDFieldsVisibility(tuoi) {
+  const cccdSectionTitle = document.getElementById('cccdSectionTitle');
+  const cccdFieldsRow = document.getElementById('cccdFieldsRow');
+
+  if (tuoi < 14) {
+    if (cccdSectionTitle) cccdSectionTitle.style.display = 'none';
+    if (cccdFieldsRow) cccdFieldsRow.style.display = 'none';
+  } else {
+    if (cccdSectionTitle) cccdSectionTitle.style.display = 'block';
+    if (cccdFieldsRow) cccdFieldsRow.style.display = 'flex';
+  }
+}
+
+// residentsController.js
 function openEditResidentModal() {
   const resident = window.currentEditingResident;
   if (!resident) return;
 
+  // 1. Gán các thông tin văn bản
   document.getElementById('edit_res_hoTen').value = resident.hoTen || '';
   document.getElementById('edit_res_biDanh').value = resident.biDanh || '';
   document.getElementById('edit_res_namSinh').value = resident.namSinh || '';
@@ -252,23 +230,22 @@ function openEditResidentModal() {
   document.getElementById('edit_res_noiSinh').value = resident.noiSinh || '';
   document.getElementById('edit_res_nguonQuan').value = resident.nguonQuan || '';
   document.getElementById('edit_res_danToc').value = resident.danToc || '';
-  document.getElementById('edit_res_ngayDangKy').value = resident.ngayDangKy || '';
   document.getElementById('edit_res_diaChiTruocDo').value = resident.diaChiTruocDo || '';
   document.getElementById('edit_res_noiCapCCCD').value = resident.noiCapCCCD || '';
-  document.getElementById('edit_res_ngayCapCCCD').value = resident.ngayCapCCCD || '';
   document.getElementById('edit_res_nghePhuong').value = resident.nghePhuong || '';
   document.getElementById('edit_res_noiLamViec').value = resident.noiLamViec || '';
 
-  // Check age and show/hide CCCD fields
-  const tuoiHienTai = new Date().getFullYear() - resident.namSinh;
+  document.getElementById('edit_res_ngayDangKy').value = resident.ngayDangKyRaw || '';
+  document.getElementById('edit_res_ngayCapCCCD').value = resident.ngayCapRaw || '';
+
+  const tuoiHienTai = new Date().getFullYear() - parseInt(resident.namSinh || 0);
   updateCCCDFieldsVisibility(tuoiHienTai);
 
-  // Add change listener for year of birth field
   const namSinhInput = document.getElementById('edit_res_namSinh');
   if (namSinhInput && !namSinhInput.hasAttribute('data-listener-added')) {
     namSinhInput.addEventListener('change', (e) => {
-      const tuoi = new Date().getFullYear() - parseInt(e.target.value);
-      updateCCCDFieldsVisibility(tuoi);
+      const tuoiMoi = new Date().getFullYear() - parseInt(e.target.value || 0);
+      updateCCCDFieldsVisibility(tuoiMoi);
     });
     namSinhInput.setAttribute('data-listener-added', 'true');
   }
@@ -298,31 +275,42 @@ function bindEditResidentModal() {
     if (e.target === modal) closeEditResidentModal();
   });
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const resident = window.currentEditingResident;
     if (!resident) return;
 
-    resident.hoTen = document.getElementById('edit_res_hoTen').value.trim();
-    resident.biDanh = document.getElementById('edit_res_biDanh').value.trim();
-    resident.namSinh = parseInt(document.getElementById('edit_res_namSinh').value) || resident.namSinh;
-    resident.gioiTinh = document.getElementById('edit_res_gioiTinh').value;
-    resident.cccd = document.getElementById('edit_res_cccd').value.trim();
-    resident.noiSinh = document.getElementById('edit_res_noiSinh').value.trim();
-    resident.nguonQuan = document.getElementById('edit_res_nguonQuan').value.trim();
-    resident.danToc = document.getElementById('edit_res_danToc').value.trim();
-    resident.ngayDangKy = document.getElementById('edit_res_ngayDangKy').value;
-    resident.diaChiTruocDo = document.getElementById('edit_res_diaChiTruocDo').value.trim();
-    resident.noiCapCCCD = document.getElementById('edit_res_noiCapCCCD').value.trim();
-    resident.ngayCapCCCD = document.getElementById('edit_res_ngayCapCCCD').value;
-    resident.nghePhuong = document.getElementById('edit_res_nghePhuong').value.trim();
-    resident.noiLamViec = document.getElementById('edit_res_noiLamViec').value.trim();
+    const updatedData = {
+      hoTen: document.getElementById('edit_res_hoTen').value.trim(),
+      biDanh: document.getElementById('edit_res_biDanh').value.trim(),
+      namSinh: document.getElementById('edit_res_namSinh').value,
+      gioiTinh: document.getElementById('edit_res_gioiTinh').value,
+      cccd: document.getElementById('edit_res_cccd').value.trim(),
+      noiSinh: document.getElementById('edit_res_noiSinh').value.trim(),
+      nguyenQuan: document.getElementById('edit_res_nguonQuan').value.trim(),
+      danToc: document.getElementById('edit_res_danToc').value.trim(),
+      ngayDangKy: document.getElementById('edit_res_ngayDangKy').value,
+      diaChiTruocDo: document.getElementById('edit_res_diaChiTruocDo').value.trim(),
+      noiCapCCCD: document.getElementById('edit_res_noiCapCCCD').value.trim(),
+      ngayCapCCCD: document.getElementById('edit_res_ngayCapCCCD').value,
+      nghePhuong: document.getElementById('edit_res_nghePhuong').value.trim(),
+      noiLamViec: document.getElementById('edit_res_noiLamViec').value.trim()
+    };
 
-    dataService.save();
-    closeEditResidentModal();
-    aggregateAllMembers();
-    openResidentDetailModal(resident);
-    alert('Cập nhật thông tin nhân khẩu thành công!');
+    try {
+      const result = await dataService.updateResidentData(resident.id_cd, updatedData);
+      if (result.success) {
+        alert('Cập nhật thông tin thành công!');
+        closeEditResidentModal();
+
+        await initResidents();
+        const freshData = allMembers.find(m => m.id_cd === resident.id_cd);
+        if (freshData) {
+          openResidentDetailModal(freshData);
+        }
+      }
+    } catch (error) {
+      alert('Lỗi: ' + error.message);
+    }
   });
 }

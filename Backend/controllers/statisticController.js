@@ -1,6 +1,6 @@
 const Stats = require("../models/statisticModel");
 
-const getDashboardStats = async (req, res) => { // Đổi tên biến cho rõ ràng
+const getDashboardStats = async (req, res) => {
     try {
         const { year, startDate, endDate } = req.query;
 
@@ -29,10 +29,10 @@ const getDashboardStats = async (req, res) => { // Đổi tên biến cho rõ r�
             }
         });
     } catch (error) {
-        console.error("LỖI CHI TIẾT TẠI ĐÂY:", error); // Dòng này sẽ in ra lỗi thật ở màn hình CMD/Terminal
+        console.error(error);
         res.status(500).json({
             success: false,
-            message: error.message, // Trả về lỗi thật thay vì câu "Lỗi máy chủ nội bộ"
+            message: error.message,
             stack: error.stack
         });
     }

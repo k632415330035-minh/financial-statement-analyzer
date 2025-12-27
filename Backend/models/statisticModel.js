@@ -24,7 +24,11 @@ const statisticModel = {
       );
 
       // 5. Tổng số người đang khai báo tạm vắng
-      const [tv] = await db.query("SELECT COUNT(*) AS total FROM tam_vang");
+      const [tv] = await db.query(`
+        SELECT COUNT(DISTINCT id_cd) AS total 
+      FROM tam_vang 
+      WHERE CURDATE()
+      BETWEEN thoi_gian_tam_vang_begin AND thoi_gian_tam_vang_end`);
 
       return {
         hokhau: hk[0]?.total || 0,

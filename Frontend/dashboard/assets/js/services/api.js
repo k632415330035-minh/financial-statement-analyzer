@@ -211,6 +211,19 @@ export async function getAbsentDashboardData() {
   if (!response.ok) throw new Error('Không thể lấy dữ liệu tạm vắng');
   return await response.json();
 }
+
+export async function getResidentDashboardData() {
+  const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+  const response = await fetch('http://localhost:3000/api/residentManage/dashboard', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!response.ok) throw new Error('Không thể lấy dữ liệu nhân khẩu');
+  return await response.json();
+}
 // ============ WRITE OPERATIONS ============
 export function saveHouseholds(data) {
   save('households', data);
@@ -241,4 +254,24 @@ export function deleteHousehold(soHK) {
   let households = getHouseholds();
   households = households.filter(h => h.soHK !== soHK);
   saveHouseholds(households);
+}
+
+export async function updateResidentData(id, data) {
+  const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+
+  const response = await fetch(`http://localhost:3000/api/residentManage/update/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Không thể cập nhật thông tin nhân khẩu');
+  }
+
+  return await response.json();
 }

@@ -20,6 +20,8 @@ const extendRoute = require("./routes/extendRoute");
 const statisticRoute = require("./routes/statisticRoute");
 const householdsManagerRoute = require("./routes/householdsManagerRoute");
 const manageabsentRoute = require('./routes/manageabsentRoute');
+const residentManageRoute = require('./routes/residentManageRoute');
+const temporaryRoute = require("./routes/temporaryRoute");
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
 
 app.use(cors());
@@ -36,7 +38,7 @@ app.use("/api", historyRoute);
 app.use("/api", extendRoute);
 app.use("/api/statistics", statisticRoute);
 app.use("/api", householdsManagerRoute);
-
+app.use('/api/residentManage', residentManageRoute);
 app.use('/api/manageabsent', manageabsentRoute);
 // Tuyến cần authMiddleware
 app.use("/api", authMiddleware, registerRoute);
