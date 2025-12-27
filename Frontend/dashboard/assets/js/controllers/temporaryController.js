@@ -145,6 +145,8 @@ async function openTempDetail(soHK) {
 `;
 
   }
+
+
   // try {
   //   const response = await fetch(`http://localhost:3000/api/get/householdMembers/${household.id_ho_khau}`);
   //   const data = await response.json();
@@ -154,18 +156,17 @@ async function openTempDetail(soHK) {
   //   console.error("Error fetching feedback stats: ", error);
   //   // household.members = null;
   // }
-  const tbody = document.getElementById('modalTableBody');
-  // if (tbody && household.members) {
-  //   tbody.innerHTML = household.members.map((m, i) => `<tr>
-  //     <td><input type="checkbox" class="member-checkbox" value="${i}" /></td>
-  //     <td>${i + 1}</td>
-  //     <td>${m.ho_ten}</td>
-  //     <td>${m.nam_sinh}</td>
-  //     <td>${m.gioi_tinh}</td>
-  //     <td>${m.quan_he_voi_chu_ho}</td>
-  //     <td>${m.cccd || '-'}</td>
-  //   </tr>`).join('');
-  // }
+  const tbody = document.getElementById('tempTableBody');
+  if (tbody && household.members) {
+    tbody.innerHTML = household.members.map((m, i) => `<tr>
+      <td>${i + 1}</td>
+      <td>${m.ho_ten}</td>
+      <td>${m.nam_sinh}</td>
+      <td>${m.gioi_tinh}</td>
+      <td>${m.quan_he_voi_chu_ho}</td>
+      <td>${m.cccd || '-'}</td>
+    </tr>`).join('');
+  }
 
   // Bind select all checkbox
   // const selectAllCheckbox = document.getElementById('selectAllMembers');

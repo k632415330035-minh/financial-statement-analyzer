@@ -176,7 +176,6 @@ const deleteHouseholdMember = async (id_cd, connection) => {
         }
         return result.affectedRows > 0;
         // return result;
-
     }
     catch (error) {
         console.log("Error executing query deleteHouseholdMember");
@@ -189,6 +188,7 @@ const deleteMemberFromHousehold = async (bodyData, id_cd) => {
     /*bodyData: {old_id_hk, chuyen_den, ghi_chu} */
     const con = await db.getConnection();
     try {
+        await con.beginTransaction();
         const [result, fields] = await con.execute(sql, [id_cd, bodyData.old_id_ho_khau, bodyData.chuyen_den, bodyData.ghi_chu]);
         await deleteHouseholdMember(id_cd, con);
         const sqlGetCCCD = 'SELECT cccd FROM cong_dan WHERE id_cd = ?';
@@ -196,7 +196,7 @@ const deleteMemberFromHousehold = async (bodyData, id_cd) => {
         const check_Acc = await check_haveAccountInformation(cccd[0].cccd, con);
         if (check_Acc != null) {
             const deleteAccount = `DELETE FROM accounts WHERE userID = ?`;
-            await con.execute(sqlUpdateAccountType, [cccd[0].cccd]);
+            await con.execute(deleteAccount, [cccd[0].cccd]);
         }
         await con.commit();
         return result.affectedRows > 0;
@@ -277,9 +277,7 @@ const addNewMember = async (resident) => {
     try {
         console.log("resident =======", resident)
         await connection.beginTransaction();
-        let check = null;
-        if (resident.cccd == '')
-            check = await check_haveInvidualInformation(resident.cccd, connection);
+        const check = await check_haveInvidualInformation(resident.cccd, connection);
         let residentIdCd;
         if (check.length == 0) {
             const insertPersonalInfo = await insertPersonalInformation(resident, connection);

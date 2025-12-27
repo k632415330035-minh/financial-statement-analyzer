@@ -25,16 +25,15 @@
       </div>
       <h3>Danh sách nhân khẩu</h3>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <button id="addMemberBtn" class="btn btn--primary" style="font-size:13px;">➕ Thêm thành viên</button>
+        <!-- <button id="addMemberBtn" class="btn btn--primary" style="font-size:13px;">➕ Thêm thành viên</button>
         <button id="removeMemberBtn" class="btn" style="font-size:13px;">🗑 Xóa thành viên được chọn</button>
         <button id="createHouseholdFromMembersBtn" class="btn"
           style="font-size:13px;background:#f59e0b;color:#fff;border-color:transparent;">🔀 Tạo hộ khẩu từ thành viên
-          chọn</button>
+          chọn</button> -->
       </div>
       <table class="table table--compact">
         <thead>
           <tr>
-            <th style="width:40px;"><input type="checkbox" id="selectAllMembers" /></th>
             <th>STT</th>
             <th>Họ tên</th>
             <th>Năm sinh</th>
@@ -43,14 +42,25 @@
             <th>CCCD</th>
           </tr>
         </thead>
-        <tbody id="modalTableBody"></tbody>
+        <tbody id="tempTableBody"></tbody>
       </table>
-
-      <h3 style="margin-top:24px;">📋 Lịch sử thay đổi</h3>
+      <div style="margin-top: 20px;">
+        <button id="acceptBtn" class="btn btn--success"
+          style="margin-right:8px;padding: 10px 24px;border-radius: 6px;background: #34c759;color: #fff;border-color: transparent;">
+          <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+          <span style="vertical-align: middle;">✓ Duyệt</span>
+        </button>
+        <button id="rejectBtn" class="btn btn--danger"
+          style="padding: 10px 24px;border-radius: 6px;background: #dc3545;color: #fff;border-color: transparent;">
+          <i class="fas fa-times-circle" style="margin-right: 8px;"></i>
+          <span style="vertical-align: middle;">✕ Từ chối</span>
+        </button>
+      </div>
+      <!-- <h3 style="margin-top:24px;">📋 Lịch sử thay đổi</h3>
       <div id="changeHistory"
         style="background:#f8fafc;border-radius:12px;padding:12px;max-height:200px;overflow-y:auto;font-size:13px;">
         <p style="color:var(--muted);margin:0;">Chưa có thay đổi</p>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
