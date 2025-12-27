@@ -19,9 +19,25 @@
           <span class="label">Loại đơn:</span>
           <span class="value" id="loaiDon"></span>
         </div>
+        <div class="info-row">
+          <span class="label">Từ ngày:</span>
+          <span class="value" id="begin"></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Đến ngày:</span>
+          <span class="value" id="end"></span>
+        </div>
       </div>
       <div class="modal__body" style="padding:0px 0px 10px 0px;">
-        <span class='label' id='Tempstatus'>Trạng thái:</span>
+        <span class='label' id='Tempstatus'>Trang thái:</span>
+      </div>
+      <div id=reason>
+        <!-- <div class="household-info">
+          <div class="info-row">
+          <span class="label">Lý do:</span>
+          <span class="value" id="reasonValue"></span>
+          </div>
+        </div> -->
       </div>
       <h3>Danh sách nhân khẩu</h3>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
@@ -44,8 +60,8 @@
         </thead>
         <tbody id="tempTableBody"></tbody>
       </table>
-      <div style="margin-top: 20px;">
-        <button id="acceptBtn" class="btn btn--success"
+      <div id="btnGroupInTempDetail" style="margin-top: 20px;">
+        <!-- <button id="acceptBtn" class="btn btn--success"
           style="margin-right:8px;padding: 10px 24px;border-radius: 6px;background: #34c759;color: #fff;border-color: transparent;">
           <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
           <span style="vertical-align: middle;">✓ Duyệt</span>
@@ -54,7 +70,7 @@
           style="padding: 10px 24px;border-radius: 6px;background: #dc3545;color: #fff;border-color: transparent;">
           <i class="fas fa-times-circle" style="margin-right: 8px;"></i>
           <span style="vertical-align: middle;">✕ Từ chối</span>
-        </button>
+        </button> -->
       </div>
       <!-- <h3 style="margin-top:24px;">📋 Lịch sử thay đổi</h3>
       <div id="changeHistory"
@@ -96,13 +112,13 @@
       <select id="tempStatusFilter" class="input" style="width:150px;">
         <option value="" selected>Tất cả trạng thái</option>
         <option value="Đã duyệt">Đã duyệt</option>
-        <option value="Chờ duyệt">Chờ duyệt</option>
+        <option value="Chưa duyệt">Chưa duyệt</option>
         <option value="Bị từ chối">Bị từ chối</option>
       </select>
       <select id="tempTypeFilter" class="input" style="width:150px;">
         <option value="">Tất cả loại</option>
-        <option value="thuong_tru">Thường trú</option>
-        <option value="tam_tru">Tạm trú</option>
+        <option value="Thường trú">Thường trú</option>
+        <option value="Tạm trú">Tạm trú</option>
       </select>
     </div>
   </div>
@@ -136,12 +152,12 @@
   <div class="card__header card__header--wrap">
     <h2>📍 Danh sách người đang tạm trú</h2>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <select id="activeTypeFilter" class="input" style="width:150px;">
+      <!-- <select id="activeTypeFilter" class="input" style="width:150px;">
         <option value="">Tất cả loại</option>
         <option value="Thường trú">Thường trú</option>
         <option value="Tạm trú">Tạm trú</option>
-      </select>
-      <input type="text" id="activeSearch" class="input" placeholder="Tìm theo tên hoặc SĐT..."
+      </select> -->
+      <input type="text" id="activeSearch" class="input" placeholder="Tìm theo tên hoặc CCCD..."
         style="flex:1;max-width:300px;">
     </div>
   </div>
@@ -151,10 +167,9 @@
         <tr>
           <th style="width: 50px; text-align: center;">STT</th>
           <th style="width: 140px;">Họ tên</th>
-          <th style="width: 100px; text-align: center;">Loại</th>
+          <th style="width: 140px; text-align: left;">CCCD</th>
           <th style="width: 110px; text-align: center;">Từ ngày</th>
           <th style="width: 110px; text-align: center;">Đến ngày</th>
-          <th style="width: 140px;">Lý do</th>
           <th style="width: 100px; text-align: center;">Còn lại</th>
         </tr>
       </thead>

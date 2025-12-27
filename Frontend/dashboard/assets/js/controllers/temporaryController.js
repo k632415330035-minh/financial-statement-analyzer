@@ -7,7 +7,7 @@ let activeFiltersBound = false;
 let allTemp = [];
 let tempPage = 1;
 let activePage = 1;
-
+let tam_tru = [];
 function formatDateVN(isoString) {
   if (!isoString) return "—";
   const date = new Date(isoString);
@@ -44,8 +44,8 @@ function filterTemp() {
   const statusFilter = document.getElementById('tempStatusFilter')?.value || '';
   const typeFilter = document.getElementById('tempTypeFilter')?.value || '';
   return allTemp.filter(t => {
-    const matchStatus = !statusFilter || t.status === statusFilter;
-    const matchType = !typeFilter || t.type === typeFilter;
+    const matchStatus = !statusFilter || t.state === statusFilter;
+    const matchType = !typeFilter || t._type === typeFilter;
     return matchStatus && matchType;
   });
 }
@@ -82,7 +82,7 @@ function renderTempTable() {
       btn.addEventListener('click', () => {
         // openHouseholdModal(btn.dataset.sohk);
         openTempDetail(btn.dataset.sohk);
-        // console.log(btn.dataset.sohk);
+        console.log(btn.dataset.sohk);
       });
     });
   }
@@ -112,6 +112,8 @@ async function openTempDetail(soHK) {
   document.getElementById('id_dk').textContent = curTemp.id_dk;
   document.getElementById('nguoiLamDon').textContent = curTemp.ho_ten;
   document.getElementById('loaiDon').textContent = curTemp._type;
+  document.getElementById('begin').textContent = `${formatDateVN(curTemp.begin)}`;
+  document.getElementById('end').textContent = `${formatDateVN(curTemp.end)}`;
   let colora, colorb, colorc;
   if (curTemp.state === 'Chưa duyệt') {
     colora = '#f59e0b20';
@@ -127,6 +129,44 @@ async function openTempDetail(soHK) {
     colora = '#ef444420';
     colorb = '#ef4444';
     colorc = '#7f1d1d';
+  }
+  if (curTemp.state === 'Bị từ chối') {
+    document.getElementById('reason').innerHTML =
+      `   <div class="household-info">
+          <div class="info-row">
+          <span class="label">Lý do:</span>
+          <span class="value" id="reasonValue" style="color:${colorc}"></span>
+          </div>
+        </div>`
+    document.getElementById('reasonValue').textContent = curTemp.ly_do_tu_choi || 'Chưa cung cấp lý do';
+  }
+  else {
+    document.getElementById('reason').innerHTML = '';
+  }
+  if (curTemp.state === 'Chưa duyệt') {
+    document.getElementById('btnGroupInTempDetail').innerHTML = `<button id="acceptBtn" class="btn btn--success"
+          style="margin-right:8px;padding: 10px 24px;border-radius: 6px;background: #34c759;color: #fff;border-color: transparent;">
+          <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+          <span style="vertical-align: middle;">✓ Duyệt</span>
+        </button>
+        <button id="rejectBtn" class="btn btn--danger"
+          style="padding: 10px 24px;border-radius: 6px;background: #dc3545;color: #fff;border-color: transparent;">
+          <i class="fas fa-times-circle" style="margin-right: 8px;"></i>
+          <span style="vertical-align: middle;">✕ Từ chối</span>
+        </button>`;
+
+    const acceptBtn = document.getElementById('acceptBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    if (acceptBtn) {
+      acceptBtn.addEventListener('click', async () => {
+        await approveTempRecord(curTemp.id_dk);
+      });
+    }
+    if (rejectBtn) {
+      rejectBtn.addEventListener('click', async () => {
+        await rejectTempRecord(curTemp.id_dk);
+      });
+    }
   }
   const tempStatusEl = document.getElementById('Tempstatus');
   if (tempStatusEl) {
@@ -145,20 +185,20 @@ async function openTempDetail(soHK) {
 `;
 
   }
+  let members = [];
 
-
-  // try {
-  //   const response = await fetch(`http://localhost:3000/api/get/householdMembers/${household.id_ho_khau}`);
-  //   const data = await response.json();
-  //   household.members = data;
-  // }
-  // catch (error) {
-  //   console.error("Error fetching feedback stats: ", error);
-  //   // household.members = null;
-  // }
+  try {
+    const response = await fetch(`http://localhost:3000/api/get/tempDetail/${curTemp.id_dk}`);
+    const data = await response.json();
+    members = data;
+  }
+  catch (error) {
+    console.error("Error fetching feedback stats: ", error);
+    // household.members = null;
+  }
   const tbody = document.getElementById('tempTableBody');
-  if (tbody && household.members) {
-    tbody.innerHTML = household.members.map((m, i) => `<tr>
+  if (tbody && members) {
+    tbody.innerHTML = members.map((m, i) => `<tr>
       <td>${i + 1}</td>
       <td>${m.ho_ten}</td>
       <td>${m.nam_sinh}</td>
@@ -219,42 +259,87 @@ function bindTempDetailModel() {
   });
 }
 
-function approveTempRecord(id) {
-  const record = allTemp.find(t => t.id === id);
+async function approveTempRecord(id) {
+  const record = allTemp.find(t => t.id_dk == id);
   if (record) {
-    record.status = 'approved';
-    save('allTemp', allTemp);
+    // goi API duyet don
+    try {
+      const response = await fetch(`http://localhost:3000/api/action/approveTemp/${record.id_dk}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+      else {
+        allTemp = await getAllTemp();
+      }
+      alert('Đã phê duyệt đơn của ' + record.ho_ten);
+    }
+    catch (error) {
+      console.error("Error calling API: ", error);
+      alert(error.message);
+    }
     updateTempStats();
     renderTempTable();
     renderActiveTable();
-    alert('Đã phê duyệt đơn của ' + record.name);
+    closeTempDetail();
+  }
+  else {
+    alert('Không tìm thấy dữ liệu đơn');
   }
 }
 
-function rejectTempRecord(id) {
-  const reason = prompt('Nhập lý do từ chối:');
-  if (reason !== null) {
-    const record = allTemp.find(t => t.id === id);
-    if (record) {
-      record.status = 'rejected';
-      record.rejectReason = reason;
-      save('allTemp', allTemp);
-      updateTempStats();
-      renderTempTable();
-      renderActiveTable();
-      alert('Đã từ chối đơn của ' + record.name);
+async function rejectTempRecord(id) {
+  const record = allTemp.find(t => t.id_dk == id);
+  const reason = prompt("Nhập lý do từ chối đơn");
+  const token = await localStorage.getItem('token');
+  console.log(reason, token);
+
+  if (!reason) return;
+  console.log(record);
+  if (record) {// goi API duyet don
+    try {
+      const response = await fetch(`http://localhost:3000/api/action/rejectTemp/${record.id_dk}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reason: reason })
+      });
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+      else {
+        allTemp = await getAllTemp();
+      }
+      alert('Đã từ chối đơn của ' + record.ho_ten);
     }
+    catch (error) {
+      console.error("Error calling API: ", error);
+      alert(error.message);
+    }
+    updateTempStats();
+    renderTempTable();
+    renderActiveTable();
+    closeTempDetail();
+  }
+  else {
+    alert('Không tìm thấy dữ liệu đơn');
   }
 }
 
 // Active residents section
-function getActiveDays(fromDate, toDate) {
-  const to = new Date(toDate);
-  const today = new Date(ymd(new Date()));
-  const diffTime = Math.max(0, to.getTime() - today.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-}
+// function getActiveDays(fromDate, toDate) {
+//   const to = new Date(toDate);
+//   const today = new Date(ymd(new Date()));
+//   const diffTime = Math.max(0, to.getTime() - today.getTime());
+//   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+//   return diffDays;
+// }
 
 function bindActiveFilters() {
   if (activeFiltersBound) return;
@@ -270,15 +355,26 @@ function filterActive() {
   const typeFilter = document.getElementById('activeTypeFilter')?.value || '';
   const searchText = document.getElementById('activeSearch')?.value.toLowerCase() || '';
 
-  return allTemp.filter(t => {
-    if (t.status !== 'approved') return false;
-    const matchType = !typeFilter || t.type === typeFilter;
-    const matchSearch = !searchText || t.name.toLowerCase().includes(searchText) || t.phone.includes(searchText);
-    return matchType && matchSearch;
+  return tam_tru.filter(t => {
+    // const matchType = !typeFilter || t.type === typeFilter;
+    const matchSearch = !searchText || t.ho_ten.toLowerCase().includes(searchText) || (t.cccd || '').includes(searchText);
+    // return matchType && matchSearch;
+    return matchSearch;
   });
 }
 
-function renderActiveTable() {
+async function getTamTruTemp() {
+  try {
+    const response = await fetch('http://localhost:3000/api/get/tamtruTemp');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error calling API: ", error);
+    alert(error.message);
+    return [];
+  }
+}
+async function renderActiveTable() {
   const filtered = filterActive();
   const PAGE_SIZE = 10;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -288,16 +384,16 @@ function renderActiveTable() {
   if (tbody) {
     const slice = filtered.slice((activePage - 1) * PAGE_SIZE, (activePage - 1) * PAGE_SIZE + PAGE_SIZE);
     tbody.innerHTML = slice.map((t, i) => {
-      const typeText = t._type === 'tam_tru' ? '🏠 Tạm trú' : '✈️ Tạm vắng';
-      const daysLeft = getActiveDays(t.fromDate, t.toDate);
-      const daysColor = daysLeft <= 3 ? '#ef4444' : daysLeft <= 7 ? '#f59e0b' : '#22c55e';
+      // const typeText = t._type === 'Tạm trú' ? '🏠 Tạm trú' : '✈️ Thường trú';
+      const daysLeft = t.con_lai > 0 ? t.con_lai : 0;
+      const daysColor = daysLeft <= 60 ? '#ef4444' : daysLeft <= 120 ? '#f59e0b' : '#22c55e';
       return `<tr>
         <td>${(activePage - 1) * PAGE_SIZE + i + 1}</td>
-        <td><strong>${t.name}</strong></td>
-        <td>${typeText}</td>
-        <td>${t.fromDate}</td>
-        <td>${t.toDate}</td>
-        <td>${t.reason}</td>
+        <td><strong>${t.ho_ten}</strong></td>
+        <td>${t.cccd || '—'}</td>
+        <td>${formatDateVN(t.begin)}</td>
+        <td>${formatDateVN(t.end)}</td>
+        <!-- <td>${t.con_lai}</td> --!>
         <td><span style="color:${daysColor};font-weight:600;">${daysLeft} ngày</span></td>
       </tr>`;
     }).join('');
@@ -335,6 +431,7 @@ export async function initTemporary() {
   tempFiltersBound = false;
   activeFiltersBound = false;
   allTemp = await getAllTemp();
+  tam_tru = await getTamTruTemp();
   // Always refresh data to prevent loss on page navigation
   // allTemp = load('allTemp', [
   //   { id: '1', name: 'Nguyễn Văn A', phone: '0912345678', addr: 'Đà Nẵng, Nhật Bản', type: 'tam_tru', fromDate: '2025-11-20', toDate: '2025-12-20', reason: 'Công tác', status: 'approved', createdDate: '2025-11-18' },
@@ -377,17 +474,18 @@ export async function initTemporary() {
   //   { id: '38', name: 'Đào Văn MM', phone: '0923456783', addr: 'Vĩnh Long', type: 'tam_tru', fromDate: '2025-12-04', toDate: '2025-12-15', reason: 'Học tập', status: 'pending', createdDate: '2025-10-13' }
   // ]);
 
-  updateTempStats();
+  await updateTempStats();
   if (!temporaryInited) {
-    bindTempDetailModel();
-    bindTempFilters();
-    bindActiveFilters();
+    await bindTempDetailModel();
+    await bindTempFilters();
+    await bindActiveFilters();
     temporaryInited = true;
   }
   renderTempTable();
   renderActiveTable();
+  temporaryInited = false;
 }
-temporaryInited = false;
-// Make functions globally available for onclick handlers
+
+// // Make functions globally available for onclick handlers
 window.approveTempRecord = approveTempRecord;
 window.rejectTempRecord = rejectTempRecord;
