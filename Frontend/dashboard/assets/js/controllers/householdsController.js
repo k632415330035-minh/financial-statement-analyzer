@@ -964,12 +964,12 @@ function bindCreateHouseholdModal() {
       thuong_tru_truoc_day: thuong_tru_truoc_day || '',
       quan_he_voi_chu_ho: 'Chủ hộ'
     };
+    const today = new Date().toISOString().split('T')[0];
     aNewHousehold.ho_khau = {
       address: address,
       type: loaiHoKhauSelect.value,
-      begin: type == 'Tạm trú' ? tuNgayTamTru : 'DATE(NOW())',
-      end: type == 'Tạm trú' ? denNgayTamTru : ''
-
+      begin: type == 'Tạm trú' ? tuNgayTamTru : today,
+      end: type == 'Tạm trú' ? denNgayTamTru : null
     };
     aNewHousehold.nhan_khau.push(chuHo);
 
