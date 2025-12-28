@@ -188,7 +188,15 @@ async function openTempDetail(soHK) {
   let members = [];
 
   try {
-    const response = await fetch(`http://localhost:3000/api/get/tempDetail/${curTemp.id_dk}`);
+    const response = await fetch(`http://localhost:3000/api/get/tempDetail/${curTemp.id_dk}`,
+      {
+        method: 'GET',
+        headers: {
+          "Content-Type": 'application/json',
+          "Authorization": `Bearer ${localStorage.getItem('token') || localStorage.getItem('userToken')}`
+        }
+      }
+    );
     const data = await response.json();
     members = data;
   }
@@ -268,7 +276,7 @@ async function approveTempRecord(id) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('userToken')}`
         }
       });
       if (!response.ok) {
@@ -306,7 +314,8 @@ async function rejectTempRecord(id) {
       const response = await fetch(`http://localhost:3000/api/action/rejectTemp/${record.id_dk}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('userToken')}`
         },
         body: JSON.stringify({ reason: reason })
       });
@@ -365,7 +374,13 @@ function filterActive() {
 
 async function getTamTruTemp() {
   try {
-    const response = await fetch('http://localhost:3000/api/get/tamtruTemp');
+    const response = await fetch('http://localhost:3000/api/get/tamtruTemp', {
+      method: 'GET',
+      headers: {
+        "Content-Type": 'application/json',
+        "Authorization": `Bearer ${localStorage.getItem('token') || localStorage.getItem('userToken')}`,
+      }
+    });
     const data = await response.json();
     return data;
   } catch (error) {
@@ -418,7 +433,16 @@ async function renderActiveTable() {
 
 const getAllTemp = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/get/allTemp');
+    const response = await fetch('http://localhost:3000/api/get/allTemp',
+      {
+        method: 'GET',
+        headers: {
+          "Content-Type": 'application/json',
+          "Authorization": `Bearer ${await localStorage.getItem('userToken')}`
+        }
+      }
+    );
+    console.log(response);
     const data = await response.json();
     return data;
   } catch (error) {

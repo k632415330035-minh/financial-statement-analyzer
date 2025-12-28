@@ -24,7 +24,13 @@ const residentManageRoute = require('./routes/residentManageRoute');
 const temporaryRoute = require("./routes/temporaryRoute");
 const PORT = process.env.PORT || 3000; // Cổng lắng nghe
 
-app.use(cors());
+// Allow Authorization header in CORS so frontend can send Bearer tokens
+app.use(
+  cors({
+    origin: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 // app.use(morgan("dev"));
 app.use(express.json());
 
@@ -43,6 +49,9 @@ app.use('/api/manageabsent', manageabsentRoute);
 // Tuyến cần authMiddleware
 app.use("/api", authMiddleware, registerRoute);
 app.use("/api", authMiddleware, newresidentRoute);
+
+// Temporary routes (was required earlier but not mounted)
+app.use("/api", temporaryRoute);
 
 // Serve static files từ thư mục Frontend
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
