@@ -371,10 +371,13 @@ const getChangeHistory = async (id_ho_khau) => {
         const [doiChuHo] = await db.query(doiChuHoSQL, [id_ho_khau]);
         const doiDiaChiSQL = `SELECT * FROM historylog WHERE record_id = ? AND column_name = 'address'`
         const [doiDiaChi] = await db.query(doiDiaChiSQL, [id_ho_khau]);
-        return { tachHo, doiChuHo, doiDiaChi };
+        const chuyenDiSQL = `SELECT * FROM chuyen_di NATURAL JOIN cong_dan WHERE old_id_hk = ?`;
+        const [chuyenDi] = await db.query(chuyenDiSQL, [id_ho_khau]);
+        return { tachHo, doiChuHo, doiDiaChi, chuyenDi };
 
     } catch (error) {
-
+        console.log("Error executing query getChangeHistory:", error);
+        throw error;
     }
 }
 

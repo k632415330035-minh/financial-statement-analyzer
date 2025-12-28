@@ -227,7 +227,7 @@ const updateHousehold = async (req, res) => {
 const getChangeHistory = async (req, res) => {
     const { id_ho_khau } = await req.params;
     try {
-        const { tachHo, doiChuHo, doiDiaChi } = await householdsManagementModel.getChangeHistory(id_ho_khau);
+        const { tachHo, doiChuHo, doiDiaChi, chuyenDi } = await householdsManagementModel.getChangeHistory(id_ho_khau);
         let history = [];
         if (tachHo.length > 0) {
             for (let i = 0; i < tachHo.length; i++) {
@@ -253,8 +253,16 @@ const getChangeHistory = async (req, res) => {
                 });
             }
         }
+        if (chuyenDi.length > 0) {
+            for (let i = 0; i < chuyenDi.length; i++) {
+                history.push({
+                    action: `${chuyenDi[i].ghi_chu ? `[${chuyenDi[i].ghi_chu}]` : ''}Nhân khẩu ${chuyenDi[i].ho_ten} - CCCD ${chuyenDi[i].cccd} đã chuyển ra khỏi hộ đến (${chuyenDi[i].chuyen_den})`,
+                    date_time: chuyenDi[i].ngay_chuyen
+                })
+            }
+        }
         history.sort((a, b) =>
-            new Date(b.date) - new Date(a.date)
+            new Date(b.date_time) - new Date(a.date_time)
         );
         const historyVN = history.map(item => ({
             ...item,
