@@ -128,7 +128,7 @@ const createNewHousehold = async (req, res) => {
     try {
         const result = await householdsManagementModel.insertResidentToHousehold(nhan_khau, ho_khau);
         if (result) {
-            res.status(201).json({ message: "Tạo hộ khẩu mới thành công", householdId: result });
+            res.status(201).json({ message: "Tạo hộ khẩu mới thành công", id: result });
         } else {
             res.status(400).json({ message: "Không thể tạo hộ khẩu mới" });
         }
