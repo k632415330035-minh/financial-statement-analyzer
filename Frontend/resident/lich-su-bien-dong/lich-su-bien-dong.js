@@ -88,7 +88,7 @@
 
     if (e.type === "CHUYEN_DI") {
       titleText = "Chuyển đi nơi khác";
-      bodyText = `Chuyển đến: ${e.destination || "—"}`;
+      bodyText = `Lý do: ${e.destination || "—"}`;
     }
 
     return `
@@ -179,7 +179,7 @@
           type: "CHUYEN_DI",
           typeDisplay: "Chuyển đi",
           status: "Đã chuyển",
-          destination: i.chuyen_den,
+          destination: i.ghi_chu,
           sortKey: i.ngay_chuyen,
         };
       }
