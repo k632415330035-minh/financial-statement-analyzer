@@ -133,6 +133,7 @@ function bindResidentDetailModal() {
   document.getElementById('residentDetailModal')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('residentDetailModal')) closeResidentDetailModal();
   });
+  residentsDetailModalBound = false;
 }
 
 function bindResidentFilters() {
@@ -164,6 +165,7 @@ function bindResidentFilters() {
       renderResidentTable();
     });
   });
+  residentsFiltersBound = false;
 }
 
 function populateHouseholdFilter() {
