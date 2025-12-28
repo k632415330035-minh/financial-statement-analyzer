@@ -308,9 +308,12 @@ function updateEditRelationContainer(household) {
             <option value="Vợ" ${member.quan_he_voi_chu_ho === 'Vợ' ? 'selected' : ''}>Vợ</option>
             <option value="Chồng" ${member.quan_he_voi_chu_ho === 'Chồng' ? 'selected' : ''}>Chồng</option>
             <option value="Con" ${member.quan_he_voi_chu_ho === 'Con' ? 'selected' : ''}>Con</option>
+            <option value="Ông" ${member.quan_he_voi_chu_ho === 'Ông' ? 'selected' : ''}>Ông</option>
+            <option value="Bà" ${member.quan_he_voi_chu_ho === 'Bà' ? 'selected' : ''}>Bà</option>
+            <option value="Bố" ${member.quan_he_voi_chu_ho === 'Bố' ? 'selected' : ''}>Bố</option>
             <option value="Mẹ" ${member.quan_he_voi_chu_ho === 'Mẹ' ? 'selected' : ''}>Mẹ</option>
-            <option value="Cha" ${member.quan_he_voi_chu_ho === 'Cha' ? 'selected' : ''}>Cha</option>
             <option value="Anh" ${member.quan_he_voi_chu_ho === 'Anh' ? 'selected' : ''}>Anh</option>
+            <option value="Chị" ${member.quan_he_voi_chu_ho === 'Chị' ? 'selected' : ''}>Chị</option>
             <option value="Em" ${member.quan_he_voi_chu_ho === 'Em' ? 'selected' : ''}>Em</option>
             <option value="Cháu" ${member.quan_he_voi_chu_ho === 'Cháu' ? 'selected' : ''}>Cháu</option>
             <option value="Khác" ${member.quan_he_voi_chu_ho === 'Khác' ? 'selected' : ''}>Khác</option>
