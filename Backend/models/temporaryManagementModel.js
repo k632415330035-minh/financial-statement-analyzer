@@ -16,7 +16,7 @@ const getAllTemp = async () => {
 const getTempDetail = async (id) => {
     try {
         const [rows] = await db.query(
-            `SELECT ddk.id_dk, cd.ho_ten, ctd.quan_he_voi_chu_ho, ctd.thuong_tru_truoc_day, ctd.id_cd, cd.cccd, YEAR(cd.ngay_sinh) AS nam_sinh, cd.gioi_tinh, ddk.address, ddk._type, ddk.begin
+            `SELECT ddk.id_dk, cd.ho_ten, ctd.quan_he_voi_chu_ho, ctd.thuong_tru_truoc_day, ctd.id_cd, cd.cccd, YEAR(cd.ngay_sinh) AS nam_sinh, cd.gioi_tinh, ddk.address, ddk._type, ddk.begin, ddk.id_ho_khau
             FROM chi_tiet_don ctd
             JOIN don_dang_ky ddk ON ddk.id_dk = ctd.id_dk
             JOIN cong_dan cd ON ctd.id_cd = cd.id_cd WHERE ddk.id_dk = ?
@@ -30,6 +30,7 @@ const getTempDetail = async (id) => {
     }
 }
 
+
 const approveTempRecord = async (id) => {
     // update state của đơn, thêm mới hộ khẩu -> thêm các thông tin nhân khẩu -> update _type của tài khoản của nhân khẩu
     const con = await db.getConnection();
@@ -39,16 +40,33 @@ const approveTempRecord = async (id) => {
     try {
         await con.beginTransaction();
         const members = await getTempDetail(id);
-        const newHousehold = await helpModel.createNewHousehold(members[0].address, members[0]._type, con);
-        const householdId = newHousehold.insertId;
-        for (let i = 0; i < members.length; i++) {
-            await con.execute(insertResidentSQL, [members[i].id_cd, householdId, members[i].quan_he_voi_chu_ho, members[i].begin, members[i].thuong_tru_truoc_day]);
-            const check_Acc = await helpModel.check_haveAccountInformation(members[i].cccd, con);
-            if (check_Acc === 'tam thoi') {
-                await con.execute(updateAccountTypeSQL, ['cu dan', members[i].cccd]);
+        if (members[0].id_ho_khau == null) {
+            const newHousehold = await helpModel.createNewHousehold(members[0].address, members[0]._type, con);
+            const householdId = newHousehold.insertId;
+            for (let i = 0; i < members.length; i++) {
+                await con.execute(insertResidentSQL, [members[i].id_cd, householdId, members[i].quan_he_voi_chu_ho, members[i].begin, members[i].thuong_tru_truoc_day]);
+                const check_Acc = await helpModel.check_haveAccountInformation(members[i].cccd, con);
+                if (check_Acc === 'tam thoi') {
+                    await con.execute(updateAccountTypeSQL, ['cu dan', members[i].cccd]);
+                }
             }
+            await con.execute(updateStateSQL, [householdId, id]);
         }
-        await con.execute(updateStateSQL, [householdId, id]);
+        else {
+            const householdId = members[0].id_ho_khau;
+            for (let i = 0; i < members.length; i++) {
+                let check = await helpModel.check_isResident(members[i].id_cd, con);
+                if (check === false) {
+                    await con.execute(insertResidentSQL, [members[i].id_cd, householdId, members[i].quan_he_voi_chu_ho, members[i].begin, members[i].thuong_tru_truoc_day]);
+                }
+                const check_Acc = await helpModel.check_haveAccountInformation(members[i].cccd, con);
+                if (check_Acc === 'tam thoi') {
+                    await con.execute(updateAccountTypeSQL, ['cu dan', members[i].cccd]);
+                }
+            }
+            await con.execute(updateStateSQL, [householdId, id]);
+        }
+        // await con.execute(updateStateSQL, [householdId, id]);
         await con.commit();
         return { oke: true };
     }
@@ -85,10 +103,27 @@ const rejectTempRecord = async (id, reason) => {
 const getTamTruTemp = async () => {
     try {
         const [rows] = await db.query(
-            `SELECT ctd.id_cd, cd.ho_ten, cd.cccd, ddk.begin, ddk.end, DATEDIFF(ddk.end , DATE(NOW())) AS con_lai FROM chi_tiet_don ctd 
-            JOIN cong_dan cd ON ctd.id_cd = cd.id_cd
-            JOIN don_dang_ky ddk ON ctd.id_dk = ddk.id_dk
-            WHERE ddk.state = 'Đã duyệt' AND _type = 'Tạm trú' ORDER BY con_lai`
+            `SELECT id_cd, ho_ten, cccd, begin, end, con_lai
+FROM (
+    SELECT 
+        ctd.id_cd,
+        cd.ho_ten,
+        cd.cccd,
+        ddk.begin,
+        ddk.end,
+        DATEDIFF(ddk.end, DATE(NOW())) AS con_lai,
+        ROW_NUMBER() OVER (
+            PARTITION BY ctd.id_cd
+            ORDER BY ddk.end DESC
+        ) AS rn
+    FROM chi_tiet_don ctd
+    JOIN cong_dan cd ON ctd.id_cd = cd.id_cd
+    JOIN don_dang_ky ddk ON ctd.id_dk = ddk.id_dk
+    WHERE ddk.state = 'Đã duyệt'
+      AND ddk._type = 'Tạm trú'
+) t
+WHERE rn = 1
+ORDER BY con_lai ASC;`
         );
         return rows;
     } catch (error) {

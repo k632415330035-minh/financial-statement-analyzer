@@ -10,5 +10,6 @@ router.put("/createNewHouseholdFromMembers", householdsManagementController.crea
 router.post("/post/createNewHousehold", householdsManagementController.createNewHousehold);
 router.post("/post/household/addNewMember", householdsManagementController.addNewMember);
 router.put("/put/updateHousehold/:id_ho_khau", householdsManagementController.updateHousehold);
+router.get("/get/changeHistory/:id_ho_khau", householdsManagementController.getChangeHistory);
 
 module.exports = router;

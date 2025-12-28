@@ -1,4 +1,3 @@
-const { insertNewAbsent } = require("../models/absentModel");
 const householdsManagementModel = require("../models/householdsManagementModel");
 
 const getAllHouseholds = async (req, res) => {
@@ -60,13 +59,14 @@ const createNewHouseholdFromMembers = async (req, res) => {
             if (isHead) {
                 res.status(400).json({ message: `Không thể chuyển tách chủ hộ sang hộ khẩu mới` });
                 throw new Error(`Cannot transfer household head with id_cd ${id.id_cd} to new household`);
+                return
             }
-            const result = await householdsManagementModel.createNewHouseholdFromMembers(ids, address, type);
-            if (result) {
-                res.status(201).json({ message: "Tạo hộ khẩu mới thành công" });
-            } else {
-                res.status(400).json({ message: "Không thể tạo hộ khẩu mới" });
-            }
+        }
+        const result = await householdsManagementModel.createNewHouseholdFromMembers(ids, address, type);
+        if (result) {
+            res.status(201).json({ message: "Tạo hộ khẩu mới thành công" });
+        } else {
+            res.status(400).json({ message: "Không thể tạo hộ khẩu mới" });
         }
     }
     catch (error) {
@@ -223,6 +223,50 @@ const updateHousehold = async (req, res) => {
         throw error
     }
 }
+
+const getChangeHistory = async (req, res) => {
+    const { id_ho_khau } = await req.params;
+    try {
+        const { tachHo, doiChuHo, doiDiaChi } = await householdsManagementModel.getChangeHistory(id_ho_khau);
+        let history = [];
+        if (tachHo.length > 0) {
+            for (let i = 0; i < tachHo.length; i++) {
+                history.push({
+                    action: `Đã tách nhân khẩu ${tachHo[i].ho_ten} - CCCD ${tachHo[i].cccd} sang hộ khẩu số ${tachHo[i].new_value}`,
+                    date_time: tachHo[i].date_time
+                });
+            }
+        }
+        if (doiChuHo.length > 0) {
+            for (let i = 0; i < doiChuHo.length; i++) {
+                history.push({
+                    action: `Đổi chủ hộ thành ${doiChuHo[i].ho_ten}`,
+                    date_time: doiChuHo[i].date_time
+                });
+            }
+        }
+        if (doiDiaChi.length > 0) {
+            for (let i = 0; i < doiDiaChi.length; i++) {
+                history.push({
+                    action: `Hộ khẩu chuyển chỗ ở từ ${doiDiaChi[i].old_value} sang ${doiDiaChi[i].new_value}`,
+                    date_time: doiDiaChi[i].date_time
+                });
+            }
+        }
+        history.sort((a, b) =>
+            new Date(b.date) - new Date(a.date)
+        );
+        const historyVN = history.map(item => ({
+            ...item,
+            date: new Date(item.date_time).toLocaleString('vi-VN')
+        }));
+        res.status(200).json({ "history": historyVN });
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+        console.error(error);
+        throw error
+    }
+}
 module.exports = {
     getAllHouseholds,
     getHouseholdMembers,
@@ -230,5 +274,6 @@ module.exports = {
     createNewHouseholdFromMembers,
     createNewHousehold,
     addNewMember,
-    updateHousehold
+    updateHousehold,
+    getChangeHistory
 };

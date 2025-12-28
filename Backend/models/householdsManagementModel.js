@@ -254,11 +254,11 @@ const createNewHouseholdFromMembers = async (ids, address, type) => {
         // const [householdResult] = await connection.execute(insertHouseholdQuery, [address, type]);
         const householdResult = await createNewHousehold(address, type, connection);
         const householdId = await householdResult.insertId;
+        console.log("householdId", householdId);
         const updateMembersQuery = `UPDATE nhan_khau SET id_ho_khau = ?, quan_he_voi_chu_ho = ? WHERE id_cd = ?`;
-        ids.forEach(async (id) => {
-            await connection.execute(updateMembersQuery, [householdId, id.quan_he_voi_chu_ho, id.id_cd]);
+        for (let i = 0; i < ids.length; i++) {
+            await connection.execute(updateMembersQuery, [householdId, ids[i].quan_he_voi_chu_ho, ids[i].id_cd]);
         }
-        );
         await connection.commit();
         return householdId;
     }
@@ -356,6 +356,28 @@ const updateHousehold = async (id_ho_khau, changedHousehold) => {
     }
 }
 
+const getChangeHistory = async (id_ho_khau) => {
+    try {
+        const tachHoSQL = `SELECT * FROM historylog h JOIN cong_dan cd ON h.record_id = cd.id_cd 
+        WHERE h.table_name = 'nhan_khau' AND 
+        h.column_name = 'id_ho_khau' AND 
+        h.old_value = ? ORDER BY date_time DESC`;
+        const [tachHo] = await db.query(tachHoSQL, [id_ho_khau]);
+        const doiChuHoSQL = `SELECT nk.id_ho_khau, h.date_time, cd.ho_ten FROM historylog h 
+        JOIN cong_dan cd ON h.record_id = cd.id_cd
+        JOIN nhan_khau nk ON cd.id_cd = nk.id_cd
+        WHERE h.table_name = 'nhan_khau' AND h.column_name = 'quan_he_voi_chu_ho' AND new_value = 'Chủ hộ' AND nk.id_ho_khau = ?
+        ORDER BY date_time DESC`
+        const [doiChuHo] = await db.query(doiChuHoSQL, [id_ho_khau]);
+        const doiDiaChiSQL = `SELECT * FROM historylog WHERE record_id = ? AND column_name = 'address'`
+        const [doiDiaChi] = await db.query(doiDiaChiSQL, [id_ho_khau]);
+        return { tachHo, doiChuHo, doiDiaChi };
+
+    } catch (error) {
+
+    }
+}
+
 module.exports = {
     getAllHouseholds,
     getHouseholdMembers,
@@ -367,8 +389,10 @@ module.exports = {
     check_haveInvidualInformation,
     insertPersonalInformation,
     check_haveAccountInformation,
+    check_isResident,
     addNewMember,
     updateAddressHousehold,
     deleteMemberFromHousehold,
-    updateHousehold
+    updateHousehold,
+    getChangeHistory
 };

@@ -286,11 +286,13 @@ async function approveTempRecord(id) {
         allTemp = await getAllTemp();
       }
       alert('Đã phê duyệt đơn của ' + record.ho_ten);
+      tam_tru = await getTamTruTemp();
     }
     catch (error) {
       console.error("Error calling API: ", error);
       alert(error.message);
     }
+
     updateTempStats();
     renderTempTable();
     renderActiveTable();

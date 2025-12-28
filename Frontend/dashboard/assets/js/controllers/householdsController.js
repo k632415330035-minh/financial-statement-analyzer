@@ -196,10 +196,28 @@ async function openHouseholdModal(soHK) {
   if (modal) modal.classList.add('is-open');
 }
 
-function renderChangeHistory(household) {
+async function renderChangeHistory(household) {
+  const id = await household.id_ho_khau;
   const historyDiv = document.getElementById('changeHistory');
   if (!historyDiv) return;
-
+  try {
+    // console.log(id);
+    const response = await fetch(`http://localhost:3000/api/get/changeHistory/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          "Content-Type": 'application/json',
+          "Authorization": `Bearer ${await localStorage.getItem('userToken')}`
+        }
+      }
+    );
+    // console.log("abcabc");
+    const data = await response.json();
+    household.history = data.history;
+  } catch (error) {
+    console.error("Error fetching feedback stats: ", error);
+    household.history = null;
+  }
   const history = household.history || [];
   if (history.length === 0) {
     historyDiv.innerHTML = '<p style="color:var(--muted);margin:0;">Chưa có thay đổi</p>';
@@ -432,7 +450,7 @@ function bindEditHouseholdModal() {
       // Update detail modal if open
       // document.getElementById('modalChuHo').textContent = chuHo;
       // document.getElementById('modalDiaChi').textContent = diaChi;
-      // renderChangeHistory(household);
+      renderChangeHistory(household);
       alert(res.message);
     }
     catch (err) {
@@ -715,7 +733,7 @@ function bindAddMemberModal() {
     // });
     try {
       const token = await localStorage.getItem('userToken') || localStorage.getItem('token');
-      console.log(">>>>>", token);
+      // console.log(">>>>>", token);
       console.log(">   ", JSON.stringify(newMember));
       await fetch(`http://localhost:3000/api/post/household/addNewMember`, {
         method: 'POST',
@@ -732,11 +750,10 @@ function bindAddMemberModal() {
 
     modal.classList.remove('is-open');
     form.reset();
-
+    householdsAddMemberModalBound = false;
     // Refresh modal table
     openHouseholdModal(household.id_ho_khau);
     renderTable();
-
     alert('Thêm thành viên thành công');
   });
 }
