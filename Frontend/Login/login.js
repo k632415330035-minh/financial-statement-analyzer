@@ -104,7 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Nút con mắt (Ẩn/Hiện password)
   document.querySelectorAll(".toggle-password").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const targetId = btn.getAttribute("data-target");
       const input = document.getElementById(targetId);
       if (!input) return;

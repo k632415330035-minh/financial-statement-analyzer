@@ -4,7 +4,7 @@ const connection = mysql.createPool({
   host: process.env.DB_HOST_MYSQL || "localhost",
   port: process.env.DB_PORT_MYSQL || 3306,
   user: process.env.DB_USER_MYSQL || "root",
-  password: process.env.DB_PASSWORD_MYSQL || "123456",
+  password: process.env.DB_PASSWORD_MYSQL || "lhdh",
   database: process.env.DB_NAME_MYSQL || "todanpho",
   waitForConnections: true,
   connectionLimit: 10, // Số kết nối tối đa trong pool

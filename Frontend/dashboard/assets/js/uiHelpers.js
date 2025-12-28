@@ -29,6 +29,6 @@ export function bindLogout() {
       localStorage.clear();
       sessionStorage.clear();
     } catch { }
-    window.location.href = '/index.html';
+    window.location.href = '../index.html';
   });
 }
