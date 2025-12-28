@@ -172,7 +172,7 @@ const deleteHouseholdMember = async (id_cd, connection) => {
     try {
         const [result, fields] = await con.execute(sql, [id_cd]);
         if (result.affectedRows === 0) {
-            throw new Error("Cannot delete household head or member not found");
+            throw new Error("Không thể xóa chủ hộ hoặc không tìm thấy thông tin thành viên");
         }
         return result.affectedRows > 0;
         // return result;
@@ -191,6 +191,7 @@ const deleteMemberFromHousehold = async (bodyData, id_cd) => {
         await con.beginTransaction();
         const [result, fields] = await con.execute(sql, [id_cd, bodyData.old_id_ho_khau, bodyData.chuyen_den, bodyData.ghi_chu]);
         await deleteHouseholdMember(id_cd, con);
+        await con.execute(`UPDATE cong_dan SET userID = NULL WHERE id_cd = ?`, [id_cd]);
         const sqlGetCCCD = 'SELECT cccd FROM cong_dan WHERE id_cd = ?';
         const [cccd] = await con.execute(sqlGetCCCD, [id_cd]);
         const check_Acc = await check_haveAccountInformation(cccd[0].cccd, con);
@@ -275,7 +276,7 @@ const addNewMember = async (resident) => {
     // nhan_khau_info: {ho_ten, bi_danh, gioi_tinh, ngay_sinh, noi_sinh, que_quan, dan_toc, nghe_nghiep, noi_lam_viec, quan_he_voi_chu_ho}
     const connection = await db.getConnection();
     try {
-        console.log("resident =======", resident)
+        // console.log("resident =======", resident)
         await connection.beginTransaction();
         const check = await check_haveInvidualInformation(resident.cccd, connection);
         let residentIdCd;
@@ -330,6 +331,31 @@ const updateAddressHousehold = async (id_ho_khau, newAddress) => {
     }
 }
 
+const updateHousehold = async (id_ho_khau, changedHousehold) => {
+    const address = changedHousehold.address;
+    console.log("address", address);
+    const members = changedHousehold.nhan_khau;
+    console.log("members", members);
+    const con = await db.getConnection();
+    const updateMembersQuery = `UPDATE nhan_khau SET quan_he_voi_chu_ho = ? WHERE id_cd = ?`;
+    try {
+        await con.beginTransaction();;
+        await updateAddressHousehold(id_ho_khau, address);
+        for (let i = 0; i < members.length; i++) {
+            await con.execute(updateMembersQuery, [members[i].quan_he_voi_chu_ho, members[i].id_cd]);
+        }
+        await con.commit();
+        return { "ok": true };
+    } catch (error) {
+        await con.rollback();
+        console.error(error);
+        throw error;
+    }
+    finally {
+        con.release();
+    }
+}
+
 module.exports = {
     getAllHouseholds,
     getHouseholdMembers,
@@ -343,5 +369,6 @@ module.exports = {
     check_haveAccountInformation,
     addNewMember,
     updateAddressHousehold,
-    deleteMemberFromHousehold
+    deleteMemberFromHousehold,
+    updateHousehold
 };
