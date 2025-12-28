@@ -61,7 +61,6 @@ const createNewHouseholdFromMembers = async (req, res) => {
                 res.status(400).json({ message: `Không thể chuyển tách chủ hộ sang hộ khẩu mới` });
                 throw new Error(`Cannot transfer household head with id_cd ${id.id_cd} to new household`);
             }
-            // console.log("Received data for new household:", ids, address, type);
             const result = await householdsManagementModel.createNewHouseholdFromMembers(ids, address, type);
             if (result) {
                 res.status(201).json({ message: "Tạo hộ khẩu mới thành công" });
@@ -206,19 +205,20 @@ const addNewMember = async (req, res) => {
 };
 
 
-const updateAddressHousehold = async (req, res) => {
+const updateHousehold = async (req, res) => {
     const { id_ho_khau } = await req.params;
-    const { dia_chi } = await req.body;
+    const { changedHousehold } = await req.body;
     // console.log("id_ho_khau", id_ho_khau, "        newAddress:", dia_chi);
     try {
-        const result = await householdsManagementModel.updateAddressHousehold(id_ho_khau, dia_chi);
+        const result = await householdsManagementModel.updateHousehold(id_ho_khau, changedHousehold);
         if (result) {
-            res.status(201).json({ message: 'Cập nhật thành công địa chỉ mới' })
+            res.status(201).json({ message: 'Cập nhật thành công thông tin hộ khẩu', oke: true })
         }
         else {
-            res.status(400).json({ message: 'Không thể cập nhật địa chỉ mới cho hộ' })
+            res.status(400).json({ message: 'Cập nhật thông tin cho hộ khẩu không thành công', oke: false })
         }
     } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", oke: false });
         console.error(error);
         throw error
     }
@@ -230,5 +230,5 @@ module.exports = {
     createNewHouseholdFromMembers,
     createNewHousehold,
     addNewMember,
-    updateAddressHousehold
+    updateHousehold
 };

@@ -13,6 +13,7 @@ function removeVietnameseTones(str) {
 const PAGE_SIZE = 6;
 let originalRows = [];
 let aNewHousehold = { nhan_khau: [], ho_khau: {} };
+let changedHousehold = { nhan_khau: [], address: "" };
 let page = 1;
 let sortState = { key: null, dir: 1 };
 let householdsInited = false;
@@ -27,7 +28,7 @@ let householdsCreateModalBound = false;
 export async function init() {
   // Always refresh data to prevent loss on navigation
   originalRows = await dataService.getHouseholds();
-
+  changedHousehold = { nhan_khau: [], address: "" };
   // Reset all flags to rebind on each visit
   householdsTableBound = false;
   householdsModalBound = false;
@@ -253,12 +254,94 @@ function openEditHouseholdModal() {
   const household = window.currentEditingHousehold;
   if (!household) return;
 
-  document.getElementById('edit_chuHo').value = household.ho_ten;
+  const chuHoSelect = document.getElementById('edit_chuHo');
+  if (chuHoSelect && household.members && household.members.length > 0) {
+    chuHoSelect.innerHTML = '<option value="">-- Chọn chủ hộ --</option>';
+    household.members.forEach(member => {
+      const option = document.createElement('option');
+      option.value = member.id_cd;
+      option.textContent = member.ho_ten;
+      /*=======================================
+      ========================================
+============================================
+      ===================================================================================
+      =====================================================================================
+      */
+      if (member.ho_ten === household.ho_ten) {
+        option.selected = true;
+      }
+      chuHoSelect.appendChild(option);
+    });
+  }
+
   document.getElementById('edit_diaChi').value = household.address;
+
+  // Initial populate relation container with current chủ hộ
+  updateEditRelationContainer(household);
 
   const modal = document.getElementById('editHouseholdModal');
   if (modal) modal.classList.add('is-open');
+  // document.getElementById('edit_chuHo').value = household.ho_ten;
+  // document.getElementById('edit_diaChi').value = household.address;
+
+  // const modal = document.getElementById('editHouseholdModal');
+  // if (modal) modal.classList.add('is-open');
 }
+
+function updateEditRelationContainer(household) {
+  const chuHoSelect = document.getElementById('edit_chuHo');
+  const selectedChuHo = chuHoSelect?.value;
+
+  const relationContainer = document.getElementById('editRelationContainer');
+  if (relationContainer && household.members && household.members.length > 0) {
+    // Filter out the selected chủ hộ - only show other members
+    const otherMembers = household.members.filter(m => m.id_cd != selectedChuHo);
+
+    if (otherMembers.length === 0) {
+      relationContainer.innerHTML = '<p style="color: #999; text-align: center; padding: 12px;">Không có thành viên khác</p>';
+    } else {
+      const relations = otherMembers.map((member, index) => `
+        <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: center;">
+          <div style="font-weight: 500;">${member.ho_ten}</div>
+          <select class="member-relation-select" data-member-name="${member.id_cd}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            <option value="">Chọn quan hệ</option>
+            <option value="Vợ" ${member.quan_he_voi_chu_ho === 'Vợ' ? 'selected' : ''}>Vợ</option>
+            <option value="Chồng" ${member.quan_he_voi_chu_ho === 'Chồng' ? 'selected' : ''}>Chồng</option>
+            <option value="Con" ${member.quan_he_voi_chu_ho === 'Con' ? 'selected' : ''}>Con</option>
+            <option value="Ông" ${member.quan_he_voi_chu_ho === 'Ông' ? 'selected' : ''}>Ông</option>
+            <option value="Bà" ${member.quan_he_voi_chu_ho === 'Bà' ? 'selected' : ''}>Bà</option>
+            <option value="Bố" ${member.quan_he_voi_chu_ho === 'Bố' ? 'selected' : ''}>Bố</option>
+            <option value="Mẹ" ${member.quan_he_voi_chu_ho === 'Mẹ' ? 'selected' : ''}>Mẹ</option>
+            <option value="Anh" ${member.quan_he_voi_chu_ho === 'Anh' ? 'selected' : ''}>Anh</option>
+            <option value="Chị" ${member.quan_he_voi_chu_ho === 'Chị' ? 'selected' : ''}>Chị</option>
+            <option value="Em" ${member.quan_he_voi_chu_ho === 'Em' ? 'selected' : ''}>Em</option>
+            <option value="Cháu" ${member.quan_he_voi_chu_ho === 'Cháu' ? 'selected' : ''}>Cháu</option>
+            <option value="Khác" ${member.quan_he_voi_chu_ho === 'Khác' ? 'selected' : ''}>Khác</option>
+          </select>
+        </div>
+      `).join('');
+      relationContainer.innerHTML = relations;
+      // console.log(relationContainer.innerHTML);
+
+      // Bind change listeners to relation selects so we can read and persist changes
+      // relationContainer.querySelectorAll('.member-relation-select').forEach(select => {
+      //   select.addEventListener('change', (e) => {
+      //     const name = select.dataset.memberName;
+      //     const newRelation = select.value;
+      //     const hh = window.currentEditingHousehold;
+      //     if (hh && hh.members) {
+      //       const member = hh.members.find(m => m.ho_ten === name);
+      //       if (member) {
+      //         member.quan_he_voi_chu_ho = newRelation;
+      //       }
+      //     }
+      //     console.log('Relation changed for', name, '->', newRelation);
+      //   });
+      // });
+    }
+  }
+}
+
 
 function bindEditHouseholdModal() {
   if (householdsEditModalBound) return;
@@ -268,7 +351,7 @@ function bindEditHouseholdModal() {
   const closeBtn = document.getElementById('closeEditModal');
   const cancelBtn = document.getElementById('cancelEditBtn');
   const form = document.getElementById('editHouseholdForm');
-
+  const chuHoSelect = document.getElementById('edit_chuHo');
   closeBtn?.addEventListener('click', () => {
     if (modal) modal.classList.remove('is-open');
   });
@@ -280,21 +363,43 @@ function bindEditHouseholdModal() {
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('is-open');
   });
-
+  // When chủ hộ selection changes, update relation container
+  chuHoSelect?.addEventListener('change', () => {
+    const household = window.currentEditingHousehold;
+    if (household) {
+      updateEditRelationContainer(household);
+    }
+  });
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const selected = document.querySelectorAll('.member-relation-select');
 
+    const chuHoSelect = document.getElementById('edit_chuHo');
     const household = window.currentEditingHousehold;
     if (!household) return;
-    console.log(household);
-    const chuHo = document.getElementById('edit_chuHo').value.trim();
+    // console.log(household);
     const diaChi = document.getElementById('edit_diaChi').value.trim();
-
-    if (!chuHo || !diaChi) {
-      alert('Vui lòng điền đầy đủ thông tin');
-      return;
-    }
+    changedHousehold.address = diaChi;
+    selected.forEach(select => {
+      const id_cd = select.dataset.memberName;
+      console.log(id_cd);
+      const relation = select.value;
+      console.log(relation);
+      changedHousehold.nhan_khau.push({
+        id_cd: id_cd,
+        quan_he_voi_chu_ho: relation
+      })
+    })
+    changedHousehold.nhan_khau.push({
+      id_cd: chuHoSelect.value,
+      quan_he_voi_chu_ho: 'Chủ hộ'
+    })
+    // if (!chuHoSelect.value || !diaChi) {
+    //   alert('Vui lòng điền đầy đủ thông tin');
+    //   return;
+    // }
     try {
+
       ///////// UPDATE thong tin Ten Chu ho + dia chi o day
       // const householdRecord = originalRows.find(h => h.id_ho_khau === household.id_ho_khau);
       // if (householdRecord) {
@@ -307,32 +412,31 @@ function bindEditHouseholdModal() {
       //   });
 
       // dataService.saveHouseholds(originalRows);
-      if (diaChi !== old_value) {
-        console.log(old_value, "><><><><><><><><><><", diaChi);
-        await fetch(`http://localhost:3000/api/put/updateNewAddress/${household.id_ho_khau}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            // chuHo: chuHo,
-            dia_chi: diaChi
-          })
-        });
-        originalRows = await dataService.getHouseholds();
-      }
+      // console.log(changedHousehold);
+      const response = await fetch(`http://localhost:3000/api/put/updateHousehold/${household.id_ho_khau}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          // chuHo: chuHo,
+          changedHousehold
+        })
+      });
+      changedHousehold = { nhan_khau: [], address: "" };
+      originalRows = await dataService.getHouseholds();
       openHouseholdModal(household.id_ho_khau);
       modal.classList.remove('is-open');
       renderTable();
-
+      const res = await response.json();
       // Update detail modal if open
       // document.getElementById('modalChuHo').textContent = chuHo;
       // document.getElementById('modalDiaChi').textContent = diaChi;
       // renderChangeHistory(household);
-
-      alert('Cập nhật hộ khẩu thành công');
+      alert(res.message);
     }
     catch (err) {
+      alert(res.message);
       console.log(err);
     }
   });
@@ -698,11 +802,13 @@ function bindRemoveMemberReasonModal() {
     console.log(JSON.stringify({ old_id_ho_khau: household.id_ho_khau, chuyen_den: 'Không rõ', ghi_chu: reason }))
     for (const id of removedMembers) {
       try {
-        await fetch(`http://localhost:3000/api/delete/householdMember/${id}`, {
+        const respone = await fetch(`http://localhost:3000/api/delete/householdMember/${id}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ old_id_ho_khau: household.id_ho_khau, chuyen_den: 'Không rõ', ghi_chu: reason })
         });
+        const res = await respone.json();
+        alert(res.message);
       }
       catch (error) {
         console.error(error);
@@ -723,8 +829,6 @@ function bindRemoveMemberReasonModal() {
     form.reset();
 
     // Refresh modal
-
-    alert('Xóa thành viên thành công');
     openHouseholdModal(household.id_ho_khau);
   });
 }
@@ -919,18 +1023,18 @@ function bindAddFamilyMembersModal() {
       const ho_ten = form.querySelector('.member-hoTen').value.trim();
       const ngay_sinh = form.querySelector('.member-ngaySinh').value.trim();
       const gioi_tinh = form.querySelector('.member-gioiTinh').value.trim();
-
-      if (!ho_ten || !ngay_sinh || !gioi_tinh) {
+      const quan_he_voi_chu_ho = form.querySelector('.member-quanHe').value.trim();
+      if (!ho_ten || !ngay_sinh || !gioi_tinh || !quan_he_voi_chu_ho) {
         alert(`Vui lòng điền đầy đủ thông tin bắt buộc (Họ tên, Ngày sinh, Giới tính) cho TV ${idx + 1}`);
         return;
       }
 
       await aNewHousehold.nhan_khau.push({
         ho_ten,
-        bi_danh: "Không có",//================================================================TAM THOI=========================================
+        bi_danh: form.querySelector('.member-biDanh').value.trim() || '',//================================================================TAM THOI=========================================
         ngay_sinh,
         gioi_tinh,
-        dan_toc: 'Kinh',
+        dan_toc: form.querySelector('.member-danToc').value.trim() || '',
         cccd: form.querySelector('.member-cccd').value.trim() || '',
         ngay_cap: form.querySelector('.member-ngayCapCCCD').value.trim() || '',
         noi_cap: form.querySelector('.member-noiCapCCCD').value.trim() || '',
@@ -938,8 +1042,8 @@ function bindAddFamilyMembersModal() {
         que_quan: form.querySelector('.member-nguonQuan').value.trim() || '',
         nghe_nghiep: form.querySelector('.member-ngheNghiep').value.trim() || '',
         noi_lam_viec: form.querySelector('.member-noiLamViec').value.trim() || '',
-        quan_he_voi_chu_ho: 'Con', // ==================================================================TAM THOI================================
-        thuong_tru_truoc_day: '' // ===========================================================================================================
+        quan_he_voi_chu_ho: quan_he_voi_chu_ho || null, // ==================================================================TAM THOI================================
+        thuong_tru_truoc_day: form.querySelector('.member-diaChiTruoc').value.trim() || '' // ===========================================================================================================
       });
     };
 
@@ -1024,11 +1128,21 @@ function generateFamilyForms(count) {
             <input type="text" class="member-hoTen" placeholder="" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;" required />
           </div>
           <div class="form__group">
+            <label style="font-weight: 600; margin-bottom: 8px; display: block;">Bí danh</label>
+            <input type="text" class="member-biDanh" placeholder="" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;" />
+          </div>
+          </div>
+        <div class="form__row" style="gap: 20px; display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
+
+          <div class="form__group">
             <label style="font-weight: 600; margin-bottom: 8px; display: block;">Ngày sinh *</label>
             <input type="date" class="member-ngaySinh" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;" required />
           </div>
+          <div class="form__group">
+            <label style="font-weight: 600; margin-bottom: 8px; display: block;">Dân tộc *</label>
+            <input type="text" class="member-danToc" placeholder="" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;" required />
+          </div>
         </div>
-
         <div class="form__row" style="gap: 20px; display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
           <div class="form__group">
             <label style="font-weight: 600; margin-bottom: 8px; display: block;">Số CCCD/CMND *</label>
@@ -1041,6 +1155,28 @@ function generateFamilyForms(count) {
               <option value="Nam">Nam</option>
               <option value="Nữ">Nữ</option>
             </select>
+          </div>
+        </div>
+        <div class="form__row" style="gap: 20px; display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
+          <div class="form__group">
+            <label style="font-weight: 600; margin-bottom: 8px; display: block;">Quan hệ với chủ hộ *</label>
+            <select class="member-quanHe" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;" required>
+              <option value="">Chọn quan hệ</option>
+              <option value="Chủ hộ">Chủ hộ</option>
+              <option value="Vợ">Vợ</option>
+              <option value="Chồng">Chồng</option>
+              <option value="Con">Con</option>
+              <option value="Mẹ">Mẹ</option>
+              <option value="Cha">Cha</option>
+              <option value="Anh">Anh</option>
+              <option value="Em">Em</option>
+              <option value="Cháu">Cháu</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+          <div class="form__group">
+            <label style="font-weight: 600; margin-bottom: 8px; display: block;">Thường trú trước đây</label>
+            <input type="text" class="member-diaChiTruoc" placeholder="" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;" />
           </div>
         </div>
 
