@@ -215,12 +215,20 @@
       <form id="editHouseholdForm" class="form">
         <div class="form__group">
           <label for="edit_chuHo">Chủ hộ *</label>
-          <input id="edit_chuHo" type="text" class="input" placeholder="Nhập tên chủ hộ" required />
+          <select id="edit_chuHo" class="input" required>
+            <option value="">-- Chọn chủ hộ --</option>
+          </select>
         </div>
         <div class="form__group">
           <label for="edit_diaChi">Địa chỉ *</label>
           <input id="edit_diaChi" type="text" class="input" placeholder="Nhập địa chỉ" required />
         </div>
+
+        <h3 style="font-size: 14px; margin: 16px 0 12px 0; font-weight: 600;">👥 Chọn lại quan hệ với chủ hộ mới</h3>
+        <div id="editRelationContainer"
+          style="background: #f8fafc; border-radius: 12px; padding: 12px; max-height: 200px; overflow-y: auto; margin-bottom: 16px;">
+        </div>
+
         <div class="form__actions">
           <button type="submit" class="btn btn--primary">✓ Lưu thay đổi</button>
           <button type="button" id="cancelEditBtn" class="btn">Hủy</button>
