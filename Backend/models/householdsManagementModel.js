@@ -111,36 +111,76 @@ const insertPersonalInformation = async (nhan_khau_info, connection) => {
         throw error;
     }
 };
+
+
+const createTemporaryHousehold = async (ho_khau_info, id_cd, connection) => {
+    let con = db;
+    if (connection) {
+        con = connection;
+    }
+    const sql = `INSERT INTO don_dang_ky(begin, end, _type, address, state, id_cd) 
+    VALUES (?, ?, ?, ?, default,  ?)`
+    try {
+        const [result, fields] = await con.execute(sql, [
+            ho_khau_info.begin,
+            ho_khau_info.end,
+            ho_khau_info.type,
+            ho_khau_info.address,
+            id_cd
+        ]);
+        return result;
+    } catch (error) {
+        console.log("Error executing query createTemporaryHousehold");
+        throw error;
+    }
+}
+//chuyển thành chỉ tạo đơn thôi
 const insertResidentToHousehold = async (nhan_khau_info, ho_khau_info) => {
     // nhan_khau_info: {ho_ten, bi_danh, gioi_tinh, ngay_sinh, noi_sinh, que_quan, dan_toc, nghe_nghiep, noi_lam_viec, quan_he_voi_chu_ho}
     if (!Array.isArray(nhan_khau_info) || nhan_khau_info.length === 0) {
         throw new Error("ids must be a non-empty array");
     }
+    // chỗ này sẽ tạo đơn cùng với chi tiết đơn
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-        const insertHousehold = await createNewHousehold(ho_khau_info.address, ho_khau_info.type, connection);
-        const householdId = await insertHousehold.insertId;
+        // tạo đơn mới và lấy mã đơn
+        // const insertHousehold = await createNewHousehold(ho_khau_info.address, ho_khau_info.type, connection);
+        // const householdId = await insertHousehold.insertId;
+        let index = 0;
+        let tempID = 0;
         for (const resident of nhan_khau_info) {
+            // check xem đã có thông tin công dân chưa
             const check = await check_haveInvidualInformation(resident.cccd, connection);
             let residentIdCd;
             if (check.length === 0) {
+                // chưa thì tạo công dân mới
                 const insertPersonalInfo = await insertPersonalInformation(resident, connection);
                 residentIdCd = await insertPersonalInfo.insertId;
+                //lưu id công dân vừa tạo
             } else {
                 residentIdCd = check[0].id_cd;
+                //có rồi thì lấy id công dân
+
+                //kiểm tra xem đã là nhân khẩu chưa, rồi thì báo lỗi
                 if (await check_isResident(residentIdCd, connection)) {
                     throw new Error(`Công dân với cccd ${resident.cccd} đã là thành viên hộ khẩu khác`);
                 }
             }
+            if (index == 0) {
+                // tạo đơn
+                const insertTemp = await createTemporaryHousehold(ho_khau_info, residentIdCd, connection);
+                tempID = await insertTemp.insertId;
+            }
             // const insertPersonalInfo = await insertPersonalInformation(resident);
             // const residentIdCd = await insertPersonalInfo.insertId;
-            const insertResidentToHouseholdSql = `INSERT INTO nhan_khau (id_ho_khau, id_cd, quan_he_voi_chu_ho, ngay_dang_ki_thuong_tru, thuong_tru_truoc_day) VALUES (?, ?, ?, ?, ?)`;
+
+            //chỗ này sẽ thêm vào chi tiết đơn
+            const insertResidentToHouseholdSql = `INSERT INTO chi_tiet_don (id_dk, id_cd, quan_he_voi_chu_ho, thuong_tru_truoc_day) VALUES (?, ?, ?, ?)`;
             await connection.execute(insertResidentToHouseholdSql, [
-                householdId,
+                tempID,
                 residentIdCd,
                 resident.quan_he_voi_chu_ho,
-                resident.ngay_dang_ki_thuong_tru || await new Date(),
                 resident.thuong_tru_truoc_day || null,
             ]);
             const check_Acc = await check_haveAccountInformation(resident.cccd, connection);
@@ -148,9 +188,10 @@ const insertResidentToHousehold = async (nhan_khau_info, ho_khau_info) => {
                 const sqlUpdateAccountType = `UPDATE accounts SET _type = 'cu dan' WHERE userID = ?`;
                 await connection.execute(sqlUpdateAccountType, [resident.cccd]);
             }
+            index++;
         }
         await connection.commit();
-        return householdId;
+        return tempID;
     }
     catch (error) {
         await connection.rollback();
@@ -254,11 +295,11 @@ const createNewHouseholdFromMembers = async (ids, address, type) => {
         // const [householdResult] = await connection.execute(insertHouseholdQuery, [address, type]);
         const householdResult = await createNewHousehold(address, type, connection);
         const householdId = await householdResult.insertId;
+        console.log("householdId", householdId);
         const updateMembersQuery = `UPDATE nhan_khau SET id_ho_khau = ?, quan_he_voi_chu_ho = ? WHERE id_cd = ?`;
-        ids.forEach(async (id) => {
-            await connection.execute(updateMembersQuery, [householdId, id.quan_he_voi_chu_ho, id.id_cd]);
+        for (let i = 0; i < ids.length; i++) {
+            await connection.execute(updateMembersQuery, [householdId, ids[i].quan_he_voi_chu_ho, ids[i].id_cd]);
         }
-        );
         await connection.commit();
         return householdId;
     }
@@ -356,6 +397,31 @@ const updateHousehold = async (id_ho_khau, changedHousehold) => {
     }
 }
 
+const getChangeHistory = async (id_ho_khau) => {
+    try {
+        const tachHoSQL = `SELECT * FROM historylog h JOIN cong_dan cd ON h.record_id = cd.id_cd 
+        WHERE h.table_name = 'nhan_khau' AND 
+        h.column_name = 'id_ho_khau' AND 
+        h.old_value = ? ORDER BY date_time DESC`;
+        const [tachHo] = await db.query(tachHoSQL, [id_ho_khau]);
+        const doiChuHoSQL = `SELECT nk.id_ho_khau, h.date_time, cd.ho_ten FROM historylog h 
+        JOIN cong_dan cd ON h.record_id = cd.id_cd
+        JOIN nhan_khau nk ON cd.id_cd = nk.id_cd
+        WHERE h.table_name = 'nhan_khau' AND h.column_name = 'quan_he_voi_chu_ho' AND new_value = 'Chủ hộ' AND nk.id_ho_khau = ?
+        ORDER BY date_time DESC`
+        const [doiChuHo] = await db.query(doiChuHoSQL, [id_ho_khau]);
+        const doiDiaChiSQL = `SELECT * FROM historylog WHERE record_id = ? AND column_name = 'address'`
+        const [doiDiaChi] = await db.query(doiDiaChiSQL, [id_ho_khau]);
+        const chuyenDiSQL = `SELECT * FROM chuyen_di NATURAL JOIN cong_dan WHERE old_id_hk = ?`;
+        const [chuyenDi] = await db.query(chuyenDiSQL, [id_ho_khau]);
+        return { tachHo, doiChuHo, doiDiaChi, chuyenDi };
+
+    } catch (error) {
+        console.log("Error executing query getChangeHistory:", error);
+        throw error;
+    }
+}
+
 module.exports = {
     getAllHouseholds,
     getHouseholdMembers,
@@ -367,8 +433,10 @@ module.exports = {
     check_haveInvidualInformation,
     insertPersonalInformation,
     check_haveAccountInformation,
+    check_isResident,
     addNewMember,
     updateAddressHousehold,
     deleteMemberFromHousehold,
-    updateHousehold
+    updateHousehold,
+    getChangeHistory
 };

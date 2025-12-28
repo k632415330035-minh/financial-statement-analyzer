@@ -196,10 +196,28 @@ async function openHouseholdModal(soHK) {
   if (modal) modal.classList.add('is-open');
 }
 
-function renderChangeHistory(household) {
+async function renderChangeHistory(household) {
+  const id = await household.id_ho_khau;
   const historyDiv = document.getElementById('changeHistory');
   if (!historyDiv) return;
-
+  try {
+    // console.log(id);
+    const response = await fetch(`http://localhost:3000/api/get/changeHistory/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          "Content-Type": 'application/json',
+          "Authorization": `Bearer ${await localStorage.getItem('userToken')}`
+        }
+      }
+    );
+    // console.log("abcabc");
+    const data = await response.json();
+    household.history = data.history;
+  } catch (error) {
+    console.error("Error fetching feedback stats: ", error);
+    household.history = null;
+  }
   const history = household.history || [];
   if (history.length === 0) {
     historyDiv.innerHTML = '<p style="color:var(--muted);margin:0;">Chưa có thay đổi</p>';
@@ -432,7 +450,7 @@ function bindEditHouseholdModal() {
       // Update detail modal if open
       // document.getElementById('modalChuHo').textContent = chuHo;
       // document.getElementById('modalDiaChi').textContent = diaChi;
-      // renderChangeHistory(household);
+      renderChangeHistory(household);
       alert(res.message);
     }
     catch (err) {
@@ -715,7 +733,7 @@ function bindAddMemberModal() {
     // });
     try {
       const token = await localStorage.getItem('userToken') || localStorage.getItem('token');
-      console.log(">>>>>", token);
+      // console.log(">>>>>", token);
       console.log(">   ", JSON.stringify(newMember));
       await fetch(`http://localhost:3000/api/post/household/addNewMember`, {
         method: 'POST',
@@ -732,11 +750,10 @@ function bindAddMemberModal() {
 
     modal.classList.remove('is-open');
     form.reset();
-
+    householdsAddMemberModalBound = false;
     // Refresh modal table
     openHouseholdModal(household.id_ho_khau);
     renderTable();
-
     alert('Thêm thành viên thành công');
   });
 }
@@ -870,7 +887,8 @@ function bindCreateHouseholdModal() {
   const closeBtn = document.getElementById('closeCreateModal');
   const cancelBtn = document.getElementById('cancelCreateBtn');
   const form = document.getElementById('createHouseholdForm');
-
+  const loaiHoKhauSelect = document.getElementById('nhk_loaiHoKhau');
+  const tamTruFieldsContainer = document.getElementById('tamTruFieldsContainer');
   openBtn?.addEventListener('click', () => {
     if (modal) modal.classList.add('is-open');
   });
@@ -886,10 +904,26 @@ function bindCreateHouseholdModal() {
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('is-open');
   });
-
+  // Xử lý hiển thị/ẩn trường tạm trú
+  loaiHoKhauSelect?.addEventListener('change', (e) => {
+    if (tamTruFieldsContainer) {
+      if (e.target.value === 'Tạm trú') {
+        tamTruFieldsContainer.style.display = 'flex';
+        document.getElementById('nhk_tuNgayTamTru')?.setAttribute('required', 'required');
+        document.getElementById('nhk_denNgayTamTru')?.setAttribute('required', 'required');
+      } else {
+        tamTruFieldsContainer.style.display = 'none';
+        document.getElementById('nhk_tuNgayTamTru')?.removeAttribute('required');
+        document.getElementById('nhk_denNgayTamTru')?.removeAttribute('required');
+        document.getElementById('nhk_tuNgayTamTru').value = '';
+        document.getElementById('nhk_denNgayTamTru').value = '';
+      }
+    }
+  });
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
-
+    const tuNgayTamTru = document.getElementById('nhk_tuNgayTamTru').value;
+    const denNgayTamTru = document.getElementById('nhk_denNgayTamTru').value;
     const ho_ten = document.getElementById('nhk_hoTen').value.trim();
     const bi_danh = document.getElementById('nhk_biDanh').value.trim();
     const ngay_sinh = document.getElementById('nhk_ngaySinh').value.trim();
@@ -904,7 +938,7 @@ function bindCreateHouseholdModal() {
     const noi_lam_viec = document.getElementById('nhk_noiLamViec').value.trim();
     const thuong_tru_truoc_day = document.getElementById('nhk_diaChiTruoc').value.trim();
     const address = document.getElementById('nhk_diaChi').value.trim();
-
+    const type = loaiHoKhauSelect.value;
     if (!ho_ten || !dan_toc || !ngay_sinh || !gioi_tinh || !cccd || !ngay_cap || !noi_cap || !noi_sinh || !que_quan || !address) {
       alert('Vui lòng điền đầy đủ thông tin (*)');
       return;
@@ -932,7 +966,10 @@ function bindCreateHouseholdModal() {
     };
     aNewHousehold.ho_khau = {
       address: address,
-      type: 'Thường trú'
+      type: loaiHoKhauSelect.value,
+      begin: type == 'Tạm trú' ? tuNgayTamTru : 'DATE(NOW())',
+      end: type == 'Tạm trú' ? denNgayTamTru : ''
+
     };
     aNewHousehold.nhan_khau.push(chuHo);
 
@@ -1042,7 +1079,7 @@ function bindAddFamilyMembersModal() {
         que_quan: form.querySelector('.member-nguonQuan').value.trim() || '',
         nghe_nghiep: form.querySelector('.member-ngheNghiep').value.trim() || '',
         noi_lam_viec: form.querySelector('.member-noiLamViec').value.trim() || '',
-        quan_he_voi_chu_ho: quan_he_voi_chu_ho || null, // ==================================================================TAM THOI================================
+        quan_he_voi_chu_ho: quan_he_voi_chu_ho, // ==================================================================TAM THOI================================
         thuong_tru_truoc_day: form.querySelector('.member-diaChiTruoc').value.trim() || '' // ===========================================================================================================
       });
     };
@@ -1062,7 +1099,7 @@ function bindAddFamilyMembersModal() {
         const token = await localStorage.getItem('userToken') || localStorage.getItem('token');
         console.log(">>>>>", token);
         console.log("ids>>>>", aNewHousehold);
-        await fetch("http://localhost:3000/api/post/createNewHousehold", {
+        const respone = await fetch("http://localhost:3000/api/post/createNewHousehold", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1070,6 +1107,14 @@ function bindAddFamilyMembersModal() {
           },
 
           body: JSON.stringify(aNewHousehold)
+        });
+        const data = await respone.json();
+        await fetch(`http://localhost:3000/api/action/approveTemp/${data.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('userToken')}`
+          }
         });
         aNewHousehold = await { nhan_khau: [], ho_khau: {} }; //Xoa thong tin tam sau khi them
         originalRows = await dataService.getHouseholds();
