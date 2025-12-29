@@ -100,48 +100,42 @@ const statisticModel = {
     try {
       const targetYear = year || 2025;
       const query = `
-      SELECT 
-          months.m AS month,
-          -- 1. Thường trú: Đếm nhân khẩu có ngày đăng ký <= ngày cuối tháng
-          (SELECT COUNT(*) FROM nhan_khau 
-           WHERE ngay_dang_ki_thuong_tru <= LAST_DAY(CONCAT(?, '-', months.m, '-01'))) AS count_thuong_tru,
+    SELECT 
+        months.m AS month,
+        
+        -- Thường trú = (Người đang ở hiện tại) + (Người đã chuyển đi SAU tháng m)
+        ((SELECT COUNT(*) FROM nhan_khau nk
+          JOIN ho_khau hk ON nk.id_ho_khau = hk.id_ho_khau
+          WHERE hk._type = 'Thường trú' 
+          AND nk.ngay_dang_ki_thuong_tru <= LAST_DAY(CONCAT(?, '-', months.m, '-01'))) +
+         (SELECT COUNT(*) FROM chuyen_di 
+          WHERE ngay_chuyen > LAST_DAY(CONCAT(?, '-', months.m, '-01')))) AS count_thuong_tru,
 
-          -- 2. Hộ khẩu: hiện schema không lưu ngày lập hộ, nên dùng tổng hiện tại làm xấp xỉ
-          (SELECT COUNT(*) FROM ho_khau) AS count_ho_khau,
+        -- Tạm trú (Giữ nguyên logic đếm người thực tế trong nhan_khau)
+        (SELECT COUNT(*) FROM nhan_khau nk
+         JOIN ho_khau hk ON nk.id_ho_khau = hk.id_ho_khau
+         WHERE hk._type = 'Tạm trú' 
+         AND nk.ngay_dang_ki_thuong_tru <= LAST_DAY(CONCAT(?, '-', months.m, '-01'))) AS count_tam_tru,
 
-          -- 3. Tạm trú: Phải nằm trong khoảng begin <= cuối tháng AND (end >= đầu tháng OR NULL)
-          (SELECT COUNT(*) FROM don_dang_ky 
-           WHERE _type = 'Tạm trú' AND state = 'Đã duyệt' 
-           AND \`begin\` <= LAST_DAY(CONCAT(?, '-', months.m, '-01')) 
-           AND (\`end\` >= CONCAT(?, '-', months.m, '-01') OR \`end\` IS NULL)) AS count_tam_tru,
+        -- Tạm vắng (Giữ nguyên)
+        (SELECT COUNT(*) FROM tam_vang 
+         WHERE thoi_gian_tam_vang_begin <= LAST_DAY(CONCAT(?, '-', months.m, '-01')) 
+         AND (thoi_gian_tam_vang_end >= CONCAT(?, '-', months.m, '-01') OR thoi_gian_tam_vang_end IS NULL)) AS count_tam_vang
+    FROM 
+        (SELECT 1 AS m UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 
+         UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) AS months`;
 
-          -- 4. Tạm vắng
-          (SELECT COUNT(*) FROM tam_vang 
-           WHERE thoi_gian_tam_vang_begin <= LAST_DAY(CONCAT(?, '-', months.m, '-01')) 
-           AND (thoi_gian_tam_vang_end >= CONCAT(?, '-', months.m, '-01') OR thoi_gian_tam_vang_end IS NULL)) AS count_tam_vang
-      FROM 
-          (SELECT 1 AS m UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 
-           UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) AS months`;
-
-      // QUAN TRỌNG: Đếm đúng số dấu hỏi (?) hiện có trong câu truy vấn
-      const params = [
-        targetYear, // cho count_thuong_tru
-        targetYear, targetYear, // cho count_tam_tru (2 dấu ?)
-        targetYear, targetYear  // cho count_tam_vang (2 dấu ?)
-      ];
-
+      const params = [targetYear, targetYear, targetYear, targetYear, targetYear];
       const [rows] = await db.query(query, params);
 
       return rows.map(row => ({
         month: row.month,
         count_thuong_tru: row.count_thuong_tru || 0,
-        count_ho_khau: row.count_ho_khau || 0,
         count_tam_tru: row.count_tam_tru || 0,
         count_tam_vang: row.count_tam_vang || 0,
         count: (row.count_thuong_tru || 0) + (row.count_tam_tru || 0) - (row.count_tam_vang || 0)
       }));
     } catch (error) {
-      console.error("Lỗi Monthly Trend:", error);
       throw error;
     }
   },
