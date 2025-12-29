@@ -613,7 +613,7 @@ function bindSplitHouseholdModal() {
 
         body: JSON.stringify({ ids: selectedMembers, address: diaChi, type: 'Thường trú' })
       });
-      const data = response.json();
+      const data = await response.json();
       alert(data.message);
     }
     catch (error) {
@@ -820,6 +820,7 @@ function bindRemoveMemberReasonModal() {
     const removedMembers = await indicesToRemove.map(idx => household.members[idx].id_cd);
     console.log("removeMembers:", removedMembers);
     console.log(JSON.stringify({ old_id_ho_khau: household.id_ho_khau, chuyen_den: 'Không rõ', ghi_chu: reason }))
+    let response = '';
     for (const id of removedMembers) {
       try {
         const respone = await fetch(`http://localhost:3000/api/delete/householdMember/${id}`, {
@@ -828,12 +829,22 @@ function bindRemoveMemberReasonModal() {
           body: JSON.stringify({ old_id_ho_khau: household.id_ho_khau, chuyen_den: 'Không rõ', ghi_chu: reason })
         });
         const res = await respone.json();
+        modal.classList.remove('is-open');
+        form.reset();
         alert(res.message);
+        response = res.message
+        // Refresh modal
       }
       catch (error) {
         console.error(error);
       }
     }
+
+    if (response == 'Đã xóa hộ khẩu thành công') {
+      console.log("close_MODAL")
+      closeHouseholdModal();
+    }
+    else openHouseholdModal(household.id_ho_khau);
     // household.members = household.members.filter((m, idx) => !indicesToRemove.includes(idx));
     // household.sl = household.members.length;
 
@@ -845,11 +856,7 @@ function bindRemoveMemberReasonModal() {
 
     // dataService.saveHouseholds(originalRows);
 
-    modal.classList.remove('is-open');
-    form.reset();
 
-    // Refresh modal
-    openHouseholdModal(household.id_ho_khau);
   });
 }
 

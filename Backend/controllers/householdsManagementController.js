@@ -39,9 +39,12 @@ const deleteHouseholdMember = async (req, res) => {
         const dataBody = req.body;
         console.log(dataBody);
         const result = await householdsManagementModel.deleteMemberFromHousehold(dataBody, id_cd);
-        if (result) {
+        if (result == 1) {
             res.status(200).json({ message: "Xóa thành viên hộ khẩu thành công" });
-        } else {
+        } else if (result == 2) {
+            res.status(200).json({ message: "Đã xóa hộ khẩu thành công" });
+        }
+        else {
             res.status(404).json({ message: "Không tìm thấy thành viên hộ khẩu hoặc không thể xóa chủ hộ" });
         }
     } catch (error) {
