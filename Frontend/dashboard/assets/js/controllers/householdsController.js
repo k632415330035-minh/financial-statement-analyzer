@@ -603,8 +603,8 @@ function bindSplitHouseholdModal() {
 
     try {
       const token = await localStorage.getItem('userToken') || localStorage.getItem('token');
-      console.log(">>>>>", token);
-      await fetch("http://localhost:3000/api/createNewHouseholdFromMembers", {
+      // console.log(">>>>>", token);
+      const response = await fetch("http://localhost:3000/api/createNewHouseholdFromMembers", {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -613,10 +613,13 @@ function bindSplitHouseholdModal() {
 
         body: JSON.stringify({ ids: selectedMembers, address: diaChi, type: 'Thường trú' })
       });
+      const data = response.json();
+      alert(data.message);
     }
     catch (error) {
       console.error(error);
     }
+
     // // Tạo hộ khẩu mới
     // const newHousehold = {
     //   soHK,
@@ -649,7 +652,7 @@ function bindSplitHouseholdModal() {
     closeHouseholdModal();
     renderTable();
 
-    alert('Tách hộ khẩu thành công');
+
   });
 }
 
@@ -1118,7 +1121,7 @@ function bindAddFamilyMembersModal() {
         });
         aNewHousehold = await { nhan_khau: [], ho_khau: {} }; //Xoa thong tin tam sau khi them
         originalRows = await dataService.getHouseholds();
-        alert('Thêm thành viên thành công');
+        alert(data.message);
 
       }
       catch (error) {
