@@ -227,29 +227,53 @@ const deleteHouseholdMember = async (id_cd, connection) => {
 const deleteMemberFromHousehold = async (bodyData, id_cd) => {
     const sql = `INSERT INTO chuyen_di VALUES (default, ?, ?, CURDATE(), ?, ?)`;
     /*bodyData: {old_id_hk, chuyen_den, ghi_chu} */
+    let respone = 0;
     const con = await db.getConnection();
     try {
         await con.beginTransaction();
-        const [result, fields] = await con.execute(sql, [id_cd, bodyData.old_id_ho_khau, bodyData.chuyen_den, bodyData.ghi_chu]);
-        await deleteHouseholdMember(id_cd, con);
-        await con.execute(`UPDATE cong_dan SET userID = NULL WHERE id_cd = ?`, [id_cd]);
-        const sqlGetCCCD = 'SELECT cccd FROM cong_dan WHERE id_cd = ?';
-        const [cccd] = await con.execute(sqlGetCCCD, [id_cd]);
-        const check_Acc = await check_haveAccountInformation(cccd[0].cccd, con);
-        if (check_Acc != null) {
-            const deleteAccount = `DELETE FROM accounts WHERE userID = ?`;
-            await con.execute(deleteAccount, [cccd[0].cccd]);
+        const [count] = await con.execute(`SELECT COUNT(*) AS count FROM nhan_khau WHERE id_ho_khau = ?`, [bodyData.old_id_ho_khau]);
+        if (count[0].count <= 1) {
+            await con.execute(sql, [id_cd, null, bodyData.chuyen_den, bodyData.ghi_chu]);
+            await con.execute(`UPDATE chuyen_di SET old_id_hk= null WHERE old_id_hk = ?`, [bodyData.old_id_ho_khau]);
+            await con.execute(`DELETE FROM nhan_khau WHERE id_ho_khau = ?`, [bodyData.old_id_ho_khau]);
+            await con.execute(`UPDATE don_dang_ky SET id_ho_khau = null WHERE id_ho_khau = ?`, [bodyData.old_id_ho_khau]);
+            const sqlDeleteHousehold = `DELETE FROM ho_khau WHERE id_ho_khau = ?`;
+            await con.execute(sqlDeleteHousehold, [bodyData.old_id_ho_khau]);
+            await con.execute(`UPDATE cong_dan SET userID = NULL WHERE id_cd = ?`, [id_cd]);
+            const sqlGetCCCD = 'SELECT cccd FROM cong_dan WHERE id_cd = ?';
+            const [cccd] = await con.execute(sqlGetCCCD, [id_cd]);
+            const check_Acc = await check_haveAccountInformation(cccd[0].cccd, con);
+            if (check_Acc != null) {
+                const deleteAccount = `DELETE FROM accounts WHERE userID = ?`;
+                await con.execute(deleteAccount, [cccd[0].cccd]);
+            }
+            await con.commit();
+            respone = 2;
         }
-        await con.commit();
-        return result.affectedRows > 0;
+        else {
+            const [result, fields] = await con.execute(sql, [id_cd, bodyData.old_id_ho_khau, bodyData.chuyen_den, bodyData.ghi_chu]);
+            await deleteHouseholdMember(id_cd, con);
+            await con.execute(`UPDATE cong_dan SET userID = NULL WHERE id_cd = ?`, [id_cd]);
+            const sqlGetCCCD = 'SELECT cccd FROM cong_dan WHERE id_cd = ?';
+            const [cccd] = await con.execute(sqlGetCCCD, [id_cd]);
+            const check_Acc = await check_haveAccountInformation(cccd[0].cccd, con);
+            if (check_Acc != null) {
+                const deleteAccount = `DELETE FROM accounts WHERE userID = ?`;
+                await con.execute(deleteAccount, [cccd[0].cccd]);
+            }
+            await con.commit();
+            respone = 1;
+        }
     }
     catch (error) {
         await con.rollback();
+        console.log(error);
         console.log("Error executing query deleteMemberFromHousehold");
         throw error;
     }
     finally {
         con.release();
+        return respone;
     }
 }
 
