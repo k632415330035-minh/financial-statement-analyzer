@@ -94,7 +94,7 @@ const getHistoryMove = async (cccd) => {
         SELECT
             cd.ho_ten,
             cd_i.ngay_chuyen,
-            cd_i.chuyen_den
+            cd_i.ghi_chu
         FROM
             chuyen_di cd_i
         JOIN

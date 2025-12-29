@@ -15,9 +15,9 @@ const getFeedbackData = async () => {
     // anonymous: false, date: '13/11/2025', status: 'processing', processingNote: 'Đang sửa chữa', satisfaction: 2 }
     let queryStatement = `SELECT pa.id_pa, cd.ho_ten, hk.address, pa.loai_phan_anh, pa.noi_dung, pa.date_time, pa.trang_thai, pa.phan_hoi
 FROM phan_anh pa 
-join cong_dan cd on pa.id_cd = cd.id_cd 
-join nhan_khau nk on nk.id_cd = cd.id_cd  
-join ho_khau hk on nk.id_ho_khau = hk.id_ho_khau order by date_time DESC`;
+left join cong_dan cd on pa.id_cd = cd.id_cd 
+left join nhan_khau nk on nk.id_cd = cd.id_cd  
+left join ho_khau hk on nk.id_ho_khau = hk.id_ho_khau order by date_time DESC`;
     try {
         const [results, fields] = await connection.query(queryStatement);
         return results;

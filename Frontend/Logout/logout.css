@@ -52,11 +52,11 @@ body {
 
 .container input:focus {
   background-color: #fff;
-  border: 2px solid #512da8;
+  border: 2px solid #0b1a3a;
 }
 
 .container button {
-  background-color: #512da8;
+  background-color: #0b1a3a;
   color: #fff;
   font-size: 12px;
   padding: 10px 45px;
@@ -71,7 +71,7 @@ body {
 }
 
 .container button:hover {
-  background-color: #3e1f91;
+  background-color: #0f224a;
 }
 
 .container button.hidden {
@@ -142,7 +142,7 @@ body {
 }
 
 .toggle {
-  background: linear-gradient(to right, #5c6bc0, #512da8);
+  background: linear-gradient(to right, #1f4ad8, #1a3aa3);
   color: #fff;
   position: relative;
   left: -100%;

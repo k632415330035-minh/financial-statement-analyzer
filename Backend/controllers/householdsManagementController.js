@@ -232,7 +232,7 @@ const getChangeHistory = async (req, res) => {
         if (tachHo.length > 0) {
             for (let i = 0; i < tachHo.length; i++) {
                 history.push({
-                    action: `Đã tách nhân khẩu ${tachHo[i].ho_ten} - CCCD ${tachHo[i].cccd} sang hộ khẩu số ${tachHo[i].new_value}`,
+                    action: `Đã tách nhân khẩu ${tachHo[i].ho_ten} ${tachHo[i].cccd ? `- CCCD ${tachHo[i].cccd}` : ''} sang hộ khẩu số ${tachHo[i].new_value}`,
                     date_time: tachHo[i].date_time
                 });
             }
@@ -256,7 +256,7 @@ const getChangeHistory = async (req, res) => {
         if (chuyenDi.length > 0) {
             for (let i = 0; i < chuyenDi.length; i++) {
                 history.push({
-                    action: `${chuyenDi[i].ghi_chu ? `[${chuyenDi[i].ghi_chu}]` : ''}Nhân khẩu ${chuyenDi[i].ho_ten} - CCCD ${chuyenDi[i].cccd} đã chuyển ra khỏi hộ đến (${chuyenDi[i].chuyen_den})`,
+                    action: `Nhân khẩu ${chuyenDi[i].ho_ten} ${chuyenDi[i].cccd ? `- CCCD ${chuyenDi[i].cccd}` : ''} đã chuyển ra chuyển khỏi hộ ${chuyenDi[i].ghi_chu ? `[${chuyenDi[i].ghi_chu}]` : ''}`,
                     date_time: chuyenDi[i].ngay_chuyen
                 })
             }

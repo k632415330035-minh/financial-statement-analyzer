@@ -6,6 +6,7 @@ const connection = mysql.createPool({
   user: process.env.DB_USER_MYSQL || "root",
   password: process.env.DB_PASSWORD_MYSQL || "123456",
   database: process.env.DB_NAME_MYSQL || "todanpho",
+  dateStrings: true,
   waitForConnections: true,
   connectionLimit: 10, // Số kết nối tối đa trong pool
   queueLimit: 0,
