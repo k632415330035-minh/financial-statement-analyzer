@@ -3,171 +3,45 @@
 
 <head>
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>Đăng nhập</title>
   <link rel="stylesheet" href="login.css" />
 </head>
 
 <body>
-  <div class="container" id="container">
-    <!-- Đăng ký -->
-    <div class="form-container sign-up">
-      <form id="form-register" novalidate>
-        <h1>Tạo tài khoản</h1>
-
-        <div class="field">
-          <label for="cccd-register">Mã số CCCD</label>
-          <input type="text" id="cccd-register" placeholder="Mã số CCCD" inputmode="numeric" autocomplete="username"
-            required />
-          <small class="error"></small>
-        </div>
-
-        <div class="field">
-          <label for="register-password">Mật khẩu</label>
-          <div class="password-container">
-            <input type="password" id="register-password" placeholder="Mật khẩu" autocomplete="new-password" required />
-            <button type="button" class="toggle-password" data-target="register-password" title="Hiện/ẩn mật khẩu"
-              aria-label="Hiện/ẩn mật khẩu">
-              👁
-            </button>
-          </div>
-          <small class="error"></small>
-        </div>
-
-        <button type="submit">Đăng ký</button>
-      </form>
-    </div>
-
-    <!-- Đăng nhập -->
-    <div class="form-container sign-in">
-      <form id="form-login" novalidate>
-        <h1>Đăng nhập</h1>
-
-        <div class="field">
-          <label for="cccd-login">Mã số CCCD</label>
-          <input type="text" id="cccd-login" placeholder="Mã số CCCD" inputmode="numeric" autocomplete="username"
-            required />
-          <small class="error"></small>
-        </div>
-
-        <div class="field">
-          <label for="login-password">Mật khẩu</label>
-          <div class="password-container">
-            <input type="password" id="login-password" placeholder="Mật khẩu" autocomplete="current-password"
-              required />
-            <button type="button" class="toggle-password" data-target="login-password" title="Hiện/ẩn mật khẩu"
-              aria-label="Hiện/ẩn mật khẩu">
-              👁
-            </button>
-          </div>
-          <small class="error"></small>
-        </div>
-
-        <a href="#">Quên mật khẩu?</a>
-        <button type="submit">Đăng nhập</button>
-      </form>
-    </div>
-
-    <!-- Panel hiệu ứng -->
-    <div class="toggle-container">
-      <div class="toggle">
-        <div class="toggle-panel toggle-left">
-          <h1>Xin chào bạn!</h1>
-          <p>
-            Đăng nhập để tra cứu<br />
-            cập nhật thông tin cư trú.
-          </p>
-          <button class="hidden" id="login" type="button">Đăng nhập</button>
-        </div>
-        <div class="toggle-panel toggle-right">
-          <h1>Xin chào bạn!</h1>
-          <p>Đăng ký tài khoản để khai báo thông tin.</p>
-          <button class="hidden" id="register" type="button">Đăng ký</button>
+  <main class="login-shell">
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="brand">
+        <span class="brand-mark">QL</span>
+        <div>
+          <p class="eyebrow">Quản lý dân cư</p>
+          <h1 id="login-title">Đăng nhập</h1>
         </div>
       </div>
-    </div>
-  </div>
-  <!-- <script>
-      // Chuyển form
-      const container = document.getElementById("container");
-      document
-        .getElementById("register")
-        .addEventListener("click", () => container.classList.add("active"));
-      document
-        .getElementById("login")
-        .addEventListener("click", () => container.classList.remove("active"));
 
-      // Hiển thị/ẩn lỗi
-      function setError(input, message) {
-        const field = input.closest(".field");
-        const errorEl = field?.querySelector(".error");
-        if (errorEl) errorEl.textContent = message || "";
-        field?.classList.toggle("is-invalid", !!message);
-        input.setAttribute("aria-invalid", !!message);
-      }
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="username">Mã số sinh viên</label>
+          <input id="username" name="username" type="text" inputmode="numeric" autocomplete="username"
+            placeholder="Nhập 10 số sinh viên" required />
+          <small class="error"></small>
+        </div>
 
-      // CCCD: 12 số
-      function validateCCCD(input) {
-        const ok = /^\d{12}$/.test(input.value.trim());
-        setError(input, ok ? "" : "CCCD phải đủ 12 chữ số.");
-        return ok;
-      }
+        <div class="field">
+          <label for="password">Mật khẩu</label>
+          <div class="password-field">
+            <input id="password" name="password" type="password" autocomplete="current-password"
+              placeholder="Nhập mật khẩu" required />
+            <button class="toggle-password" type="button" aria-label="Hiện mật khẩu" title="Hiện mật khẩu">👁</button>
+          </div>
+          <small class="error"></small>
+        </div>
 
-      // Mật khẩu: >= 6 ký tự
-      function validatePassword(input) {
-        const ok = input.value.trim().length >= 6;
-        setError(input, ok ? "" : "Mật khẩu tối thiểu 6 ký tự.");
-        return ok;
-      }
+        <button class="submit-button" type="submit">Đăng nhập</button>
+      </form>
+    </section>
+  </main>
 
-      ["#cccd-login", "#cccd-register"].forEach((sel) => {
-        const el = document.querySelector(sel);
-        el.addEventListener("input", () => validateCCCD(el));
-        el.addEventListener("blur", () => validateCCCD(el));
-      });
-
-      ["#login-password", "#register-password"].forEach((sel) => {
-        const el = document.querySelector(sel);
-        el.addEventListener("input", () => validatePassword(el));
-        el.addEventListener("blur", () => validatePassword(el));
-      });
-
-      document.getElementById("form-login").addEventListener("submit", (e) => {
-        const ok =
-          validateCCCD(document.getElementById("cccd-login")) &
-          validatePassword(document.getElementById("login-password"));
-        if (!ok) e.preventDefault();
-      });
-
-      document
-        .getElementById("form-register")
-        .addEventListener("submit", (e) => {
-          const ok =
-            validateCCCD(document.getElementById("cccd-register")) &
-            validatePassword(document.getElementById("register-password"));
-          if (!ok) e.preventDefault();
-        });
-
-      // Nút 👁 hiện/ẩn mật khẩu (đen mặc định)
-      document.querySelectorAll(".toggle-password").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const targetId = btn.getAttribute("data-target");
-          const input = document.getElementById(targetId);
-          if (!input) return;
-          const isPwd = input.type === "password";
-          input.type = isPwd ? "text" : "password";
-          btn.textContent = isPwd ? "🙈" : "👁";
-          btn.setAttribute(
-            "aria-label",
-            isPwd ? "Ẩn mật khẩu" : "Hiện mật khẩu"
-          );
-        });
-      });
-    </script> -->
-    </div>
-  </div>
   <script src="login.js"></script>
 </body>
 

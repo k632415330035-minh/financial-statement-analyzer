@@ -1,67 +1,81 @@
 const express = require("express");
-// const morgan = require("morgan");
-const cors = require("cors");
-const app = express();
 const path = require("path");
-const authMiddleware = require("./middleware/authMiddleware");
-const roleMiddleware = require("./middleware/roleMiddleware");
+const {
+  createAccount,
+  findPublicAccount,
+  listAccounts,
+  validateLogin
+} = require("./database");
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+const frontendDist = path.join(__dirname, "..", "Frontend", "dist");
 
-// Đường dẫn tới các trang liên quan
-const userRoute = require("./routes/userRoute");
-const residentRoute = require("./routes/residentRoute");
-const registerRoute = require("./routes/registerResidentRoute");
-const petitionRoute = require("./routes/petitionRoute");
-const absentRoute = require("./routes/absentRoute");
-const feedbackRouter = require("./routes/feedbackRoute");
-const historyRoute = require("./routes/historyRoute");
-const newresidentRoute = require("./routes/newresidentRoute");
-const extendRoute = require("./routes/extendRoute");
-const statisticRoute = require("./routes/statisticRoute");
-const householdsManagerRoute = require("./routes/householdsManagerRoute");
-const manageabsentRoute = require('./routes/manageabsentRoute');
-const residentManageRoute = require('./routes/residentManageRoute');
-const temporaryRoute = require("./routes/temporaryRoute");
-const PORT = process.env.PORT || 3000; // Cổng lắng nghe
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
 
-// Allow Authorization header in CORS so frontend can send Bearer tokens
-app.use(
-  cors({
-    origin: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-// app.use(morgan("dev"));
-app.use(express.json());
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
 
-// API routes
-app.use("/api", userRoute);
-app.use("/api", residentRoute);
-app.use("/api", petitionRoute);
-app.use("/api", absentRoute);
-app.use("/api", feedbackRouter);
-app.use("/api", historyRoute);
-app.use("/api", extendRoute);
-app.use("/api/statistics", statisticRoute);
-app.use("/api", householdsManagerRoute);
-app.use('/api/residentManage', residentManageRoute);
-app.use('/api/manageabsent', manageabsentRoute);
-// Tuyến cần authMiddleware
-app.use("/api", authMiddleware, registerRoute);
-app.use("/api", authMiddleware, newresidentRoute);
-
-// Temporary routes (was required earlier but not mounted)
-app.use("/api", temporaryRoute);
-
-// Serve static files từ thư mục Frontend
-app.use(express.static(path.join(__dirname, "..", "Frontend")));
-
-// Route bắt tất cả các request khác để phục vụ index.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "Frontend", "index.html"));
+  next();
 });
 
-// Khởi động máy chủ
+app.use(express.json());
+
+app.post("/api/register", (req, res) => {
+  const { studentId, password } = req.body ?? {};
+  const normalizedStudentId = String(studentId ?? "").trim();
+
+  if (!/^\d{10}$/.test(normalizedStudentId)) {
+    res.status(400).json({ message: "Mã số sinh viên phải đủ 10 chữ số." });
+    return;
+  }
+
+  if (String(password ?? "").trim().length < 6) {
+    res.status(400).json({ message: "Mật khẩu tối thiểu 6 ký tự." });
+    return;
+  }
+
+  if (findPublicAccount(normalizedStudentId)) {
+    res.status(409).json({ message: "Tài khoản đã tồn tại." });
+    return;
+  }
+
+  const account = createAccount(normalizedStudentId, password.trim());
+  res.status(201).json({ account, message: "Đăng ký thành công." });
+});
+
+app.post("/api/login", (req, res) => {
+  const { studentId, password } = req.body ?? {};
+  const account = validateLogin(String(studentId ?? "").trim(), String(password ?? "").trim());
+
+  if (!account) {
+    res.status(401).json({ message: "Mã số sinh viên hoặc mật khẩu không đúng." });
+    return;
+  }
+
+  res.json({ account, message: "Đăng nhập thành công." });
+});
+
+app.get("/api/accounts", (req, res) => {
+  res.json({ accounts: listAccounts() });
+});
+
+app.use(express.static(frontendDist));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(frontendDist, "index.html"));
+});
+
+app.use((req, res) => {
+  res.sendFile(path.join(frontendDist, "index.html"));
+});
+
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Frontend is running at http://localhost:${PORT}`);
 });
