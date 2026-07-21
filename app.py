@@ -1,56 +1,61 @@
-from fastapi import FastAPI, UploadFile, File
-import shutil
-import os
+from fastapi import FastAPI, HTTPException
 
-from parser import read_pdf
-from financials import extract_financials
+from financials import FinancialData
 from kpi import calculate_kpi
 from dashboard import create_dashboard
 
-app = FastAPI(
-    title="Financial Statement Analyzer",
-    version="1.0"
-)
 
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app = FastAPI(
+    title="Stock Financial Analyzer",
+    version="2.0"
+)
 
 
 @app.get("/")
 def home():
+
     return {
-        "message": "Financial Statement Analyzer API"
+        "message": "Stock Financial Analyzer API"
     }
 
 
-@app.post("/upload")
-async def upload_pdf(file: UploadFile = File(...)):
 
-    # Kiểm tra định dạng
-    if not file.filename.lower().endswith(".pdf"):
+@app.get("/analyze/{symbol}")
+def analyze_stock(symbol: str):
+
+    try:
+
+        # Lấy dữ liệu từ VNStock
+        financial = FinancialData(symbol)
+
+
+        financial_data = financial.get_all()
+
+
+        # Tính KPI
+        kpi_data = calculate_kpi(
+            financial_data
+        )
+
+
+        # Format dashboard
+        result = create_dashboard(
+            kpi_data
+        )
+
+
         return {
-            "error": "Please upload a PDF file."
+
+            "symbol": symbol.upper(),
+
+            "analysis": result
+
         }
 
-    # Lưu PDF
-    file_path = os.path.join(
-        UPLOAD_FOLDER,
-        file.filename
-    )
 
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
 
-    # Đọc PDF
-    pdf_data = read_pdf(file_path)
-
-    # Trích xuất báo cáo tài chính
-    financial_data = extract_financials(pdf_data)
-
-    # Tính KPI
-    kpi_data = calculate_kpi(financial_data)
-
-    # Trả JSON
-    result = create_dashboard(kpi_data)
-
-    return result
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
